@@ -12,3 +12,5 @@ Run from the http server to demonstrate the proposed software structure then wat
 
 - Val Kir
 - Max Base
+
+Many thanks to Val Kir for her help with this project.
