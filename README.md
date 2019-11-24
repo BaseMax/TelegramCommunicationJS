@@ -6,7 +6,17 @@ A pure script to communicate with Telegram server without any Third-party tools 
 
 ### Run
 
-Run from the http server to demonstrate the proposed software structure then watch browser logs.
+Run from the http server to demonstrate the proposed software structure then watch **browser logs**.
+
+### Sample Output
+  
+```
+data to server 180
+
+parsed data >>data to parse Server answer 132 8
+
+connected to server logined
+```
 
 ## Maintainers
 
