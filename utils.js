@@ -1,221 +1,30 @@
-console.hex = (d) => console.log((Object(d).buffer instanceof ArrayBuffer ? new Uint8Array(d.buffer) : 
-typeof d === 'string' ? (new TextEncoder('utf-8')).encode(d) : 
-new Uint8ClampedArray(d)).reduce((p, c, i, a) => p + (i % 16 === 0 ? i.toString(16).padStart(6, 0) + '  ' : ' ') + 
-c.toString(16).padStart(2, 0) + (i === a.length - 1 || i % 16 === 15 ? 
-' '.repeat((15 - i % 16) * 3) + Array.from(a).splice(i - i % 16, 16).reduce((r, v) => 
-r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' : ''), ''));
+	function checkArrays( arrA, arrB ){if(arrA.length !== arrB.length) return false;for(var i=0;i<arrA.length;i++){if(arrA[i]!==arrB[i]) return false;}return true;}
 
-var socket = null
-var ready = false
+//***********************************RSA**************************************//
+	function BigIntToAray(num){const hex = num.toString('16');var l = [];for (var i = hex.length; i >0; i>1?i-=2:i-=1){l.unshift(parseInt(hex.substr(i-2,i>1?2:1),16));}return l;}
+	function RSA(InputData, key){var buf=readBigIntFromBuffer(bnToByteArray(key.n),false);var payload = readBigIntFromBuffer(InputData,false);var encrypted = modExp(payload, BigInt(key.e), buf);return readBufferFromBigInt(encrypted, 256, false);}
+	function addKey(rsa_pub_key){if (/^[\S\s]*-----BEGIN RSA PUBLIC KEY-----\s*(?=(([A-Za-z0-9+/=]+\s*)+))\1-----END RSA PUBLIC KEY-----[\S\s]*$/g.test(rsa_pub_key)) {var rsakey = publicImport(rsa_pub_key);var n=key_serialze(BigIntToAray(readBigIntFromBuffer(bnToByteArray(rsakey.n),false)));var e=key_serialze(BigIntToAray(rsakey.e));var sh = Sha1(n.concat(e));var fig= readBigIntFromBuffer(sh.slice(-8), true, true);_serverKeys[fig] = rsakey;}}
+	function key_serialze(data){var r = [];var padding;if (data.length < 254) {padding = (data.length + 1) % 4;if (padding !== 0) {padding = 4 - padding;}r=r.concat([data.length]);r=r.concat(data);} else {padding = data.length % 4;if (padding !== 0) {padding = 4 - padding;}r=r.concat([254, data.length % 256, (data.length >> 8) % 256, (data.length >> 16) % 256]);r=r.concat(data);}return r.concat(Array(padding).fill(0));}
+	function publicImport(data) {const pemHeader = "-----BEGIN RSA PRIVATE KEY-----";const pemFooter = "-----END RSA PRIVATE KEY-----";const pem = data.substring(pemHeader.length, data.length - pemFooter.length);var buffer = Uint8Array.from(atob(pem), c => c.charCodeAt(0));var body = {_buf: buffer,_len: 0,_offset: 0,_size: buffer.length,};var offset = body._offset+1;var lenB = body._buf[offset++] & 0xff;if ((lenB & 0x80) === 0x80) {lenB &= 0x7f;body._len = 0;for (var i = 0; i < lenB; i++) {body._len = (body._len << 8) + (body._buf[offset++] & 0xff);}} else {body._len = lenB;}body._offset = offset;offset = body._offset+1;lenB = body._buf[offset++] & 0xff;if ((lenB & 0x80) === 0x80) {lenB &= 0x7f;body._len = 0;for (var i = 0; i < lenB; i++) {body._len = (body._len << 8) + (body._buf[offset++] & 0xff);}} else {body._len = lenB;}body._offset = offset;var str1 = body._buf.slice(body._offset, body._offset + body._len);body._offset += body._len;offset = body._offset+1;lenB = body._buf[offset++] & 0xff;if ((lenB & 0x80) === 0x80) {lenB &= 0x7f;body._len = 0;for (var i = 0; i < lenB; i++) {body._len = (body._len << 8) + (body._buf[offset++] & 0xff);}} else {body._len = lenB;}body._offset = offset;var str2 = body._buf.slice(body._offset, body._offset + body._len);body._offset += body._len;body.n = new bnpFromString(str1);body.e = get32IntFromBuffer(str2, 0);return body;}
+	function get32IntFromBuffer(buffer, offset) {offset = offset || 0;var size = 0;if ((size = buffer.length - offset) > 0) {if (size >= 4) {return readUInt32BE(buffer,offset);} else {var res = 0;for (var i = offset + size, d = 0; i > offset; i--, d += 2) {res += buffer[i - 1] * Math.pow(16, d);}return res;}} else {return NaN;}}
+	function bnpFromString(data) {var k=8;this.t = 0;this.s = 0;var i = data.length;var mi = false;var sh = 0;const dbits = 28;this.DB = dbits;this.DM = (1 << dbits) - 1;this.DV = 1 << dbits;var BI_FP = 52;this.FV = Math.pow(2, BI_FP);this.F1 = BI_FP - dbits;this.F2 = 2 * dbits - BI_FP;while (--i >= 0) {var x = k == 8 ? data[i] & 0xff : intAt(data, i);if (sh === 0) this[this.t++] = x;else if (sh + k > this.DB) {this[this.t - 1] |= (x & (1 << this.DB - sh) - 1) << sh;this[this.t++] = x >> this.DB - sh;} else this[this.t - 1] |= x << sh;sh += k;if (sh >= this.DB) sh -= this.DB;}var c = this.s & this.DM;while (this.t > 0 && this[this.t - 1] == c) {--this.t;}}
+	function bnToByteArray(buffer) {var i = buffer.t,r = new Array();r[0] = buffer.s;var p = buffer.DB - i * buffer.DB % 8,d,k = 0;if (i-- > 0) {if (p < buffer.DB && (d = buffer[i] >> p) != (buffer.s & buffer.DM) >> p) r[k++] = d | buffer.s << buffer.DB - p;while (i >= 0) {if (p < 8) {d = (buffer[i] & (1 << p) - 1) << 8 - p;d |= buffer[--i] >> (p += buffer.DB - 8);} else {d = buffer[i] >> (p -= 8) & 0xff;if (p <= 0) {p += buffer.DB;--i;}}if ((d & 0x80) != 0) d |= -256;if (k === 0 && (buffer.s & 0x80) != (d & 0x80)) ++k;if (k > 0 || d != buffer.s) r[k++] = d;}}return r;}
+	function readBigIntFromBuffer(buffer) {var little = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;var signed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;var randBuffer = Array.from(buffer);var bytesNumber = randBuffer.length;if (little) {randBuffer = randBuffer.reverse();}var res="";for(var i=0; i<randBuffer.length;i++){res = res+(('0' + (randBuffer[i] & 0xFF).toString(16)).slice(-2));}var bigInt = BigInt('0x' + res);if (signed && Math.floor(bigInt.toString('2').length / 8) >= bytesNumber) {bigInt -= bigIntPower(BigInt(2), BigInt(bytesNumber * 8));}return bigInt;}
+	function bigIntPower(a, b) {var i;var pow = BigInt(1);for (i = BigInt(0); i < b; i++) {pow = pow * a;}return pow;}
+	function readBufferFromBigInt(bigInt, bytesNumber) {var little = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;var signed = arguments.length > 3 && arguments[3] !== undefined ? arguments[3] : false;var bitLength = bigInt.toString('2').length;var bytes = Math.ceil(bitLength / 8);var below = false;if (bigInt < 0) {below = true;bigInt = -bigInt;}var hex = bigInt.toString('16').padStart(bytesNumber * 2, '0');var l = [];for (var i = 0; i < hex.length; i += 2) {l.push(parseInt(hex.substr(i, 2),16));}if (little) {l = l.reverse();}if (signed && below) {if (little) {l[0] = 256 - l[0];for (var i = 1; i < l.length; i++) {l[i] = 255 - l[i];}} else {l[l.length - 1] = 256 - l[l.length - 1];for (var _i = 0; _i < l.length - 1; _i++) {l[_i] = 255 - l[_i];}}}return l;}
+	function modExp(a, b, n) {a = a % n;var result = BigInt(1);var x = a;while (b > BigInt(0)) {var leastSignificantBit = b % BigInt(2);b = b / BigInt(2);if (leastSignificantBit === BigInt(1)) {result = result * x;result = result % n;}x = x * x;x = x % n;}return result;}
+//***********************************RSA**************************************//
 
-onmessage = function(e) {
-  switch (e.data[0]){
-	case 'connect': {
-     					postMessage([1,""])
-	
-						break
-	  				}
-	case 'login':	{
-     					postMessage([2,""])
-						break
-	}
-	case 'data':	{
-					    if(Math.random()*10 > 9.5){
-							postMessage([3,"Server answer "+ e.data[1]])
-						}
-						break
-	}
-  }
-}
-
-class TlLine {
-	constructor(){
-	}
-	set(inArray){
-		var properties = Object.getOwnPropertyNames(this);
-		for(var i=0;i<properties.length;i++){
-			inArray = this[properties[i]].set(inArray)
-		}
-		return inArray
-	}
-	get(){
-		var ret = []
-		var properties = Object.getOwnPropertyNames(this);
-		for(var i=0;i<properties.length;i++){
-			ret = ret.concat(this[properties[i]].get())
-		}
-		return ret
-	}
-}
-
-class tl_vector_long{
-	constructor(){
-		this.value = []
-	}
-	set(inArray){
-		inArray = inArray.slice(4)
-		var num_elements = inArray[0] + (inArray[1]<<8) + (inArray[2]<<16) + (inArray[3]<<24)
-		inArray = inArray.slice(4)
-		for(var i = 0; i< num_elements; i++){
-			var res = ""
-			for(var j=0; j<8;j++){
-			  res = (('0' + (inArray[j+i*8] & 0xFF).toString(16)).slice(-2)) + res;
-			}
-			res="0x"+res
-			this.value.push(BigInt(res))
-		}
-		return inArray.slice(num_elements*8)
-	}
-	get(num){
-		if(num == null){
-			var res = []
-			for(var j=0;j<this.value.length;j++){
-				var hex = (Array(16).join("0") + this.value[j].toString(16)).slice(-16);
-				for (var i = 0; i < 16; i += 2) {
-					res.push(parseInt(hex.substr(i, 2),16));
-				}
-			}
-			var len = [(this.value.length>>24)&0xff,(this.value.length>>16)&0xff,(this.value.length>>8)&0xff,(this.value.length)&0xff]
-			res = res.concat(len)
-			res = res.concat([0x1c, 0xb5, 0xc4, 0x15]);
-			return res.reverse();		
-		}else{
-			var res = []
-			var hex = (Array(16).join("0") + this.value[num].toString(16)).slice(-16);
-			for (var i = 0; i < 16; i += 2) {
-				res.push(parseInt(hex.substr(i, 2),16));
-			}
-			return res.reverse();		
-		}
-	}
-}
-
-class tl_array {
-	constructor(){
-		this.value = []
-	}
-	set(inArray){
-		var length = inArray.length
-		this.value=[]
-		for(var i = 0; i< length; i++){
-			this.value.push(inArray[i])
-		}
-	}
-	get(){
-		return this.value
-	}
-}
-
-class tl_byte {
-	constructor(){
-		this.value = []
-	}
-	set(inArray){
-		this.value=[]
-		var start = 1
-		var length = 0
-		if(inArray[0] <= 253) {
-			length = inArray[0]
-		} else {
-			length = inArray[1] + (inArray[2]<<8) + (inAray[3]<<16)
-			start = 4
-		}
-		for(var i = 0; i< length; i++){
-			this.value.push(inArray[start+i])
-		}
-		var padding = ((start+length) % 4) ? (4-((start+length) % 4)) : 0
-		return inArray.slice(start+length+padding)
-	}
-	get(){
-		var ret = []
-		if(this.value.length <= 253){
-			ret.push(this.value.length)
-		}else{
-			ret.push(this.value.length & 0xff)
-			ret.push((this.value.length >> 8 )& 0xff)
-			ret.push((this.value.length >> 16 )& 0xff)
-		}
-		for(var i = 0;i<this.value.length;i++){
-			ret.push(this.value[i])
-		}
-		var padding = ((ret.length) % 4) ? (4 - ((ret.length) % 4)) : 0
-		for(var i = 0; i< padding;i++){
-			ret.push(0)
-		}
-		return ret
-	}
-	asNum(){
-		var res=""
-		for(var i=0; i<this.value.length;i++){
-			res = res+(('0' + (this.value[i] & 0xFF).toString(16)).slice(-2));
-		}
-		res="0x"+res
-		return this.value.length>4 ? BigInt(res) : parseInt(res)
-	}
-	fromNum(num){
-		var res=[]
-		var trigger=0
-		var hex = (Array(64).join("0") + num.toString(16)).slice(-64);
-    	for (var i = 0; i < 64; i += 2) {
-			if(parseInt(hex.substr(i, 2),16) > 0) trigger = 1
-			if(trigger==1) res.push(parseInt(hex.substr(i, 2),16));
-    	}
-		this.value = res
-	}
-}
-
-class tl_int {
-	constructor(length){
-		this.value = 0
-		this.length=length
-	}
-	set(inArray){
-		var res=""
-		for(var i=0; i<this.length;i++){
-			res = (('0' + (inArray[i] & 0xFF).toString(16)).slice(-2)) + res;
-		}
-		res="0x"+res
-		this.value=this.length>4 ? BigInt(res) : parseInt(res)
-		return inArray.slice(this.length)
-	}
-	get(){
-		var res = [];
-		var hex = (Array(this.length*2).join("0") + this.value.toString(16)).slice(-this.length*2);
-    	for (var i = 0; i < this.length*2; i += 2) {
-        	res.push(parseInt(hex.substr(i, 2),16));
-    	}
-		return res.reverse();
-	}
-
-}
-
-class tl_collator {
-	constructor(){
-		this.p = 0
-		this.q = 0
-	}
-	set(nump,numq){
-		this.p=nump
-		this.q=numq
-	}
-	getp(){
-		var res = [];
-		var hex = (Array(16).join("0") + this.p.toString(16)).slice(-16);
-    	for (var i = 8; i < 16; i += 2) {
-        	res.push(parseInt(hex.substr(i, 2),16));
-    	}
-		return [4].concat(res).concat([0,0,0]);
-	}
-	getq(){
-		var res = [];
-		var hex = (Array(16).join("0") + this.q.toString(16)).slice(-16);
-    	for (var i = 8; i < 16; i += 2) {
-        	res.push(parseInt(hex.substr(i, 2),16));
-    	}
-		return [4].concat(res).concat([0,0,0]);
-	}
-
-}
+//*********************************Sha256**************************************//
+	function Sha256(data){var K = [0x428A2F98, 0x71374491, 0xB5C0FBCF, 0xE9B5DBA5, 0x3956C25B, 0x59F111F1, 0x923F82A4, 0xAB1C5ED5, 0xD807AA98, 0x12835B01, 0x243185BE, 0x550C7DC3, 0x72BE5D74, 0x80DEB1FE, 0x9BDC06A7, 0xC19BF174, 0xE49B69C1, 0xEFBE4786, 0x0FC19DC6, 0x240CA1CC, 0x2DE92C6F, 0x4A7484AA, 0x5CB0A9DC, 0x76F988DA, 0x983E5152, 0xA831C66D, 0xB00327C8, 0xBF597FC7, 0xC6E00BF3, 0xD5A79147, 0x06CA6351, 0x14292967, 0x27B70A85, 0x2E1B2138, 0x4D2C6DFC, 0x53380D13, 0x650A7354, 0x766A0ABB, 0x81C2C92E, 0x92722C85, 0xA2BFE8A1, 0xA81A664B, 0xC24B8B70, 0xC76C51A3, 0xD192E819, 0xD6990624, 0xF40E3585, 0x106AA070, 0x19A4C116, 0x1E376C08, 0x2748774C, 0x34B0BCB5, 0x391C0CB3, 0x4ED8AA4A, 0x5B9CCA4F, 0x682E6FF3, 0x748F82EE, 0x78A5636F, 0x84C87814, 0x8CC70208, 0x90BEFFFA, 0xA4506CEB, 0xBEF9A3F7, 0xC67178F2];var _w = new Array(64);var _a = 0x6a09e667;var _b = 0xbb67ae85;var _c = 0x3c6ef372;var _d = 0xa54ff53a;var _e = 0x510e527f;var _f = 0x9b05688c;var _g = 0x1f83d9ab;var _h = 0x5be0cd19;
+	function ch(x, y, z) {return z ^ x & (y ^ z);}
+	function maj(x, y, z) {return x & y | z & (x | y);}
+	function sigma0(x) {return (x >>> 2 | x << 30) ^ (x >>> 13 | x << 19) ^ (x >>> 22 | x << 10);}
+	function sigma1(x) {return (x >>> 6 | x << 26) ^ (x >>> 11 | x << 21) ^ (x >>> 25 | x << 7);}
+	function gamma0(x) {return (x >>> 7 | x << 25) ^ (x >>> 18 | x << 14) ^ x >>> 3;}
+	function gamma1(x) {return (x >>> 17 | x << 15) ^ (x >>> 19 | x << 13) ^ x >>> 10;}
+	function _update(M) {var W = _w;var a = _a | 0;var b = _b | 0;var c = _c | 0;var d = _d | 0;var e = _e | 0;var f = _f | 0;var g = _g | 0;var h = _h | 0;for (var i = 0; i < 16; ++i) {W[i] = readInt32BE(M,i * 4);}for (; i < 64; ++i) {W[i] = gamma1(W[i - 2]) + W[i - 7] + gamma0(W[i - 15]) + W[i - 16] | 0;}for (var j = 0; j < 64; ++j) {var T1 = h + sigma1(e) + ch(e, f, g) + K[j] + W[j] | 0;var T2 = sigma0(a) + maj(a, b, c) | 0;h = g;g = f;f = e;e = d + T1 | 0;d = c;c = b;b = a;a = T1 + T2 | 0;}_a = a + _a | 0;_b = b + _b | 0;_c = c + _c | 0;_d = d + _d | 0;_e = e + _e | 0;_f = f + _f | 0;_g = g + _g | 0;_h = h + _h | 0;};var _block = Array(64);var _finalSize = 56;var _blockSize = 64;var _len = 0;var block = _block;var blockSize = _blockSize;var length = data.length;var accum = _len;for (var offset = 0; offset < length;) {var assigned = accum % blockSize;var remainder = Math.min(length - offset, blockSize - assigned);for (var i = 0; i < remainder; i++) {block[assigned + i] = data[offset + i];}accum += remainder;offset += remainder;if (accum % blockSize === 0) {_update(block);}}_len += length;var rem = _len % _blockSize;_block[rem] = 0x80;_block.fill(0, rem + 1);if (rem >= _finalSize) {_update(_block);_block.fill(0);}var bits = _len * 8;if (bits <= 0xffffffff) {writeUInt32BE(_block, bits, _blockSize - 4);} else {var lowBits = (bits & 0xffffffff) >>> 0;var highBits = (bits - lowBits) / 0x100000000;writeUInt32BE(_block, highBits, _blockSize - 8);writeUInt32BE(_block, lowBits, _blockSize - 4);}_update(_block);var H = Array(32);writeInt32BE(H, _a, 0);writeInt32BE(H, _b, 4);writeInt32BE(H, _c, 8);writeInt32BE(H, _d, 12);writeInt32BE(H, _e, 16);writeInt32BE(H, _f, 20);writeInt32BE(H, _g, 24);writeInt32BE(H, _h, 28);return H;}
+//*********************************Sha256**************************************//
 
 //***********************************Sha1**************************************//
 	function rotl1(num) { return num << 1 | num >>> 31; }
@@ -236,6 +45,9 @@ class tl_collator {
 //***********************************factorise**********************************//
 
 //***************************AES************************************************//
+	function generateKeyDataFromNonce(serverNonce, newNonce) {var hash1 = [].slice.call(Sha1(newNonce.concat(serverNonce)));var hash2 = [].slice.call(Sha1(serverNonce.concat(newNonce)));var hash3 = [].slice.call(Sha1(newNonce.concat(newNonce)));var keyBuffer = hash1.concat(hash2.slice(0, 12));var ivBuffer = hash2.slice(12, 20).concat(hash3);ivBuffer = ivBuffer.concat(newNonce.slice(0, 4));return {key: keyBuffer,iv: ivBuffer};}
+	function decryptIge(cipherText, key, iv) {var iv1 = iv.slice(0, Math.floor(iv.length / 2));var iv2 = iv.slice(Math.floor(iv.length / 2));var plainText = [];var aes = new aesjs.ModeOfOperation(key);var blocksCount = Math.floor(cipherText.length / 16);var cipherTextBlock = new Array(16).fill(0);for (var blockIndex = 0; blockIndex < blocksCount; blockIndex++) {for (var i = 0; i < 16; i++) {cipherTextBlock[i] = cipherText[blockIndex * 16 + i] ^ iv2[i];}var plainTextBlock = aes.decrypt(cipherTextBlock);for (var _i = 0; _i < 16; _i++) {plainTextBlock[_i] ^= iv1[_i];}iv1 = cipherText.slice(blockIndex * 16, blockIndex * 16 + 16);iv2 = plainTextBlock.slice(0, 16);plainText = plainText.concat([].slice.call(plainTextBlock));}return [].slice.call(plainText);}
+	function encryptIge(plainText, key, iv) {var iv1 = iv.slice(0, Math.floor(iv.length / 2));var iv2 = iv.slice(Math.floor(iv.length / 2));var aes = new aesjs.ModeOfOperation(key);var cipherText = [];var blockCount = Math.floor(plainText.length / 16);for (var blockIndex = 0; blockIndex < blockCount; blockIndex++) {var plainTextBlock = plainText.slice(blockIndex * 16, blockIndex * 16 + 16);for (var i = 0; i < 16; i++) {plainTextBlock[i] ^= iv1[i];}var cipherTextBlock = aes.encrypt(plainTextBlock);for (var _i2 = 0; _i2 < 16; _i2++) {cipherTextBlock[_i2] ^= iv2[_i2];}iv1 = cipherTextBlock;iv2 = plainText.slice(blockIndex * 16, blockIndex * 16 + 16);cipherText = cipherText.concat([].slice.call(cipherTextBlock));}return cipherText;}
     function checkInt(value) {  return (parseInt(value) === value);    }
     function checkInts(arrayish) {if (!checkInt(arrayish.length)) { return false; }for (var i = 0; i < arrayish.length; i++) {if (!checkInt(arrayish[i]) || arrayish[i] < 0 || arrayish[i] > 255) {return false;}}return true;}
     function coerceArray(arg, copy) {if (arg.buffer && arg.name === 'Uint8Array') {if (copy) {if (arg.slice) {arg = arg.slice();} else {arg = Array.prototype.slice.call(arg);}}return arg;}if (Array.isArray(arg)) {if (!checkInts(arg)) {throw new Error('Array contains invalid value: ' + arg);}return new Uint8Array(arg);}if (checkInt(arg.length) && checkInts(arg)) {return new Uint8Array(arg);}throw new Error('unsupported array-like object');}
@@ -258,172 +70,29 @@ class tl_collator {
     var U3 = [0x00000000, 0x0d0b0e09, 0x1a161c12, 0x171d121b, 0x342c3824, 0x3927362d, 0x2e3a2436, 0x23312a3f, 0x68587048, 0x65537e41, 0x724e6c5a, 0x7f456253, 0x5c74486c, 0x517f4665, 0x4662547e, 0x4b695a77, 0xd0b0e090, 0xddbbee99, 0xcaa6fc82, 0xc7adf28b, 0xe49cd8b4, 0xe997d6bd, 0xfe8ac4a6, 0xf381caaf, 0xb8e890d8, 0xb5e39ed1, 0xa2fe8cca, 0xaff582c3, 0x8cc4a8fc, 0x81cfa6f5, 0x96d2b4ee, 0x9bd9bae7, 0xbb7bdb3b, 0xb670d532, 0xa16dc729, 0xac66c920, 0x8f57e31f, 0x825ced16, 0x9541ff0d, 0x984af104, 0xd323ab73, 0xde28a57a, 0xc935b761, 0xc43eb968, 0xe70f9357, 0xea049d5e, 0xfd198f45, 0xf012814c, 0x6bcb3bab, 0x66c035a2, 0x71dd27b9, 0x7cd629b0, 0x5fe7038f, 0x52ec0d86, 0x45f11f9d, 0x48fa1194, 0x03934be3, 0x0e9845ea, 0x198557f1, 0x148e59f8, 0x37bf73c7, 0x3ab47dce, 0x2da96fd5, 0x20a261dc, 0x6df6ad76, 0x60fda37f, 0x77e0b164, 0x7aebbf6d, 0x59da9552, 0x54d19b5b, 0x43cc8940, 0x4ec78749, 0x05aedd3e, 0x08a5d337, 0x1fb8c12c, 0x12b3cf25, 0x3182e51a, 0x3c89eb13, 0x2b94f908, 0x269ff701, 0xbd464de6, 0xb04d43ef, 0xa75051f4, 0xaa5b5ffd, 0x896a75c2, 0x84617bcb, 0x937c69d0, 0x9e7767d9, 0xd51e3dae, 0xd81533a7, 0xcf0821bc, 0xc2032fb5, 0xe132058a, 0xec390b83, 0xfb241998, 0xf62f1791, 0xd68d764d, 0xdb867844, 0xcc9b6a5f, 0xc1906456, 0xe2a14e69, 0xefaa4060, 0xf8b7527b, 0xf5bc5c72, 0xbed50605, 0xb3de080c, 0xa4c31a17, 0xa9c8141e, 0x8af93e21, 0x87f23028, 0x90ef2233, 0x9de42c3a, 0x063d96dd, 0x0b3698d4, 0x1c2b8acf, 0x112084c6, 0x3211aef9, 0x3f1aa0f0, 0x2807b2eb, 0x250cbce2, 0x6e65e695, 0x636ee89c, 0x7473fa87, 0x7978f48e, 0x5a49deb1, 0x5742d0b8, 0x405fc2a3, 0x4d54ccaa, 0xdaf741ec, 0xd7fc4fe5, 0xc0e15dfe, 0xcdea53f7, 0xeedb79c8, 0xe3d077c1, 0xf4cd65da, 0xf9c66bd3, 0xb2af31a4, 0xbfa43fad, 0xa8b92db6, 0xa5b223bf, 0x86830980, 0x8b880789, 0x9c951592, 0x919e1b9b, 0x0a47a17c, 0x074caf75, 0x1051bd6e, 0x1d5ab367, 0x3e6b9958, 0x33609751, 0x247d854a, 0x29768b43, 0x621fd134, 0x6f14df3d, 0x7809cd26, 0x7502c32f, 0x5633e910, 0x5b38e719, 0x4c25f502, 0x412efb0b, 0x618c9ad7, 0x6c8794de, 0x7b9a86c5, 0x769188cc, 0x55a0a2f3, 0x58abacfa, 0x4fb6bee1, 0x42bdb0e8, 0x09d4ea9f, 0x04dfe496, 0x13c2f68d, 0x1ec9f884, 0x3df8d2bb, 0x30f3dcb2, 0x27eecea9, 0x2ae5c0a0, 0xb13c7a47, 0xbc37744e, 0xab2a6655, 0xa621685c, 0x85104263, 0x881b4c6a, 0x9f065e71, 0x920d5078, 0xd9640a0f, 0xd46f0406, 0xc372161d, 0xce791814, 0xed48322b, 0xe0433c22, 0xf75e2e39, 0xfa552030, 0xb701ec9a, 0xba0ae293, 0xad17f088, 0xa01cfe81, 0x832dd4be, 0x8e26dab7, 0x993bc8ac, 0x9430c6a5, 0xdf599cd2, 0xd25292db, 0xc54f80c0, 0xc8448ec9, 0xeb75a4f6, 0xe67eaaff, 0xf163b8e4, 0xfc68b6ed, 0x67b10c0a, 0x6aba0203, 0x7da71018, 0x70ac1e11, 0x539d342e, 0x5e963a27, 0x498b283c, 0x44802635, 0x0fe97c42, 0x02e2724b, 0x15ff6050, 0x18f46e59, 0x3bc54466, 0x36ce4a6f, 0x21d35874, 0x2cd8567d, 0x0c7a37a1, 0x017139a8, 0x166c2bb3, 0x1b6725ba, 0x38560f85, 0x355d018c, 0x22401397, 0x2f4b1d9e, 0x642247e9, 0x692949e0, 0x7e345bfb, 0x733f55f2, 0x500e7fcd, 0x5d0571c4, 0x4a1863df, 0x47136dd6, 0xdccad731, 0xd1c1d938, 0xc6dccb23, 0xcbd7c52a, 0xe8e6ef15, 0xe5ede11c, 0xf2f0f307, 0xfffbfd0e, 0xb492a779, 0xb999a970, 0xae84bb6b, 0xa38fb562, 0x80be9f5d, 0x8db59154, 0x9aa8834f, 0x97a38d46];
     var U4 = [0x00000000, 0x090d0b0e, 0x121a161c, 0x1b171d12, 0x24342c38, 0x2d392736, 0x362e3a24, 0x3f23312a, 0x48685870, 0x4165537e, 0x5a724e6c, 0x537f4562, 0x6c5c7448, 0x65517f46, 0x7e466254, 0x774b695a, 0x90d0b0e0, 0x99ddbbee, 0x82caa6fc, 0x8bc7adf2, 0xb4e49cd8, 0xbde997d6, 0xa6fe8ac4, 0xaff381ca, 0xd8b8e890, 0xd1b5e39e, 0xcaa2fe8c, 0xc3aff582, 0xfc8cc4a8, 0xf581cfa6, 0xee96d2b4, 0xe79bd9ba, 0x3bbb7bdb, 0x32b670d5, 0x29a16dc7, 0x20ac66c9, 0x1f8f57e3, 0x16825ced, 0x0d9541ff, 0x04984af1, 0x73d323ab, 0x7ade28a5, 0x61c935b7, 0x68c43eb9, 0x57e70f93, 0x5eea049d, 0x45fd198f, 0x4cf01281, 0xab6bcb3b, 0xa266c035, 0xb971dd27, 0xb07cd629, 0x8f5fe703, 0x8652ec0d, 0x9d45f11f, 0x9448fa11, 0xe303934b, 0xea0e9845, 0xf1198557, 0xf8148e59, 0xc737bf73, 0xce3ab47d, 0xd52da96f, 0xdc20a261, 0x766df6ad, 0x7f60fda3, 0x6477e0b1, 0x6d7aebbf, 0x5259da95, 0x5b54d19b, 0x4043cc89, 0x494ec787, 0x3e05aedd, 0x3708a5d3, 0x2c1fb8c1, 0x2512b3cf, 0x1a3182e5, 0x133c89eb, 0x082b94f9, 0x01269ff7, 0xe6bd464d, 0xefb04d43, 0xf4a75051, 0xfdaa5b5f, 0xc2896a75, 0xcb84617b, 0xd0937c69, 0xd99e7767, 0xaed51e3d, 0xa7d81533, 0xbccf0821, 0xb5c2032f, 0x8ae13205, 0x83ec390b, 0x98fb2419, 0x91f62f17, 0x4dd68d76, 0x44db8678, 0x5fcc9b6a, 0x56c19064, 0x69e2a14e, 0x60efaa40, 0x7bf8b752, 0x72f5bc5c, 0x05bed506, 0x0cb3de08, 0x17a4c31a, 0x1ea9c814, 0x218af93e, 0x2887f230, 0x3390ef22, 0x3a9de42c, 0xdd063d96, 0xd40b3698, 0xcf1c2b8a, 0xc6112084, 0xf93211ae, 0xf03f1aa0, 0xeb2807b2, 0xe2250cbc, 0x956e65e6, 0x9c636ee8, 0x877473fa, 0x8e7978f4, 0xb15a49de, 0xb85742d0, 0xa3405fc2, 0xaa4d54cc, 0xecdaf741, 0xe5d7fc4f, 0xfec0e15d, 0xf7cdea53, 0xc8eedb79, 0xc1e3d077, 0xdaf4cd65, 0xd3f9c66b, 0xa4b2af31, 0xadbfa43f, 0xb6a8b92d, 0xbfa5b223, 0x80868309, 0x898b8807, 0x929c9515, 0x9b919e1b, 0x7c0a47a1, 0x75074caf, 0x6e1051bd, 0x671d5ab3, 0x583e6b99, 0x51336097, 0x4a247d85, 0x4329768b, 0x34621fd1, 0x3d6f14df, 0x267809cd, 0x2f7502c3, 0x105633e9, 0x195b38e7, 0x024c25f5, 0x0b412efb, 0xd7618c9a, 0xde6c8794, 0xc57b9a86, 0xcc769188, 0xf355a0a2, 0xfa58abac, 0xe14fb6be, 0xe842bdb0, 0x9f09d4ea, 0x9604dfe4, 0x8d13c2f6, 0x841ec9f8, 0xbb3df8d2, 0xb230f3dc, 0xa927eece, 0xa02ae5c0, 0x47b13c7a, 0x4ebc3774, 0x55ab2a66, 0x5ca62168, 0x63851042, 0x6a881b4c, 0x719f065e, 0x78920d50, 0x0fd9640a, 0x06d46f04, 0x1dc37216, 0x14ce7918, 0x2bed4832, 0x22e0433c, 0x39f75e2e, 0x30fa5520, 0x9ab701ec, 0x93ba0ae2, 0x88ad17f0, 0x81a01cfe, 0xbe832dd4, 0xb78e26da, 0xac993bc8, 0xa59430c6, 0xd2df599c, 0xdbd25292, 0xc0c54f80, 0xc9c8448e, 0xf6eb75a4, 0xffe67eaa, 0xe4f163b8, 0xedfc68b6, 0x0a67b10c, 0x036aba02, 0x187da710, 0x1170ac1e, 0x2e539d34, 0x275e963a, 0x3c498b28, 0x35448026, 0x420fe97c, 0x4b02e272, 0x5015ff60, 0x5918f46e, 0x663bc544, 0x6f36ce4a, 0x7421d358, 0x7d2cd856, 0xa10c7a37, 0xa8017139, 0xb3166c2b, 0xba1b6725, 0x8538560f, 0x8c355d01, 0x97224013, 0x9e2f4b1d, 0xe9642247, 0xe0692949, 0xfb7e345b, 0xf2733f55, 0xcd500e7f, 0xc45d0571, 0xdf4a1863, 0xd647136d, 0x31dccad7, 0x38d1c1d9, 0x23c6dccb, 0x2acbd7c5, 0x15e8e6ef, 0x1ce5ede1, 0x07f2f0f3, 0x0efffbfd, 0x79b492a7, 0x70b999a9, 0x6bae84bb, 0x62a38fb5, 0x5d80be9f, 0x548db591, 0x4f9aa883, 0x4697a38d];
     function convertToInt32(bytes) {var result = [];for (var i = 0; i < bytes.length; i += 4) {result.push((bytes[i    ] << 24) |(bytes[i + 1] << 16) |(bytes[i + 2] <<  8) |bytes[i + 3]);}return result;}
-	class AES {constructor(key) {if (!(this instanceof AES)) {throw Error('AES must be instanitated with `new`');}Object.defineProperty(this, 'key', {value: coerceArray(key, true)});this._prepare();}_prepare() {var rounds = numberOfRounds[this.key.length];if (rounds == null) {throw new Error('invalid key size (must be 16, 24 or 32 bytes)');}this._Ke = [];this._Kd = [];for (var i = 0; i <= rounds; i++) {this._Ke.push([0, 0, 0, 0]);this._Kd.push([0, 0, 0, 0]);}var roundKeyCount = (rounds + 1) * 4;var KC = this.key.length / 4;var tk = convertToInt32(this.key);var index;for (var i = 0; i < KC; i++) {index = i >> 2;this._Ke[index][i % 4] = tk[i];this._Kd[rounds - index][i % 4] = tk[i];}var rconpointer = 0;var t = KC, tt;while (t < roundKeyCount) {tt = tk[KC - 1];tk[0] ^= ((S[(tt >> 16) & 0xFF] << 24) ^(S[(tt >>  8) & 0xFF] << 16) ^(S[ tt        & 0xFF] <<  8) ^S[(tt >> 24) & 0xFF]        ^(rcon[rconpointer] << 24));rconpointer += 1;if (KC != 8) {for (var i = 1; i < KC; i++) {tk[i] ^= tk[i - 1];}} else {for (var i = 1; i < (KC / 2); i++) {tk[i] ^= tk[i - 1];}tt = tk[(KC / 2) - 1];tk[KC / 2] ^= (S[ tt        & 0xFF]        ^(S[(tt >>  8) & 0xFF] <<  8) ^(S[(tt >> 16) & 0xFF] << 16) ^(S[(tt >> 24) & 0xFF] << 24));for (var i = (KC / 2) + 1; i < KC; i++) {tk[i] ^= tk[i - 1];}}var i = 0, r, c;while (i < KC && t < roundKeyCount) {r = t >> 2;c = t % 4;this._Ke[r][c] = tk[i];this._Kd[rounds - r][c] = tk[i++];t++;}}for (var r = 1; r < rounds; r++) {for (var c = 0; c < 4; c++) {tt = this._Kd[r][c];this._Kd[r][c] = (U1[(tt >> 24) & 0xFF] ^U2[(tt >> 16) & 0xFF] ^U3[(tt >>  8) & 0xFF] ^U4[ tt        & 0xFF]);}}}encrypt(plaintext) {if (plaintext.length != 16) {throw new Error('invalid plaintext size (must be 16 bytes)');}var rounds = this._Ke.length - 1;var a = [0, 0, 0, 0];var t = convertToInt32(plaintext);for (var i = 0; i < 4; i++) {t[i] ^= this._Ke[0][i];}for (var r = 1; r < rounds; r++) {for (var i = 0; i < 4; i++) {a[i] = (T1[(t[ i         ] >> 24) & 0xff] ^T2[(t[(i + 1) % 4] >> 16) & 0xff] ^T3[(t[(i + 2) % 4] >>  8) & 0xff] ^T4[ t[(i + 3) % 4]        & 0xff] ^this._Ke[r][i]);}t = a.slice();}var result = createArray(16), tt;for (var i = 0; i < 4; i++) {tt = this._Ke[rounds][i];result[4 * i    ] = (S[(t[ i         ] >> 24) & 0xff] ^ (tt >> 24)) & 0xff;result[4 * i + 1] = (S[(t[(i + 1) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff;result[4 * i + 2] = (S[(t[(i + 2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff;result[4 * i + 3] = (S[ t[(i + 3) % 4]        & 0xff] ^  tt       ) & 0xff;}return result;}}
+	class AES {constructor(key) {if (!(this instanceof AES)) {throw Error('AES must be instanitated with `new`');}Object.defineProperty(this, 'key', {value: coerceArray(key, true)});this._prepare();}_prepare() {var rounds = numberOfRounds[this.key.length];if (rounds == null) {throw new Error('invalid key size (must be 16, 24 or 32 bytes)');}this._Ke = [];this._Kd = [];for (var i = 0; i <= rounds; i++) {this._Ke.push([0, 0, 0, 0]);this._Kd.push([0, 0, 0, 0]);}var roundKeyCount = (rounds + 1) * 4;var KC = this.key.length / 4;var tk = convertToInt32(this.key);var index;for (var i = 0; i < KC; i++) {index = i >> 2;this._Ke[index][i % 4] = tk[i];this._Kd[rounds - index][i % 4] = tk[i];}var rconpointer = 0;var t = KC, tt;while (t < roundKeyCount) {tt = tk[KC - 1];tk[0] ^= ((S[(tt >> 16) & 0xFF] << 24) ^(S[(tt >>  8) & 0xFF] << 16) ^(S[ tt        & 0xFF] <<  8) ^S[(tt >> 24) & 0xFF]        ^(rcon[rconpointer] << 24));rconpointer += 1;if (KC != 8) {for (var i = 1; i < KC; i++) {tk[i] ^= tk[i - 1];}} else {for (var i = 1; i < (KC / 2); i++) {tk[i] ^= tk[i - 1];}tt = tk[(KC / 2) - 1];tk[KC / 2] ^= (S[ tt        & 0xFF]        ^(S[(tt >>  8) & 0xFF] <<  8) ^(S[(tt >> 16) & 0xFF] << 16) ^(S[(tt >> 24) & 0xFF] << 24));for (var i = (KC / 2) + 1; i < KC; i++) {tk[i] ^= tk[i - 1];}}var i = 0, r, c;while (i < KC && t < roundKeyCount) {r = t >> 2;c = t % 4;this._Ke[r][c] = tk[i];this._Kd[rounds - r][c] = tk[i++];t++;}}for (var r = 1; r < rounds; r++) {for (var c = 0; c < 4; c++) {tt = this._Kd[r][c];this._Kd[r][c] = (U1[(tt >> 24) & 0xFF] ^U2[(tt >> 16) & 0xFF] ^U3[(tt >>  8) & 0xFF] ^U4[ tt        & 0xFF]);}}}encrypt(plaintext) {if (plaintext.length != 16) {throw new Error('invalid plaintext size (must be 16 bytes)');}var rounds = this._Ke.length - 1;var a = [0, 0, 0, 0];var t = convertToInt32(plaintext);for (var i = 0; i < 4; i++) {t[i] ^= this._Ke[0][i];}for (var r = 1; r < rounds; r++) {for (var i = 0; i < 4; i++) {a[i] = (T1[(t[ i         ] >> 24) & 0xff] ^T2[(t[(i + 1) % 4] >> 16) & 0xff] ^T3[(t[(i + 2) % 4] >>  8) & 0xff] ^T4[ t[(i + 3) % 4]        & 0xff] ^this._Ke[r][i]);}t = a.slice();}var result = createArray(16), tt;for (var i = 0; i < 4; i++) {tt = this._Ke[rounds][i];result[4 * i    ] = (S[(t[ i         ] >> 24) & 0xff] ^ (tt >> 24)) & 0xff;result[4 * i + 1] = (S[(t[(i + 1) % 4] >> 16) & 0xff] ^ (tt >> 16)) & 0xff;result[4 * i + 2] = (S[(t[(i + 2) % 4] >>  8) & 0xff] ^ (tt >>  8)) & 0xff;result[4 * i + 3] = (S[ t[(i + 3) % 4]        & 0xff] ^  tt       ) & 0xff;}return result;}decrypt(ciphertext) {if (ciphertext.length != 16) {throw new Error('invalid ciphertext size (must be 16 bytes)');}var rounds = this._Kd.length - 1;var a = [0, 0, 0, 0];var t = convertToInt32(ciphertext);for (var i = 0; i < 4; i++) {t[i] ^= this._Kd[0][i];}for (var r = 1; r < rounds; r++) {for (var i = 0; i < 4; i++) {a[i] = T5[t[i] >> 24 & 0xff] ^ T6[t[(i + 3) % 4] >> 16 & 0xff] ^ T7[t[(i + 2) % 4] >> 8 & 0xff] ^ T8[t[(i + 1) % 4] & 0xff] ^ this._Kd[r][i];      }t = a.slice();}var result = createArray(16),tt;for (var i = 0; i < 4; i++) {tt = this._Kd[rounds][i];result[4 * i] = (Si[t[i] >> 24 & 0xff] ^ tt >> 24) & 0xff;result[4 * i + 1] = (Si[t[(i + 3) % 4] >> 16 & 0xff] ^ tt >> 16) & 0xff;result[4 * i + 2] = (Si[t[(i + 2) % 4] >> 8 & 0xff] ^ tt >> 8) & 0xff;result[4 * i + 3] = (Si[t[(i + 1) % 4] & 0xff] ^ tt) & 0xff;}return result;}}
 	class Counter{constructor(initialValue){if (!(this instanceof Counter)){throw Error('Counter must be instanitated with `new`');}if(initialValue !== 0 && !initialValue) { initialValue = 1;}if(typeof(initialValue) === 'number'){this._counter = createArray(16);this.setValue(initialValue);}else{this.setBytes(initialValue);}}setValue(value){if(typeof(value) !== 'number' || parseInt(value) != value){throw new Error('invalid counter value (must be an integer)');}if(value > Number.MAX_SAFE_INTEGER){throw new Error('integer value out of safe range');}for(var index = 15; index >= 0; --index){this._counter[index] = value % 256;value = parseInt(value / 256);}}setBytes(bytes){bytes = coerceArray(bytes, true);if(bytes.length != 16){throw new Error('invalid counter bytes size (must be 16 bytes)');}this._counter = bytes;}increment(){for(var i = 15; i >= 0; i--){if(this._counter[i] === 255){this._counter[i] = 0;}else{this._counter[i]++;break;}}}}
 	class ModeOfOperation{constructor(key, counter){if (!(this instanceof ModeOfOperation)){throw Error('AES must be instanitated with `new`');}this.description = "Counter";this.name = "ctr";if (!(counter instanceof Counter)){counter = new Counter(counter);}this._counter = counter;this._remainingCounter = null;this._remainingCounterIndex = 16;this._aes = new AES(key);}
-    crypt(plaintext){var encrypted = coerceArray(plaintext, true);for (var i = 0; i < encrypted.length; i++){if (this._remainingCounterIndex === 16){this._remainingCounter = this._aes.encrypt(this._counter._counter);this._remainingCounterIndex = 0;this._counter.increment();}encrypted[i] ^= this._remainingCounter[this._remainingCounterIndex++];}return encrypted;}}
+    crypt(plaintext){var encrypted = coerceArray(plaintext, true);for (var i = 0; i < encrypted.length; i++){if (this._remainingCounterIndex === 16){this._remainingCounter = this._aes.encrypt(this._counter._counter);this._remainingCounterIndex = 0;this._counter.increment();}encrypted[i] ^= this._remainingCounter[this._remainingCounterIndex++];}return encrypted;}
+    decrypt(plaintext){return this._aes.decrypt(plaintext);}
+    encrypt(plaintext){return this._aes.encrypt(plaintext);}}
 	var aesjs = { AES: AES,  Counter: Counter,  ModeOfOperation  };
 //***************************AES************************************************//
 
-
-var obfuscate = crypto.getRandomValues(new Uint8Array(64));
-	obfuscate[56] = 0xEF; obfuscate[57] = 0xEF; obfuscate[58] = 0xEF; obfuscate[59] = 0xEF;
-
-var encryptKey  = obfuscate.slice(8 , 8+32 );
-var encryptIV   = obfuscate.slice(40, 40+16);
-var obfuscatereverse = obfuscate.slice();
-    obfuscatereverse = obfuscatereverse.reverse();
-var decryptKey  = obfuscatereverse.slice(8, 8+32);
-var decryptIV   = obfuscatereverse.slice(40, 40+16);
-
-var encryptor = new aesjs.ModeOfOperation(encryptKey, encryptIV);
-var decryptor = new aesjs.ModeOfOperation(decryptKey, decryptIV);
-
-var encryptedInit = encryptor.crypt(obfuscate);
-
-var finalobfuscate = obfuscate.slice();
-    finalobfuscate[56] = encryptedInit[56];
-    finalobfuscate[57] = encryptedInit[57];
-    finalobfuscate[58] = encryptedInit[58];
-    finalobfuscate[59] = encryptedInit[59];
-
-var connect_state = 0;
-
-async function connect(){
-    return new Promise(function(resolve, reject) {
-        socket = new WebSocket("ws://149.154.167.51/apiws");
-		socket.binaryType = "arraybuffer";
-
-		socket.onmessage = getmessage;//function(message) {;	};
-		socket.onopen =  function()      { /*console.log("Connected") ;*/ resolve(); };
-		socket.onerror = function(error) { console.log("Sosket error") ;reject(error); };
-	});
-};
-
-function newMsgId(){
-		var now = new Date().getTime() / 1000 + 0 //timeofset;
-		var nanoseconds     = Math.floor((now - Math.floor(now)) * 1e9);
-    	var newMsgId        = BigInt(Math.floor(now)) << BigInt(32) | BigInt(nanoseconds) << BigInt(2)
-		return newMsgId
-}
-
-class TlMessage extends TlLine{
-	constructor(){
-		super()
-		this.packet_length=new tl_int(1)
-		this.auth_key_id=new tl_int(8)
-		this.message_id=new tl_int(8)
-		this.message_length=new tl_int(4)
-		this.tl_constructor=new tl_int(4)
-		this.message=new tl_array()
-	}
-}
-
-class req_pq extends TlLine{
-	constructor(){
-		super()
-		this.nonce = new tl_int(16)
-	}
-}
-
-class res_pq extends TlLine{
-	constructor(){
-		super()
-		this.nonce = new tl_int(16)
-		this.server_nonce = new tl_int(16)
-		this.pq = new tl_byte()
-		this.server_public_key_fingerprints = new tl_vector_long()
-	}
-}
-
-class p_q_inner_data extends TlLine{
-	constructor(){
-		super()
-		this.p_q_inner_data = new tl_int(4)
-		this.pq = new tl_byte()
-		this.p = new tl_array()
-		this.q = new tl_array()
-		this.nonce = new tl_int(16)
-		this.server_nonce = new tl_int(16)
-		this.new_nonce = new tl_array()
-	}
-}
-
-
-var ToSend     = new TlMessage()
-var GetMessage = new TlMessage()
-var ReqPQ	   = new req_pq()
-var ResPQ	   = new res_pq()
-var collator   = new tl_collator()
-var P_Q_inner_data = new p_q_inner_data()
-
-connect().then(
-    response => {
-		socket.send(finalobfuscate)
-		
-		ReqPQ.nonce.value	= BigInt("0x"+Array.from(crypto.getRandomValues(new Uint8Array(16)), function(byte) { return ('0' + (byte & 0xFF).toString(16)).slice(-2); }).join(''))
-
-		ToSend.auth_key_id.value    = 0
-		ToSend.message_id.value     = newMsgId()
-		ToSend.tl_constructor.value = 0x60469778
-		ToSend.message.value        = ReqPQ.get()
-		ToSend.message_length.value = ToSend.message.value.length+4
-		ToSend.packet_length.value = ToSend.get().length>>2
-
-console.hex(ToSend.get())
-		
-		var encryptedData = encryptor.crypt(ToSend.get())
-
-		socket.send(encryptedData)
-		connect_state = 1; //wait (p,q) Authorization
-	
-	},
-    error => alert(`Rejected: ${error}`)
-    );
-
-
-function getmessage(message){
-	var decrypted_message = decryptor.crypt(new Uint8Array(message.data))
-	switch (connect_state){
-		case 1: {//resPQ
-			decrypted_message = GetMessage.packet_length.set(decrypted_message)
-			decrypted_message = GetMessage.auth_key_id.set(decrypted_message)
-			decrypted_message = GetMessage.message_id.set(decrypted_message)
-			decrypted_message = GetMessage.message_length.set(decrypted_message)
-			decrypted_message = GetMessage.tl_constructor.set(decrypted_message)
-			if(GetMessage.tl_constructor.value != 0x05162463) throw Error('resPQ error');
-
-console.hex(decrypted_message)
-			
-			decrypted_message = ResPQ.nonce.set(decrypted_message)
-			decrypted_message = ResPQ.server_nonce.set(decrypted_message)
-			decrypted_message = ResPQ.pq.set(decrypted_message)
-			decrypted_message = ResPQ.server_public_key_fingerprints.set(decrypted_message)
-			if(ReqPQ.nonce.value != ResPQ.nonce.value) throw Error('ResPQ <> ReqPQ error');
-
-			console.log("Calculate pq")
-			var {p,q} = factorize(ResPQ.pq.asNum())
-			collator.set(p,q)
-		
-			P_Q_inner_data.p_q_inner_data.value = 0x83c95aec
-			P_Q_inner_data.pq.fromNum(ResPQ.pq.asNum())
-			P_Q_inner_data.p.set(collator.getp())
-			P_Q_inner_data.q.set(collator.getq())
-			P_Q_inner_data.nonce.value = ResPQ.nonce.value
-			P_Q_inner_data.server_nonce.value = ResPQ.server_nonce.value
-			P_Q_inner_data.new_nonce.set(Array.from(crypto.getRandomValues(new Uint8Array(32))))
-
-			var RSAInputData = []
-			var sha1 = Array.from(Sha1(P_Q_inner_data.get()))
-			var data = P_Q_inner_data.get()
-			var rand = Array.from(crypto.getRandomValues(new Uint8Array(235-data.length)))
-			RSAInputData = RSAInputData.concat(sha1,data,rand)
-console.hex(RSAInputData)
-
-			
-		}
-	}
-}
-
-
-
+//****************************UNZIP*********************************************//
+	var WSIZE = 32768,STORED_BLOCK = 0,STATIC_TREES = 1,DYN_TREES = 2,lbits = 9,dbits = 6,slide,wp,fixed_tl = null,fixed_td,fixed_bl,fixed_bd,bit_buf,bit_len,method,eof,copy_leng,copy_dist,tl,td,bl,bd,inflate_data,inflate_pos,MASK_BITS = [0x0000,0x0001, 0x0003, 0x0007, 0x000f, 0x001f, 0x003f, 0x007f, 0x00ff,0x01ff, 0x03ff, 0x07ff, 0x0fff, 0x1fff, 0x3fff, 0x7fff, 0xffff],cplens = [3, 4, 5, 6, 7, 8, 9, 10, 11, 13, 15, 17, 19, 23, 27, 31,35, 43, 51, 59, 67, 83, 99, 115, 131, 163, 195, 227, 258, 0, 0],cplext = [0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 2, 2, 2, 2,3, 3, 3, 3, 4, 4, 4, 4, 5, 5, 5, 5, 0, 99, 99],cpdist = [1, 2, 3, 4, 5, 7, 9, 13, 17, 25, 33, 49, 65, 97, 129, 193,257, 385, 513, 769, 1025, 1537, 2049, 3073, 4097, 6145,8193, 12289, 16385, 24577],cpdext = [0, 0, 0, 0, 1, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6,7, 7, 8, 8, 9, 9, 10, 10, 11, 11,12, 12, 13, 13],border = [16, 17, 18, 0, 8, 7, 9, 6, 10, 5, 11, 4, 12, 3, 13, 2, 14, 1, 15];
+	function HuftList() {this.next = null;this.list = null;}
+	function HuftNode() {this.e = 0;this.b = 0;this.n = 0;this.t = null;}
+	function HuftBuild(b, n, s, d, e, mm) {this.BMAX = 16;this.N_MAX = 288;this.status = 0;this.root = null;this.m = 0;var a;var c = [];var el;var f;var g;var h;var i;var j;var k;var lx = [];var p;var pidx;var q;var r = new HuftNode();var u = [];var v = [];var w;var x = [];var xp;var y;var z;var o;var tail;tail = this.root = null;for (i = 0; i < this.BMAX + 1; i++) {c[i] = 0;}for (i = 0; i < this.BMAX + 1; i++) {lx[i] = 0;}for (i = 0; i < this.BMAX; i++) {u[i] = null;}for (i = 0; i < this.N_MAX; i++) {v[i] = 0;}for (i = 0; i < this.BMAX + 1; i++) {x[i] = 0;}el = n > 256 ? b[256] : this.BMAX;p = b; pidx = 0;i = n;do {c[p[pidx]]++;pidx++;} while (--i > 0);if (c[0] === n) {this.root = null;this.m = 0;this.status = 0;return;}for (j = 1; j <= this.BMAX; j++) {if (c[j] !== 0) {break;}}k = j;if (mm < j) {mm = j;}for (i = this.BMAX; i !== 0; i--) {if (c[i] !== 0) {break;}}g = i;if (mm > i) {mm = i;}for (y = 1 << j; j < i; j++, y <<= 1) {if ((y -= c[j]) < 0) {this.status = 2;this.m = mm;return;}}if ((y -= c[i]) < 0) {this.status = 2;this.m = mm;return;}c[i] += y;x[1] = j = 0;p = c;pidx = 1;xp = 2;while (--i > 0) {x[xp++] = (j += p[pidx++]);}p = b; pidx = 0;i = 0;do {if ((j = p[pidx++]) !== 0) {v[x[j]++] = i;}} while (++i < n);n = x[g];x[0] = i = 0;p = v; pidx = 0;h = -1;w = lx[0] = 0;q = null;z = 0;for (null; k <= g; k++) {a = c[k];while (a-- > 0) {while (k > w + lx[1 + h]) {w += lx[1 + h];h++;z = (z = g - w) > mm ? mm : z;if ((f = 1 << (j = k - w)) > a + 1) {f -= a + 1;xp = k;while (++j < z) {if ((f <<= 1) <= c[++xp]) {break;}f -= c[xp];}}if (w + j > el && w < el) {j = el - w;}z = 1 << j;lx[1 + h] = j;q = [];for (o = 0; o < z; o++) {q[o] = new HuftNode();}if (!tail) {tail = this.root = new HuftList();} else {tail = tail.next = new HuftList();}tail.next = null;tail.list = q;u[h] = q;if (h > 0) {x[h] = i;r.b = lx[h];r.e = 16 + j;r.t = q;j = (i & ((1 << w) - 1)) >> (w - lx[h]);u[h - 1][j].e = r.e;u[h - 1][j].b = r.b;u[h - 1][j].n = r.n;u[h - 1][j].t = r.t;}}r.b = k - w;if (pidx >= n) {r.e = 99;} else if (p[pidx] < s) {r.e = (p[pidx] < 256 ? 16 : 15);r.n = p[pidx++];} else {r.e = e[p[pidx] - s];r.n = d[p[pidx++] - s];}f = 1 << (k - w);for (j = i >> w; j < z; j += f) {q[j].e = r.e;q[j].b = r.b;q[j].n = r.n;q[j].t = r.t;}for (j = 1 << (k - 1); (i & j) !== 0; j >>= 1) {i ^= j;}i ^= j;while ((i & ((1 << w) - 1)) !== x[h]) {w -= lx[h];h--;}}}this.m = lx[1];this.status = ((y !== 0 && g !== 1) ? 1 : 0);}
+	function GET_BYTE() {if (inflate_data.length === inflate_pos) {return -1;}return inflate_data[inflate_pos++] & 0xff;}
+	function NEEDBITS(n) {while (bit_len < n) {bit_buf |= GET_BYTE() << bit_len;bit_len += 8;}}
+	function GETBITS(n) {return bit_buf & MASK_BITS[n];}
+	function DUMPBITS(n) {bit_buf >>= n;bit_len -= n;}
+	function inflate_codes(buff, off, size) {var e;var t;var n;if (size === 0) {return 0;}n = 0;for (;;) {NEEDBITS(bl);t = tl.list[GETBITS(bl)];e = t.e;while (e > 16) {if (e === 99) {return -1;}DUMPBITS(t.b);e -= 16;NEEDBITS(e);t = t.t[GETBITS(e)];e = t.e;}DUMPBITS(t.b);if (e === 16) {wp &= WSIZE - 1;buff[off + n++] = slide[wp++] = t.n;if (n === size) {return size;}continue;}if (e === 15) {break;}NEEDBITS(e);copy_leng = t.n + GETBITS(e);DUMPBITS(e);NEEDBITS(bd);t = td.list[GETBITS(bd)];e = t.e;while (e > 16) {if (e === 99) {return -1;}DUMPBITS(t.b);e -= 16;NEEDBITS(e);t = t.t[GETBITS(e)];e = t.e;}DUMPBITS(t.b);NEEDBITS(e);copy_dist = wp - t.n - GETBITS(e);DUMPBITS(e);while (copy_leng > 0 && n < size) {copy_leng--;copy_dist &= WSIZE - 1;wp &= WSIZE - 1;buff[off + n++] = slide[wp++] = slide[copy_dist++];}if (n === size) {return size;}}method = -1;return n;}
+	function inflate_stored(buff, off, size) {var n;n = bit_len & 7;DUMPBITS(n);NEEDBITS(16);n = GETBITS(16);DUMPBITS(16);NEEDBITS(16);if (n !== ((~bit_buf) & 0xffff)) {return -1;}DUMPBITS(16);copy_leng = n;n = 0;while (copy_leng > 0 && n < size) {copy_leng--;wp &= WSIZE - 1;NEEDBITS(8);buff[off + n++] = slide[wp++] = GETBITS(8);DUMPBITS(8);}if (copy_leng === 0) {method = -1; }return n;}
+	function inflate_fixed(buff, off, size) {if (!fixed_tl) {var i; var l = [];var h;for (i = 0; i < 144; i++) {l[i] = 8;}for (null; i < 256; i++) {l[i] = 9;}for (null; i < 280; i++) {l[i] = 7;}for (null; i < 288; i++) {l[i] = 8;}fixed_bl = 7;h = new HuftBuild(l, 288, 257, cplens, cplext, fixed_bl);if (h.status !== 0) {console.error("HufBuild error: " + h.status);return -1;}fixed_tl = h.root;fixed_bl = h.m;for (i = 0; i < 30; i++) {l[i] = 5;}fixed_bd = 5;h = new HuftBuild(l, 30, 0, cpdist, cpdext, fixed_bd);if (h.status > 1) {fixed_tl = null;console.error("HufBuild error: " + h.status);return -1;}fixed_td = h.root;fixed_bd = h.m;}tl = fixed_tl;td = fixed_td;bl = fixed_bl;bd = fixed_bd;return inflate_codes(buff, off, size);}
+	function inflate_dynamic(buff, off, size) {var i;var j;var l;var n;var t;var nb;var nl;var nd;var ll = [];var h;for (i = 0; i < 286 + 30; i++) {ll[i] = 0;}NEEDBITS(5);nl = 257 + GETBITS(5);DUMPBITS(5);NEEDBITS(5);nd = 1 + GETBITS(5);DUMPBITS(5);NEEDBITS(4);nb = 4 + GETBITS(4);DUMPBITS(4);if (nl > 286 || nd > 30) {return -1;}for (j = 0; j < nb; j++) {NEEDBITS(3);ll[border[j]] = GETBITS(3);DUMPBITS(3);}for (null; j < 19; j++) {ll[border[j]] = 0;}bl = 7;h = new HuftBuild(ll, 19, 19, null, null, bl);if (h.status !== 0) {return -1;}tl = h.root;bl = h.m;n = nl + nd;i = l = 0;while (i < n) {NEEDBITS(bl);t = tl.list[GETBITS(bl)];j = t.b;DUMPBITS(j);j = t.n;if (j < 16) {ll[i++] = l = j;} else if (j === 16) {NEEDBITS(2);j = 3 + GETBITS(2);DUMPBITS(2);if (i + j > n) {return -1;}while (j-- > 0) {ll[i++] = l;}} else if (j === 17) {NEEDBITS(3);j = 3 + GETBITS(3);DUMPBITS(3);if (i + j > n) {return -1;}while (j-- > 0) {ll[i++] = 0;}l = 0;} else {NEEDBITS(7);j = 11 + GETBITS(7);DUMPBITS(7);if (i + j > n) {return -1;}while (j-- > 0) {ll[i++] = 0;}l = 0;}}bl = lbits;h = new HuftBuild(ll, nl, 257, cplens, cplext, bl);if (bl === 0) {h.status = 1;}if (h.status !== 0) {if (h.status !== 1) {return -1;}}tl = h.root;bl = h.m;for (i = 0; i < nd; i++) {ll[i] = ll[i + nl];}bd = dbits;h = new HuftBuild(ll, nd, 0, cpdist, cpdext, bd);td = h.root;bd = h.m;if (bd === 0 && nl > 257) {return -1;}if (h.status !== 0) {return -1;}return inflate_codes(buff, off, size);}
+	function inflate_start() {if (!slide) {slide = [];}wp = 0;bit_buf = 0;bit_len = 0;method = -1;eof = false;copy_leng = copy_dist = 0;tl = null;}
+	function inflate_internal(buff, off, size) {var n, i;n = 0;while (n < size) {if (eof && method === -1) {return n;}if (copy_leng > 0) {if (method !== STORED_BLOCK) {while (copy_leng > 0 && n < size) {copy_leng--;copy_dist &= WSIZE - 1;wp &= WSIZE - 1;buff[off + n++] = slide[wp++] = slide[copy_dist++];}} else {while (copy_leng > 0 && n < size) {copy_leng--;wp &= WSIZE - 1;NEEDBITS(8);buff[off + n++] = slide[wp++] = GETBITS(8);DUMPBITS(8);}if (copy_leng === 0) {method = -1;}}if (n === size) {return n;}}if (method === -1) {if (eof) {break;}NEEDBITS(1);if (GETBITS(1) !== 0) {eof = true;}DUMPBITS(1);NEEDBITS(2);method = GETBITS(2);DUMPBITS(2);tl = null;copy_leng = 0;}switch (method) {case STORED_BLOCK:i = inflate_stored(buff, off + n, size - n);break;case STATIC_TREES:if (tl) {i = inflate_codes(buff, off + n, size - n);} else {i = inflate_fixed(buff, off + n, size - n);}break;case DYN_TREES:if (tl) {i = inflate_codes(buff, off + n, size - n);} else {i = inflate_dynamic(buff, off + n, size - n);}break;default:i = -1;break;}if (i === -1) {if (eof) {return 0;}return -1;}n += i;}return n;}
+	function inflate(arr) {var buff = [], i;inflate_start();inflate_data = arr;inflate_pos = 0;do {i = inflate_internal(buff, buff.length, 1024);} while (i > 0);inflate_data = null;return buff;}
+//****************************UNZIP*********************************************//

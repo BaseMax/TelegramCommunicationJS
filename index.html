@@ -6,10 +6,12 @@
   </head>
   <body>
 
-  <p  id="serverresult"></p>	  
-  <p  id="htmlresult"></p>	  
-  <p  id="mtprotoresult"></p>	  
-	  
+  <p  id="mtprotoresult">Connecting to server......</p><br>	  
+  <label hidden id="phonelabel">phone number</label><input hidden type="text" id="phone">
+  <button type="button" hidden id="phoneSend" onClick="sendphonenum(document.getElementById('phone').value)">Send</button><br>
+  <label hidden id="codelabel">SMS code</label><input hidden type="text" id="code">
+  <button type="button" hidden id="codeSend" onClick="sendcode(document.getElementById('code').value)">Send</button><br>
+  	  
   <script src="tlg.js"></script>
 
 	</body>
