@@ -43,12 +43,3 @@ const systemVersion = "18.04"
 const appVersion = "1.00"
 const langCode = "en"
 const systemLangCode = "en"
-
-const DC = [
-	"", //DC0
-    "ws://149.154.175.50/apiws",
-    "ws://149.154.167.51/apiws",
-    "ws://149.154.175.100/apiws",
-	"ws://149.154.167.91/apiws",
-    "ws://149.154.171.5/apiws",
-]
