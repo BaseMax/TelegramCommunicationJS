@@ -4248,11 +4248,15 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {}
 		break
 	}
-		default:{
-			request = null
-			console.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')
-			break
-		}
+	case 0x2144ca19:{//RPCerror error:int message:string
+		request = {[i++]:{error:"int"},[i++]:{error_text:"string"}}
+		break
+	}
+	default:{
+		request = null
+		console.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')
+		break
+	}
 	}
 	return request
 }

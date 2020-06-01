@@ -7,13 +7,16 @@
   <body>
 
   <p  id="mtprotoresult">Connecting to server......</p><br>	  
-  <label hidden id="phonelabel">phone number</label><input hidden type="text" id="phone">
-  <button type="button" hidden id="phoneSend" onClick="sendphonenum(document.getElementById('phone').value)">Send</button><br>
-  <label hidden id="codelabel">SMS code</label><input hidden type="text" id="code">
-  <button type="button" hidden id="codeSend" onClick="sendcode(document.getElementById('code').value)">Send</button><br>
-  <button type="button" hidden id="getContacts" onClick="getContacts()">Get Contact List</button><br>
-  <div id="tgresult" style="background-color:black;color:white;padding:20px;overflow-y: auto;height: 240px;">
- </div>	  
+	<div hidden id="phonelabel"><label>phone number</label><input type="text" id="phone">
+  		<button type="button" onClick="sendphonenum(document.getElementById('phone').value)">Send</button><br>
+	</div>
+	<div hidden id="codelabel"><label>SMS code</label><input type="text" id="code">
+  		<button type="button" onClick="sendcode(document.getElementById('code').value)">Send</button><br>
+	</div>
+	<div hidden id="getContacts" > 
+  		<button type="button" onClick="getContacts()">Get Contact List</button><br>
+		<div id="tgresult" style="background-color:black;color:white;padding:20px;overflow-y: auto;height: 240px;"></div>	  
+	</div>
   <script src="tlg.js"></script>
 
 	</body>

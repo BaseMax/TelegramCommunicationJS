@@ -1,14 +1,19 @@
 include('constructs.js');
+include('utils.js');
 include('func.js');
 include('settings.js');
-
 
 const mtproto_state = document.getElementById('mtprotoresult')
 const tg_out = document.getElementById('tgresult')
 tg_out.innerHTML= "=<br>"
 var dataC = localStorage.getItem('dc')
 if(dataC == null) dataC = "1"
-localStorage.setItem('dc',dataC)
+//localStorage.setItem('dc',dataC)
+
+var M2Hash = localStorage.getItem('M2')
+if(M2Hash == null) M2Hash = null
+//localStorage.setItem('M2',M2Hash)
+
 
 const mainloopdelay = 10
 var mainlooptimer = null
@@ -18,45 +23,109 @@ var phonenum=null
 var _phonenum=null
 var _phonehash = null
 var code=null
+var password=null
+var _password=""
+var SPR=null
 var tl_request=null
 var testcounter0= 0
 
 function restore_input(){
-	document.getElementById('phone').disabled=false
-	document.getElementById('phoneSend').disabled=false
-	document.getElementById('code').disabled=false
-	document.getElementById('codeSend').disabled=false
-	document.getElementById('getContacts').disabled=false
+	document.getElementById('phonelabel').hidden=true
+	document.getElementById('phonelabel').style=""
+	document.getElementById('codelabel').hidden=true
+	document.getElementById('codelabel').style=""
+	document.getElementById('getContacts').hidden=true
+	document.getElementById('getContacts').style=""
 }
 function sendphonenum(number){
 	//auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
-	//todo numerate properties
-	phonenum={id:"PhoneNumber",body:{tl_constructor:{uint4:0xa677244f},
-									 phone_number:{string:number.replace("+","")},
-									 api_id:{uint4:api_id},
-									 api_hash:{string:api_hash},
-									 settings:{uint4:0xdebebe83},
-									 flags:{uint4:0}}} 
+	var i = 0
+	phonenum={id:"PhoneNumber",body:{[i++]:{tl_constructor:{uint4:0xa677244f}},
+									[i++]:{phone_number:{string:number.replace("+","")}},
+									[i++]:{api_id:{uint4:api_id}},
+									[i++]:{api_hash:{string:api_hash}},
+									[i++]:{settings:{uint4:0xdebebe83}},
+									[i++]:{flags:{uint4:0}}}} 
 //	phonenum={id:"nearestdc",body:{tl_constructor:{uint4:0x1fb33026}}}
-	document.getElementById('phone').disabled=true
-	document.getElementById('phoneSend').disabled=true
+	document.getElementById('phonelabel').style="pointer-events: none; opacity: 0.4;" 
 	_phonenum = number.replace("+","")
 	mode = 3
 }
 function sendcode(phonecode){
 	//auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
-	//todo numerate properties
-	code={id:"PhoneCode",body:{tl_constructor:{uint4:0xbcd51581},
-							  phone_number:{string:_phonenum},
-							  phone_code_hash:{string:_phonehash},
-							  phone_code:{string:phonecode}}}
-	document.getElementById('code').disabled=true
-	document.getElementById('codeSend').disabled=true
+	var i = 0
+	code={id:"PhoneCode",body:{[i++]:{tl_constructor:{uint4:0xbcd51581}},
+							  [i++]:{phone_number:{string:_phonenum}},
+		  					  [i++]:{phone_code_hash:{string:_phonehash}},
+							  [i++]:{phone_code:{string:phonecode}}}}
+	document.getElementById('codelabel').style="pointer-events: none; opacity: 0.4;" 
 	mode = 6
 }
-function getContacts(){
+function getPassword(){
+	//account.getPassword#548a30f5 = account.Password;
 	//todo numerate properties
-    tl_request={id:"GetContacts",body:{tl_constructor:{uint4:0xc4a353ee}}}
+	var i = 0
+	password={id:"GetPassword",body:{[i++]:{tl_constructor:{uint4:0x548a30f5}}}}
+	mode = 61
+}
+
+function createPassHash(algo){
+	//inputCheckPasswordSRP #d27ff082 srp_id: long A: bytes M1: bytes = InputCheckPasswordSRP ; 
+	var i = 0
+	if(M2Hash == null){
+		_password =  prompt('Enter password');
+		if(_password == null) _password=""
+		var hash1 = Sha256(algo.current_algo.salt1.concat(readArrayFromString(_password).concat(algo.current_algo.salt1)))
+		var hash2 = Sha256(algo.current_algo.salt2.concat(hash1.concat(algo.current_algo.salt2)))
+		var hash3 = pbkdf2(hash2, algo.current_algo.salt1, 100000)
+		var M2 = Sha256(algo.current_algo.salt2.concat(hash3.concat(algo.current_algo.salt2)));
+		M2Hash = M2
+		localStorage.setItem('M2',M2Hash)
+	} else {
+		M2=JSON.parse("[" + M2Hash + "]")
+	}
+	var p = readBigIntFromBuffer(algo.current_algo.p, false)
+	var g = algo.current_algo.g
+	var B = readBigIntFromBuffer(algo.srp_B, false)
+
+	var x = readBigIntFromBuffer(M2, false)
+	var pForHash = new Array(256-algo.current_algo.p.length).concat(algo.current_algo.p)
+	var gForHash = readBufferFromBigInt(g, 256, false)
+	var bForHash = new Array(256-algo.srp_B.length).concat(algo.srp_B)
+	var gX = modExp(BigInt(g), x, p)
+	var k = readBigIntFromBuffer(Sha256(pForHash.concat(gForHash)), false)
+	var kgX = k * gX % p
+
+	var _a = readBigIntFromBuffer(algo.secure_random, false)
+	var A = modExp(BigInt(g), _a, p)
+	var aForHash = readBufferFromBigInt(A, 256, false)
+
+	var u = readBigIntFromBuffer(Sha256(aForHash.concat(bForHash)), false)
+	var gB = (B - kgX) % p
+	var ux = u * x
+	var aUx = _a + ux
+	var S = modExp(gB, aUx, p)
+	var K = Sha256(readBufferFromBigInt(S, 256, false))
+	var pFH = Sha256(algo.current_algo.p)
+	var gFH = Sha256(gForHash)
+	for (var j = 0; j < 32; j++) {
+		pFH[j] = pFH[j] ^ gFH[j];
+	}
+	var M1 = Sha256(pFH.concat(Sha256(algo.current_algo.salt1).concat(Sha256(algo.current_algo.salt2).concat(aForHash.concat(bForHash.concat(K))))));
+
+	//auth.checkPassword#d18b4d16 password:InputCheckPasswordSRP = auth.Authorization;
+	SPR={id:"inputCheckPasswordSRP",body:{[i++]:{tl_constructor:{uint4:0xd18b4d16}},
+										[i++]:{password:{uint4:0xd27ff082}},
+										[i++]:{srp_id:{long:algo.srp_id.toString()}},
+										[i++]:{A:{bytes:aForHash}},
+										[i++]:{M1:{bytes:M1}}}}
+	mode = 62
+}
+
+
+function getContacts(){
+	var i = 0
+    tl_request={id:"GetContacts",body:{[i++]:{tl_constructor:{uint4:0xc4a353ee}}}}
 	mode = 8
 	
 }
@@ -78,6 +147,16 @@ function mainloop(){
 			    mode = 7 //wait signin
 			    mtprotoproc.postMessage(['message_to_queue',code,'Send phone code..'])
 			    break
+		}
+		case 61:{
+				mode = 71 //wait passw request
+			    mtprotoproc.postMessage(['message_to_queue',password,'Request password for 2FA..'])
+				break
+		}
+		case 62:{
+				mode = 72 //wait passw request
+			    mtprotoproc.postMessage(['message_to_queue',SPR,'Check password + connect 2FA..'])
+				break
 		}
 		case 8:{
 			    mode = 7 //wait answer
@@ -110,34 +189,41 @@ if(window.Worker) {
 function get_mtprotoprocdata(e){
 	switch (e.data[0]){
 		case 1:{
-				mtproto_state.innerHTML = e.data[1]
+				mtproto_state.innerHTML = "Wait phone num"
 				mode = 2 //connected
 				document.getElementById('phonelabel').hidden=false
+				/*
 				document.getElementById('phone').hidden=false
 				document.getElementById('phoneSend').hidden=false
+				*/
 				break
 				}
 		case 2:{//answer from mtproto
-				mtproto_state.innerHTML = e.data[1]
+//				mtproto_state.innerHTML = e.data[1]
 //				console.hex(e.data[1].message_answer)
 				var ob = parse_answer(e.data[1].message_answer)
 				switch (e.data[1].id) {
 					case "PhoneNumber" :{
-						mtproto_state.innerHTML = JSON.stringify(ob)
 						if(ob.error == undefined){
+							mtproto_state.innerHTML = "Wait SMS code"
 							mode = 5 //wait sms code
 							_phonehash = ob.phone_code_hash
 							document.getElementById('codelabel').hidden=false
+							/*
 							document.getElementById('code').hidden=false
 							document.getElementById('codeSend').hidden=false
+							*/
 						}else{
 							if(ob.error == 303){ //migrate telephone
+								mtproto_state.innerHTML = "Reconnect to valid DC"
 								mode = 0 //reconnect to another DC
 								dataC = ob.error_text.slice(-1)
 								localStorage.setItem('dc',dataC)
+								/*
 								document.getElementById('phonelabel').hidden=true
 								document.getElementById('phone').hidden=true
 								document.getElementById('phoneSend').hidden=true
+								*/
 								testcounter0 = 0
 								restore_input()
 							}
@@ -145,23 +231,52 @@ function get_mtprotoprocdata(e){
 						break
 					}
 					case "PhoneCode": {
-						mtproto_state.innerHTML = "login Ok"
-						tg_out.innerHTML += "name: "+ob.user.first_name+"<br>"
-						tg_out.innerHTML += "last name: "+ob.user.last_name+"<br>"
-						tg_out.innerHTML += "user name: "+ob.user.username+"<br>"
-						tg_out.innerHTML += "phone: "+ob.user.phone+"<br>"
-						tg_out.innerHTML += "status: "+ob.user.status.was_online+"<br>"
+						if(ob.error == undefined){
+							mtproto_state.innerHTML = "login Ok"
+							tg_out.innerHTML += "name: "+ob.user.first_name+"<br>"
+							tg_out.innerHTML += "last name: "+ob.user.last_name+"<br>"
+							tg_out.innerHTML += "user name: "+ob.user.username+"<br>"
+							tg_out.innerHTML += "phone: "+ob.user.phone+"<br>"
+							tg_out.innerHTML += "status: "+ob.user.status.was_online+"<br>"
 
-						document.getElementById('getContacts').hidden=false
-						document.getElementById('phonelabel').hidden=true
-						document.getElementById('phone').hidden=true
-						document.getElementById('phoneSend').hidden=true
-						document.getElementById('codelabel').hidden=true
-						document.getElementById('code').hidden=true
-						document.getElementById('codeSend').hidden=true
-						//mode = 10 //connected to server and logined
+							document.getElementById('getContacts').hidden=false
+							document.getElementById('phonelabel').hidden=true
+							document.getElementById('codelabel').hidden=true
+							//mode = 10 //connected to server and logined
+						}else{
+							if(ob.error == 401){ //SESSION_PASSWORD_NEEDED
+								mtproto_state.innerHTML = "2FA connect"
+								//2FA
+								getPassword()
+							}
+						}
 						break
-					}					
+					}	
+					case "GetPassword":{
+						mtproto_state.innerHTML = "Wait 2FA password"
+						createPassHash(ob)
+						break
+					}
+					case "inputCheckPasswordSRP":{
+						if(ob.error == undefined){
+							mtproto_state.innerHTML = "login Ok"
+							tg_out.innerHTML += "name: "+ob.user.first_name+"<br>"
+							tg_out.innerHTML += "last name: "+ob.user.last_name+"<br>"
+							tg_out.innerHTML += "user name: "+ob.user.username+"<br>"
+							tg_out.innerHTML += "phone: "+ob.user.phone+"<br>"
+							tg_out.innerHTML += "status: "+ob.user.status.was_online+"<br>"
+
+							document.getElementById('getContacts').hidden=false
+							document.getElementById('phonelabel').hidden=true
+							document.getElementById('codelabel').hidden=true
+							//mode = 10 //connected to server and logined
+						} else {
+							if(ob.error == 400){ //SESSION_PASSWORD_BAD
+								mtproto_state.innerHTML = "Bad password? may be reconnect"
+							}
+						}
+						break
+					}
 					case "GetContacts": {
 						for(var i=1;i<ob[0];i++){
 							if(isObject(ob[i])){
@@ -297,7 +412,12 @@ function pick_out(arr,tl_info){
 			}
 			case "string":{
 				out[properties] = readString(arr)
-				arr = arr.slice(lengthString(arr))
+				arr = arr.slice(lengthStringOrBytes(arr))
+				break
+			}
+			case "bytes":{
+				out[properties] = readBytes(arr)
+				arr = arr.slice(lengthStringOrBytes(arr))
 				break
 			}
 			case "true":{

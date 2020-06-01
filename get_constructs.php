@@ -17,7 +17,7 @@ foreach($jsonData->constructors as $key=>$value){
 	if( strcmp($constructor_id,"1cb5c415") != 0 ){ 
 		echo "\tcase 0x" . $constructor_id . ": {// " . $value->predicate . "\n";
 		if(count($value->params) > 0){
-			if(strcmp($value->params[0]->name,"flags") == 0){
+			if(strcmp($value->params[0]->name,"flags") == 0){// constructor flags unique parsing
 				echo "\t\trequest = {}\n";
 				for($i = 0; $i<count($value->params);$i++){
 					if(strpos($value->params[$i]->type,"flags") !== false){
@@ -51,11 +51,17 @@ foreach($jsonData->constructors as $key=>$value){
 		echo "\t}\n";
 	}
 }
-echo "\t\tdefault:{\n";
-echo "\t\t\trequest = null\n";
-echo "\t\t\tconsole.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')\n";
-echo "\t\t\tbreak\n";
-echo "\t\t}\n";
+//constructors not included in https://core.telegram.org/schema/json
+echo "\n\\\\\tmanual added constructors\n\n";
+echo "\tcase 0x2144ca19:{//RPCerror error:int message:string\n";
+echo "\t\trequest = {[i++]:{error:\"int\"},[i++]:{error_text:\"string\"}}\n";
+echo "\t\tbreak\n";
+echo "\t}\n";
+echo "\tdefault:{\n";
+echo "\t\trequest = null\n";
+echo "\t\tconsole.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')\n";
+echo "\t\tbreak\n";
+echo "\t}\n";
 echo "\t}\n";
 echo "\treturn request\n";
 echo "}\n";

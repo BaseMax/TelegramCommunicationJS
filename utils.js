@@ -1,4 +1,7 @@
 	function checkArrays( arrA, arrB ){if(arrA.length !== arrB.length) return false;for(var i=0;i<arrA.length;i++){if(arrA[i]!==arrB[i]) return false;}return true;}
+	function readUInt32LE (buffer, offset) {offset = offset || 0;return ((buffer[offset]) | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16)) + (buffer[offset + 3] * 0x1000000)}
+	function readBigIntFromBuffer(buffer) {var little = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;var signed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;var randBuffer = Array.from(buffer);var bytesNumber = randBuffer.length;if (little) {randBuffer = randBuffer.reverse();}var res="";for(var i=0; i<randBuffer.length;i++){res = res+(('0' + (randBuffer[i] & 0xFF).toString(16)).slice(-2));}var bigInt = BigInt('0x' + res);if (signed && Math.floor(bigInt.toString('2').length / 8) >= bytesNumber) {bigInt -= bigIntPower(BigInt(2), BigInt(bytesNumber * 8));}return bigInt;}
+	function bigIntPower(a, b) {var i;var pow = BigInt(1);for (i = BigInt(0); i < b; i++) {pow = pow * a;}return pow;}
 
 //***********************************RSA**************************************//
 	function BigIntToAray(num){const hex = num.toString('16');var l = [];for (var i = hex.length; i >0; i>1?i-=2:i-=1){l.unshift(parseInt(hex.substr(i-2,i>1?2:1),16));}return l;}
@@ -94,3 +97,97 @@
 	function inflate_internal(buff, off, size) {var n, i;n = 0;while (n < size) {if (eof && method === -1) {return n;}if (copy_leng > 0) {if (method !== STORED_BLOCK) {while (copy_leng > 0 && n < size) {copy_leng--;copy_dist &= WSIZE - 1;wp &= WSIZE - 1;buff[off + n++] = slide[wp++] = slide[copy_dist++];}} else {while (copy_leng > 0 && n < size) {copy_leng--;wp &= WSIZE - 1;NEEDBITS(8);buff[off + n++] = slide[wp++] = GETBITS(8);DUMPBITS(8);}if (copy_leng === 0) {method = -1;}}if (n === size) {return n;}}if (method === -1) {if (eof) {break;}NEEDBITS(1);if (GETBITS(1) !== 0) {eof = true;}DUMPBITS(1);NEEDBITS(2);method = GETBITS(2);DUMPBITS(2);tl = null;copy_leng = 0;}switch (method) {case STORED_BLOCK:i = inflate_stored(buff, off + n, size - n);break;case STATIC_TREES:if (tl) {i = inflate_codes(buff, off + n, size - n);} else {i = inflate_fixed(buff, off + n, size - n);}break;case DYN_TREES:if (tl) {i = inflate_codes(buff, off + n, size - n);} else {i = inflate_dynamic(buff, off + n, size - n);}break;default:i = -1;break;}if (i === -1) {if (eof) {return 0;}return -1;}n += i;}return n;}
 	function inflate(arr) {var buff = [], i;inflate_start();inflate_data = arr;inflate_pos = 0;do {i = inflate_internal(buff, buff.length, 1024);} while (i > 0);inflate_data = null;return buff;}
 //****************************UNZIP*********************************************//
+
+
+function pbkdf2(password, salt, iterations) {
+	var K = [0x428a2f98, 0xd728ae22, 0x71374491, 0x23ef65cd, 0xb5c0fbcf, 0xec4d3b2f, 0xe9b5dba5, 0x8189dbbc, 0x3956c25b, 0xf348b538, 0x59f111f1, 0xb605d019, 0x923f82a4, 0xaf194f9b, 0xab1c5ed5, 0xda6d8118, 0xd807aa98, 0xa3030242, 0x12835b01, 0x45706fbe, 0x243185be, 0x4ee4b28c, 0x550c7dc3, 0xd5ffb4e2, 0x72be5d74, 0xf27b896f, 0x80deb1fe, 0x3b1696b1, 0x9bdc06a7, 0x25c71235, 0xc19bf174, 0xcf692694, 0xe49b69c1, 0x9ef14ad2, 0xefbe4786, 0x384f25e3, 0x0fc19dc6, 0x8b8cd5b5, 0x240ca1cc, 0x77ac9c65, 0x2de92c6f, 0x592b0275, 0x4a7484aa, 0x6ea6e483, 0x5cb0a9dc, 0xbd41fbd4, 0x76f988da, 0x831153b5, 0x983e5152, 0xee66dfab, 0xa831c66d, 0x2db43210, 0xb00327c8, 0x98fb213f, 0xbf597fc7, 0xbeef0ee4, 0xc6e00bf3, 0x3da88fc2, 0xd5a79147, 0x930aa725, 0x06ca6351, 0xe003826f, 0x14292967, 0x0a0e6e70, 0x27b70a85, 0x46d22ffc, 0x2e1b2138, 0x5c26c926, 0x4d2c6dfc, 0x5ac42aed, 0x53380d13, 0x9d95b3df, 0x650a7354, 0x8baf63de, 0x766a0abb, 0x3c77b2a8, 0x81c2c92e, 0x47edaee6, 0x92722c85, 0x1482353b, 0xa2bfe8a1, 0x4cf10364, 0xa81a664b, 0xbc423001, 0xc24b8b70, 0xd0f89791, 0xc76c51a3, 0x0654be30, 0xd192e819, 0xd6ef5218, 0xd6990624, 0x5565a910, 0xf40e3585, 0x5771202a, 0x106aa070, 0x32bbd1b8, 0x19a4c116, 0xb8d2d0c8, 0x1e376c08, 0x5141ab53, 0x2748774c, 0xdf8eeb99, 0x34b0bcb5, 0xe19b48a8, 0x391c0cb3, 0xc5c95a63, 0x4ed8aa4a, 0xe3418acb, 0x5b9cca4f, 0x7763e373, 0x682e6ff3, 0xd6b2b8a3, 0x748f82ee, 0x5defb2fc, 0x78a5636f, 0x43172f60, 0x84c87814, 0xa1f0ab72, 0x8cc70208, 0x1a6439ec, 0x90befffa, 0x23631e28, 0xa4506ceb, 0xde82bde9, 0xbef9a3f7, 0xb2c67915, 0xc67178f2, 0xe372532b, 0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207, 0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178, 0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6, 0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b, 0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493, 0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c, 0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817];
+	var W = new Array(160);
+	function Ch(x, y, z) {return z ^ x & (y ^ z);}
+	function maj(x, y, z) {return x & y | z & (x | y);}
+	function sigma0(x, xl) {return (x >>> 28 | xl << 4) ^ (xl >>> 2 | x << 30) ^ (xl >>> 7 | x << 25);}
+	function sigma1(x, xl) {return (x >>> 14 | xl << 18) ^ (x >>> 18 | xl << 14) ^ (xl >>> 9 | x << 23);}
+	function Gamma0(x, xl) {return (x >>> 1 | xl << 31) ^ (x >>> 8 | xl << 24) ^ x >>> 7;}
+	function Gamma0l(x, xl) {return (x >>> 1 | xl << 31) ^ (x >>> 8 | xl << 24) ^ (x >>> 7 | xl << 25);}
+	function Gamma1(x, xl) {return (x >>> 19 | xl << 13) ^ (xl >>> 29 | x << 3) ^ x >>> 6;}
+	function Gamma1l(x, xl) {return (x >>> 19 | xl << 13) ^ (xl >>> 29 | x << 3) ^ (x >>> 6 | xl << 26);}
+	function getCarry(a, b) {return a >>> 0 < b >>> 0 ? 1 : 0;}
+	function Sha512(data){var _w = W;function _update(M){var W = _w;var ah = _ah | 0;var bh = _bh | 0;var ch = _ch | 0;var dh = _dh | 0;var eh = _eh | 0;var fh = _fh | 0;var gh = _gh | 0;var hh = _hh | 0;var al = _al | 0;var bl = _bl | 0;var cl = _cl | 0;var dl = _dl | 0;var el = _el | 0;var fl = _fl | 0;var gl = _gl | 0;var hl = _hl | 0;for (var i = 0; i < 32; i += 2) {W[i] = readInt32BE(M,i * 4);W[i + 1] = readInt32BE(M,i * 4 + 4);}for (; i < 160; i += 2) {var xh = W[i - 15 * 2];var xl = W[i - 15 * 2 + 1];var gamma0 = Gamma0(xh, xl);var gamma0l = Gamma0l(xl, xh);xh = W[i - 2 * 2];xl = W[i - 2 * 2 + 1];var gamma1 = Gamma1(xh, xl);var gamma1l = Gamma1l(xl, xh);var Wi7h = W[i - 7 * 2];var Wi7l = W[i - 7 * 2 + 1];var Wi16h = W[i - 16 * 2];var Wi16l = W[i - 16 * 2 + 1];var Wil = gamma0l + Wi7l | 0;var Wih = gamma0 + Wi7h + getCarry(Wil, gamma0l) | 0;Wil = Wil + gamma1l | 0;Wih = Wih + gamma1 + getCarry(Wil, gamma1l) | 0;Wil = Wil + Wi16l | 0;Wih = Wih + Wi16h + getCarry(Wil, Wi16l) | 0;W[i] = Wih;W[i + 1] = Wil;}for (var j = 0; j < 160; j += 2) {Wih = W[j];Wil = W[j + 1];var majh = maj(ah, bh, ch);var majl = maj(al, bl, cl);var sigma0h = sigma0(ah, al);var sigma0l = sigma0(al, ah);var sigma1h = sigma1(eh, el);var sigma1l = sigma1(el, eh);var Kih = K[j];var Kil = K[j + 1];var chh = Ch(eh, fh, gh);var chl = Ch(el, fl, gl);var t1l = hl + sigma1l | 0;var t1h = hh + sigma1h + getCarry(t1l, hl) | 0;t1l = t1l + chl | 0;t1h = t1h + chh + getCarry(t1l, chl) | 0;t1l = t1l + Kil | 0;t1h = t1h + Kih + getCarry(t1l, Kil) | 0;t1l = t1l + Wil | 0;t1h = t1h + Wih + getCarry(t1l, Wil) | 0;var t2l = sigma0l + majl | 0;var t2h = sigma0h + majh + getCarry(t2l, sigma0l) | 0;hh = gh;hl = gl;gh = fh;gl = fl;fh = eh;fl = el;el = dl + t1l | 0;eh = dh + t1h + getCarry(el, dl) | 0;dh = ch;dl = cl;ch = bh;cl = bl;bh = ah;bl = al;al = t1l + t2l | 0;ah = t1h + t2h + getCarry(al, t1l) | 0;}_al = _al + al | 0;_bl = _bl + bl | 0;_cl = _cl + cl | 0;_dl = _dl + dl | 0;_el = _el + el | 0;_fl = _fl + fl | 0;_gl = _gl + gl | 0;_hl = _hl + hl | 0;_ah = _ah + ah + getCarry(_al, al) | 0;_bh = _bh + bh + getCarry(_bl, bl) | 0;_ch = _ch + ch + getCarry(_cl, cl) | 0;_dh = _dh + dh + getCarry(_dl, dl) | 0;_eh = _eh + eh + getCarry(_el, el) | 0;_fh = _fh + fh + getCarry(_fl, fl) | 0;_gh = _gh + gh + getCarry(_gl, gl) | 0;_hh = _hh + hh + getCarry(_hl, hl) | 0;}
+	function _hash(){var H = new Array(64).fill(0);function writeInt64BE(h, l, offset) {writeInt32BE(H, h, offset);writeInt32BE(H, l, offset + 4);}writeInt64BE(_ah, _al, 0);writeInt64BE(_bh, _bl, 8);writeInt64BE(_ch, _cl, 16);writeInt64BE(_dh, _dl, 24);writeInt64BE(_eh, _el, 32);writeInt64BE(_fh, _fl, 40);writeInt64BE(_gh, _gl, 48);writeInt64BE(_hh, _hl, 56);return H;}
+
+	var _ah = 0x6a09e667;
+	var _bh = 0xbb67ae85;
+	var _ch = 0x3c6ef372;
+	var _dh = 0xa54ff53a;
+	var _eh = 0x510e527f;
+	var _fh = 0x9b05688c;
+	var _gh = 0x1f83d9ab;
+	var _hh = 0x5be0cd19;
+	var _al = 0xf3bcc908;
+	var _bl = 0x84caa73b;
+	var _cl = 0xfe94f82b;
+	var _dl = 0x5f1d36f1;
+	var _el = 0xade682d1;
+	var _fl = 0x2b3e6c1f;
+	var _gl = 0xfb41bd6b;
+	var _hl = 0x137e2179;
+	var _block = new Array(128);
+	var _finalSize = 112;
+	var _blockSize = 128;
+	var _len = 0;
+	var length = data.length;
+	var accum = _len;
+	for (var offset = 0; offset < length;) {
+		var assigned = accum % _blockSize;
+		var remainder = Math.min(length - offset, _blockSize - assigned);
+		for (var i = 0; i < remainder; i++) {
+		  _block[assigned + i] = data[offset + i];
+		}
+		accum += remainder;
+		offset += remainder;
+		if (accum % _blockSize === 0) {
+		  _update(_block);
+		}
+	}
+	_len += length;
+	var rem = _len % _blockSize;
+	_block[rem] = 0x80;
+	_block.fill(0, rem + 1);
+	if (rem >= _finalSize) {
+		_update(_block);
+		_block.fill(0);
+	}
+	var bits = _len * 8; 
+	if (bits <= 0xffffffff) {
+		writeUInt32BE(_block, bits, _blockSize - 4); 
+	} else {
+		var lowBits = (bits & 0xffffffff) >>> 0;
+		var highBits = (bits - lowBits) / 0x100000000;
+		writeUInt32BE(_block, highBits, _blockSize - 8);
+		writeUInt32BE(_block, lowBits, _blockSize - 4);
+	}
+	_update(_block);
+	return _hash();
+}
+
+//  checkParameters(password, salt, iterations, keylen);
+	var key = password.concat(new Array(128-password.length).fill(0));
+	var ipad2 = new Array(128+64).fill(0);
+	var opad = new Array(128+64).fill(0);
+	for (var i = 0; i < 128; i++) {
+		ipad2[i] = key[i] ^ 0x36;
+		opad[i] = key[i] ^ 0x5C;
+	}
+	var ipad1 = ipad2.slice(0,128).concat(salt.concat(new Array(3).fill(0).concat([1])));
+    var h = Sha512(ipad1);
+	var T = Sha512([...opad].splice(0,128).concat(h));
+	var U = [...T];
+    for (var j = 1; j < iterations; j++) {
+		if(j % 100 == 0)console.log('sha512 loop x100');
+		var h = Sha512([...ipad2].splice(0,128).concat(U));
+		U = Sha512([...opad].splice(0,128).concat(h));
+    	for (var k = 0; k < 64; k++) {
+        	T[k] ^= U[k];
+    	}
+    }
+  return T;
+}

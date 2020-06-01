@@ -278,17 +278,29 @@ function process_message(){
 	var message_to_send = message_queue({issent:false}).get();
 	for(var i = 0 ; i < message_to_send.length; i++){
 		var data = []
-//todo numerate properties		
-		var properties = Object.getOwnPropertyNames(message_to_send[i].body)
-		for(var j = 0; j < properties.length; j++){
-			var f =  Object.getOwnPropertyNames(message_to_send[i].body[properties[j]])
-			switch (f[0]){
+//todo numerate properties	
+		var properties_length = Object.keys(message_to_send[i].body).length
+//		var properties = Object.getOwnPropertyNames(message_to_send[i].body)
+		for(var j = 0; j < properties_length; j++){
+			var f =  Object.getOwnPropertyNames(message_to_send[i].body[j])[0]
+			var t = message_to_send[i].body[j][Object.getOwnPropertyNames(message_to_send[i].body[j])]
+			var field_type = Object.getOwnPropertyNames(t)[0]
+			var field_value = t[Object.getOwnPropertyNames(t)]
+			switch (field_type){
 				case "uint4":{
-					data = data.concat(readBufferFromBigInt(message_to_send[i].body[properties[j]][f[0]], 4, true, false))
+					data = data.concat(readBufferFromBigInt(field_value, 4, true, false))
+					break
+				}
+				case "long":{
+					data = data.concat(readBufferFromBigInt(BigInt(field_value), 8, true, true))
 					break
 				}
 				case "string":{
-					data = data.concat(ArrayFromString(message_to_send[i].body[properties[j]][f[0]]))
+					data = data.concat(readBufferFromString(field_value))
+					break
+				}
+				case "bytes":{
+					data = data.concat(readBufferFromArray(field_value))
 					break
 				}
 				default:{
@@ -308,7 +320,7 @@ function process_message(){
 		var to_send  = encryptor.crypt(setLength(encrypt_data))
 
 		socket.send(to_send)
-		message_queue(message_to_send[i]).update({issent:true,message_id:UserMessage.message_time.value.toString(16)})
+		message_queue(message_to_send[i]).update({body:{},issent:true,message_id:UserMessage.message_time.value.toString(16)})
 	}
 	var message_to_read = message_queue({isresponse_received:true,isread:false}).get();
 	for(var i = 0 ; i < message_to_read.length; i++){
@@ -394,7 +406,7 @@ function message_loop(message){
 				}
 				ret.message_answer = bytesinflated
 			} else {
-				ret.message_answer = message_body// ??? unpack ???
+				ret.message_answer = message_body
 			}
 			postMessage([3,ret]);
 			//console.log('default message')
@@ -849,7 +861,7 @@ function getmessage(message){
 				var to_send  = encryptor.crypt(setLength(encrypt_data))
 
 				socket.send(to_send)
-				message_queue.insert({id:"GetConfig",body:{tl_constructor:{uint4:0}},issent:true,message_id:UserMessage.message_time.value.toString(16),
+				message_queue.insert({id:"GetConfig",body:{[0]:{tl_constructor:{uint4:0}}},issent:true,message_id:UserMessage.message_time.value.toString(16),
     					isresponse_received:false,	isread:false})
 			}
 			connect_state = 5; //wait config
