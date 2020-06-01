@@ -1,3 +1,4 @@
+include('constructs.js');
 include('func.js');
 include('settings.js');
 
@@ -103,7 +104,7 @@ function get_mtprotoprocdata(e){
 				document.getElementById('phoneSend').hidden=false
 				break
 				}
-		case 2:{//message from mtproto
+		case 2:{//answer from mtproto
 				mtproto_state.innerHTML = e.data[1]
 //				console.hex(e.data[1].message_answer)
 				var ob = parse_answer(e.data[1].message_answer)
@@ -140,6 +141,10 @@ function get_mtprotoprocdata(e){
 				}
 				break
 				}
+		case 3:{//message from mtproto
+				var ob = parse_answer(e.data[1].message_answer)
+				break
+				}
 		case 10:{
 				// e.data[1] - current mtproto state 
 				// 0 - init
@@ -162,7 +167,9 @@ function parse_answer(body){
 	var value = 0
 	var tl_constructor = readUInt32LE(body,0)
 	body = body.slice(4) //remove tl_constructor
-	switch (tl_constructor){
+	_flags = readUInt32LE(body, 0)
+	request = getrequest(tl_constructor,_flags)
+/*	switch (tl_constructor){
 		case 0x8e1a1775:{ //nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc;
 			request = {counrty:"string",this_dc:"uint4",nearest_dc:"uint4"}
 			break
@@ -172,7 +179,7 @@ function parse_answer(body){
 			break
 		}
 		case 0x5e002502:{// flags:# type:auth.SentCodeType phone_code_hash:string next_type:flags.1?auth.CodeType timeout:flags.2?int = auth.SentCode;
-			_flags = readUInt32LE(body, 0)
+//			_flags = readUInt32LE(body, 0)
 			if(readUInt32LE(body, 4) == 0xab03c6d9 ){
 				request = {flags:"uint4",type:"uint4",pattern:"string",phone_code_hash:"string"}
 			}else{
@@ -183,7 +190,7 @@ function parse_answer(body){
 			break
 		}
 		case 0xcd050916:{// flags:# tmp_sessions:flags.0?int user:User
-			_flags = readUInt32LE(body, 0)
+//			_flags = readUInt32LE(body, 0)
 			request={flags:"uint4"}
 			if(_flags & (1 << 0)) request.tmp_sessions="uint4"
 			request.user="User"
@@ -194,7 +201,7 @@ function parse_answer(body){
 			break
 		}
 		case 0x938458c1:{// flags:# self:flags.10?true contact:flags.11?true mutual_contact:flags.12?true deleted:flags.13?true bot:flags.14?true bot_chat_history:flags.15?true bot_nochats:flags.16?true verified:flags.17?true restricted:flags.18?true min:flags.20?true bot_inline_geo:flags.21?true support:flags.23?true scam:flags.24?true id:int access_hash:flags.0?long first_name:flags.1?string last_name:flags.2?string username:flags.3?string phone:flags.4?string photo:flags.5?UserProfilePhoto status:flags.6?UserStatus bot_info_version:flags.14?int restriction_reason:flags.18?Vector<RestrictionReason> bot_inline_placeholder:flags.19?string lang_code:flags.22?string = User;
-			_flags = readUInt32LE(body, 0)
+//			_flags = readUInt32LE(body, 0)
 			request={flags:"uint4"}
 			if(_flags & (1 << 10)) request.self="true"
 			if(_flags & (1 << 11)) request.contact="true"
@@ -242,9 +249,11 @@ function parse_answer(body){
 			break
 		}
 	}
+*/	
 	if( request == {} ){ //if constructor not have fields
 		len = 0
 		ret = tl_constructor
+		console.hex(body) //temporary log empty request
 	} else {
 		res = pick_out(body,request)
 		len = res.arr.length

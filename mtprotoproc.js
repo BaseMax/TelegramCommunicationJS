@@ -365,8 +365,11 @@ function message_loop(message){
 			break
 		}
 		default:{
-			console.log('Unknown constructor 0x'+tl_constructor.toString(16)+' add in to mtprotoproc.js at line ~344')
-			console.hex(message_body)
+			ret = {}
+			ret.message_answer = message_body.slice(12) //todo possible ungzip message need test!
+			postMessage([3,ret]);
+//			console.log('Unknown constructor 0x'+tl_constructor.toString(16)+' add in to mtprotoproc.js at line ~344')
+//			console.hex(message_body)
 		}
 	}
 	
@@ -398,8 +401,6 @@ var finalobfuscate = obfuscate.slice();
 async function connect(){
     return new Promise(function(resolve, reject) {
         socket = new WebSocket(DC[DCindex]);
-//        socket = new WebSocket("ws://149.154.167.50/apiws");// for me
-//        socket = new WebSocket("ws://149.154.167.91/apiws"); // for max
 		socket.binaryType = "arraybuffer";
 
 		socket.onmessage = getmessage;
