@@ -5,6 +5,16 @@ include('settings.js');
 include('requested_message.js')
 include('not_requested_message.js')
 
+const userlist = document.getElementById('users_list')
+/*var tmplist = {125:BigInt(700n),150:BigInt(-298798798687687687658870n)}
+for(var l=0;l<Object.keys(tmplist).length;l++){
+var opt = document.createElement('option');
+opt.appendChild( document.createTextNode(Object.keys(tmplist)[l]));
+opt.value = tmplist[Object.keys(tmplist)[l]] 
+userlist.appendChild(opt); 
+}
+*/
+
 const mtproto_state = document.getElementById('mtprotoresult')
 const tg_out = document.getElementById('tgresult')
 tg_out.innerHTML= "=<br>"

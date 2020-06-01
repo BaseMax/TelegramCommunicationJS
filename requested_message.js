@@ -1,3 +1,21 @@
+//test function send only predefined text
+function sendMessage(){
+var text_to_send = "test from tlg prototype"
+var _access_hash=BigInt(userlist.options[userlist.selectedIndex].value)
+var _id=parseInt(userlist.options[userlist.selectedIndex].text,10)
+var _random_id= 150
+//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+	var i = 0
+    tl_request={id:"sendMessage",body:{[i++]:{tl_constructor:{uint4:0x520c3870}},
+									   [i++]:{flags:{uint4:0x0}},
+									   [i++]:{inputPeer:{uint4:0x7b8e7de6}},
+									   [i++]:{user_id:{uint4:_id}},
+									   [i++]:{access_hash:{long:_access_hash.toString()}},
+									   [i++]:{message:{string:text_to_send}},
+									   [i++]:{random_id:{long:_random_id.toString()}}}}
+	mode = 8
+}
+
 //messages.getDialogs#a0ee3b73
 function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;
 	var i = 0
@@ -25,8 +43,24 @@ const _getDialogs = function(ob){
 			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.messages[i],stringifyReplacer)) + "<br>"
 		}
 		tg_out.innerHTML += "<br><br> == Users =="
+		
+//for test only clear user list==============================================================================
+var  len = userlist.options.length;
+    for (var j=len; j; j--) {
+        userlist.removeChild(userlist.options[j-1]);
+    }
+//end test code	=============================================================================================
+		
 		for(var i=1;i<ob.users[0];i++){
 			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.users[i],stringifyReplacer)) + "<br>"
+			
+//for test only add user to list=============================================================================
+var opt = document.createElement('option');
+opt.appendChild( document.createTextNode(ob.users[i].id));
+opt.value = ob.users[i].access_hash
+userlist.appendChild(opt); 
+//end test code	=============================================================================================
+
 		}
 	}
 	//todo for test remove

@@ -4256,6 +4256,10 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {[i++]:{msg_ids:"Vector<long>"}}
 		break
 	}
+	case 0xa7eff811:{//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification;
+		request = {[i++]:{bad_msg_id:"long"},[i++]:{bad_msg_seqno:"int"},[i++]:{error_code:"int"}}
+		break
+	}
 	default:{
 		request = null
 		console.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')
