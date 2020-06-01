@@ -30,6 +30,7 @@ function restore_input(){
 }
 function sendphonenum(number){
 	//auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
+	//todo numerate properties
 	phonenum={id:"PhoneNumber",body:{tl_constructor:{uint4:0xa677244f},
 									 phone_number:{string:number.replace("+","")},
 									 api_id:{uint4:api_id},
@@ -44,6 +45,7 @@ function sendphonenum(number){
 }
 function sendcode(phonecode){
 	//auth.signIn#bcd51581 phone_number:string phone_code_hash:string phone_code:string = auth.Authorization;
+	//todo numerate properties
 	code={id:"PhoneCode",body:{tl_constructor:{uint4:0xbcd51581},
 							  phone_number:{string:_phonenum},
 							  phone_code_hash:{string:_phonehash},
@@ -53,7 +55,8 @@ function sendcode(phonecode){
 	mode = 6
 }
 function getContacts(){
-    tl_request={id:"GetContacts",body:{tl_constructor:{uint4:0xc4a353ee}}}//JSON.parse(tlrequest)}
+	//todo numerate properties
+    tl_request={id:"GetContacts",body:{tl_constructor:{uint4:0xc4a353ee}}}
 	mode = 8
 	
 }
@@ -68,17 +71,17 @@ function mainloop(){
 		}
 		case 3:{
 			    mode = 4 //wait phone code
-			    mtprotoproc.postMessage(['message_to_queue',phonenum,'some params if need..'])
+			    mtprotoproc.postMessage(['message_to_queue',phonenum,'Send phone num..'])
 			    break
 		}
 		case 6:{
-			    mode = 7 //wait phone code
-			    mtprotoproc.postMessage(['message_to_queue',code,'some params if need..'])
+			    mode = 7 //wait signin
+			    mtprotoproc.postMessage(['message_to_queue',code,'Send phone code..'])
 			    break
 		}
 		case 8:{
-			    mode = 7 //wait phone code
-			    mtprotoproc.postMessage(['message_to_queue',tl_request,'some params if need..'])
+			    mode = 7 //wait answer
+			    mtprotoproc.postMessage(['message_to_queue',tl_request,'Request contact list..'])
 			    break
 		}
 	}
@@ -161,8 +164,20 @@ function get_mtprotoprocdata(e){
 					}					
 					case "GetContacts": {
 						for(var i=1;i<ob[0];i++){
-							if(isObject(ob[i])) tg_out.innerHTML += i+ " user_id " + ob[i].user_id+"<br>"
+							if(isObject(ob[i])){
+								tg_out.innerHTML += "<br>"+i+ " user_id " + ob[i].user_id
+								if(ob[i].status.was_online !== undefined){
+									tg_out.innerHTML += " was online " +ob[i].status.was_online
+								}
+								if(ob[i].status.expires !== undefined){
+									tg_out.innerHTML += " online now. expiried " +ob[i].status.expires
+								}
+							}
 						}
+						tg_out.innerHTML += "<br>"
+//
+tg_out.scrollTop = tg_out.scrollHeight;
+//						
 						break
 					}					
 				}
@@ -170,6 +185,22 @@ function get_mtprotoprocdata(e){
 				}
 		case 3:{//message from mtproto
 				var ob = parse_answer(e.data[1].message_answer)
+				if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.was_online !== undefined){
+					tg_out.innerHTML += ob.update.user_id + " was online " +ob.update.status.was_online +"<br>"
+				}
+				if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.expires !== undefined){
+					tg_out.innerHTML += ob.update.user_id + " online now. expiried " +ob.update.status.expires +"<br>"
+				}
+				if(ob.updates !== undefined){ 
+					for(var i=0;i<ob.updates[0];i++){
+						if(ob.updates[i+1].message !== undefined){
+							tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +"<br>"
+						}
+					}
+				}
+//
+tg_out.scrollTop = tg_out.scrollHeight;
+//			
 				break
 				}
 		case 10:{
@@ -197,7 +228,7 @@ function parse_answer(body){
 	_flags = readUInt32LE(body, 0)
 	request = getrequest(tl_constructor,_flags)
 	if( request == null ){ //if constructor not have fields
-		len = 0
+		len = body.length
 		ret = tl_constructor
 		console.hex(body) //temporary log empty request
 	} else {
@@ -212,36 +243,43 @@ function parse_answer(body){
 
 function pick_out(arr,tl_info){
 	var out = {}
-	var properties = Object.getOwnPropertyNames(tl_info)
-	for(var j = 0; j < properties.length; j++){
-		switch (tl_info[properties[j]]){
+	var length = Object.keys(tl_info).length
+	for(var j = 0; j < length; j++){
+		var properties = Object.getOwnPropertyNames(tl_info[j])[0]
+		var properties_type = tl_info[j][Object.getOwnPropertyNames(tl_info[j])]
+		switch (properties_type){
 			case "uint4":{
-				out[properties[j]] = readUInt32LE(arr, 0)
+				out[properties] = readUInt32LE(arr, 0)
+				arr = arr.slice(4)
+				break
+			}
+			case "int":{
+				out[properties] = readUInt32LE(arr, 0)
 				arr = arr.slice(4)
 				break
 			}
 			case "long":{
-				out[properties[j]] = readBigIntFromBuffer(arr.slice(0,8), true, true)
+				out[properties] = readBigIntFromBuffer(arr.slice(0,8), true, true)
 				arr = arr.slice(8)
 				break
 			}
 			case "bool":{
-				out[properties[j]] = (readUInt32LE(arr, 0)==0x997275b5) ? true : false
+				out[properties] = (readUInt32LE(arr, 0)==0x997275b5) ? true : false
 				arr = arr.slice(4)
 				break
 			}
 			case "string":{
-				out[properties[j]] = readString(arr)
+				out[properties] = readString(arr)
 				arr = arr.slice(lengthString(arr))
 				break
 			}
 			case "true":{
-				out[properties[j]] = true
+				out[properties] = true
 				break
 			}
 			default:{
 				res = parse_answer(arr,true)
-				out[properties[j]] = res.ret
+				out[properties] = res.ret
 				arr = arr.slice(-res.len)
 			}
 		}

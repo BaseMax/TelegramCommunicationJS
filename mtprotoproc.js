@@ -278,6 +278,7 @@ function process_message(){
 	var message_to_send = message_queue({issent:false}).get();
 	for(var i = 0 ; i < message_to_send.length; i++){
 		var data = []
+//todo numerate properties		
 		var properties = Object.getOwnPropertyNames(message_to_send[i].body)
 		for(var j = 0; j < properties.length; j++){
 			var f =  Object.getOwnPropertyNames(message_to_send[i].body[properties[j]])
@@ -346,7 +347,7 @@ function message_loop(message){
 //console.hex(decrypted_message)
 //console.hex(message_body)
 	switch (tl_constructor){
-		case 0xf35c6d01:{
+		case 0xf35c6d01:{ // RPC
 			var body_message_id = readBigIntFromBuffer(message_body.slice(4,12))
 			var message_to_mark = message_queue({message_id:body_message_id.toString(16)}).first();
 			if(message_to_mark != false){
@@ -364,12 +365,40 @@ function message_loop(message){
 			}
 			break
 		}
+		case 0x73f1f8dc:{ //container https://core.telegram.org/mtproto/service_messages // msg_container#73f1f8dc messages:vector message = MessageContainer;
+			//console.hex(message_body)
+			var msgcount = readUInt32LE(message_body,4)
+			message_body = message_body.slice(8)
+			for(var i=0;i<msgcount;i++){
+				var msg_id = readBigIntFromBuffer(message_body.slice(0,8))
+				var seqno = readUInt32LE(message_body,8)
+				var bytes =readUInt32LE(message_body,12)
+				var body = message_body.slice(16,16+bytes)
+				var ret = {}
+				message_body = message_body.slice(16+bytes)
+				ret.message_answer = body // ??? unpack ???
+				postMessage([3,ret]);
+			//console.log('message box')
+			//console.hex(body)
+			}
+			break
+		}
 		default:{
-			ret = {}
-			ret.message_answer = message_body.slice(12) //todo possible ungzip message need test!
+			var ret = {}
+			if(readUInt32LE(message_body,0) == 0x3072cfa1){
+				var bytesinflated =null
+				if(message_body[5] == 0xfe){
+					bytesinflated = inflate(message_body.slice(4+4+10))
+				} else {
+					bytesinflated = inflate(message_body.slice(4+1+10))
+				}
+				ret.message_answer = bytesinflated
+			} else {
+				ret.message_answer = message_body// ??? unpack ???
+			}
 			postMessage([3,ret]);
-//			console.log('Unknown constructor 0x'+tl_constructor.toString(16)+' add in to mtprotoproc.js at line ~344')
-//			console.hex(message_body)
+			//console.log('default message')
+			//console.hex(message_body)
 		}
 	}
 	
