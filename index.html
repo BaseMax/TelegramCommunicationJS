@@ -47,6 +47,7 @@
 		<button type="button" onClick="gsl()">Send Sticker</button>
 		<button type="button" onClick="getStickerSet()">GetStickerSet</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
+		<button type="button" onClick="sendPrivateMessage()">Send private test message</button><br>
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
   <script src="tlg.js"></script>
@@ -297,6 +298,12 @@
 		r["_message"]="text message"
 		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
 		send_textmessage(r,send_textmessage_result)
+	}
+	function sendPrivateMessage(){
+		var r={}
+		r["_message"]="text message"
+		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
+		send_privatetextmessage(r,send_textmessage_result)
 	}
 	function send_textmessage_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send text message"));

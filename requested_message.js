@@ -462,6 +462,31 @@ function send_textmessage(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
+function send_privatetextmessage(request, callback){
+	var request_name = "send_privatetextmessage"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputPeer:{uint4:0x7da07ec9}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 function get_history(request, callback){
 	var request_name = "get_history"
 	var is_callback = false;
