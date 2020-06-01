@@ -4363,19 +4363,19 @@ function getrequest(tl_constructor,_flags,vector_type){
 
 //	manual added constructors
 
-	case 0x2144ca19: {//RPCerror error:int message:string
+	case 0x2144ca19:{//RPCerror error:int message:string
 		request = {[i++]:{error:"int"},[i++]:{error_text:"string"}}
 		break
 	}
-	case 0x62d6b459: {//msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck		
-		request = {[i++]:{msg_ids:"Vector<long>"}}		
+	case 0x62d6b459:{//msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck
+		request = {[i++]:{msg_ids:"Vector<long>"}}
 		break
 	}
-	case 0xa7eff811: {//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification		
-		request = {[i++]:{bad_msg_id:"long"},[i++]:{bad_msg_seqno:"int"},[i++]:{error_code:"int"}}		
+	case 0xa7eff811:{//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification
+		request = {[i++]:{bad_msg_id:"long"},[i++]:{bad_msg_seqno:"int"},[i++]:{error_code:"int"}}
 		break
 	}
-	case 0x347773c5: {//pong#347773c5 msg_id:long ping_id:long = Pong;
+	case 0x347773c5:{//pong#347773c5 msg_id:long ping_id:long = Pong
 		request = {[i++]:{msg_id:"long"},[i++]:{ping_id:"long"}}
 		break
 	}

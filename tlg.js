@@ -23,11 +23,11 @@ var requested_msg = {}
 var not_requested_msg = {}
 //====================array for DC access ==============================
 var DCproc = {}
-var DCstatus = {1:{connected:false,logined:false},
-				2:{connected:false,logined:false},
-			    3:{connected:false,logined:false},
-			    4:{connected:false,logined:false},
-			    5:{connected:false,logined:false}}
+var DCstatus = {1:{connected:false,logined:false,ping:false},
+				2:{connected:false,logined:false,ping:false},
+			    3:{connected:false,logined:false,ping:false},
+			    4:{connected:false,logined:false,ping:false},
+			    5:{connected:false,logined:false,ping:false}}
 var DCaddr4 = {}
 
 const mainloopdelay = 10
@@ -54,10 +54,34 @@ function startDCconnect(){
 				DCproc[numdc] = new Worker("mtprotoproc.js")
 				DCproc[numdc].onmessage = get_fileloaderdata
 				DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
-
 			}
 		}
 		runonce = false
+	}
+}
+function pingtestDCconnection(){
+	for(var numdc =1; numdc<=5;numdc++){
+		if(dataC != numdc){
+			if(DCstatus[numdc].logined) { 
+				if(DCstatus[numdc].ping == false){
+					DCproc[numdc].postMessage(['ping'])
+					DCstatus[numdc].ping=true
+//					console.log("ping .."+numdc)
+				} else {
+					DCstatus[numdc].ping=false
+					DCstatus[numdc].logined=false
+					DCstatus[numdc].connected=false
+					if(DCproc[numdc] != null){
+						DCproc[numdc].terminate()
+					}
+					document.getElementById("DC"+numdc).style.color = "gray"
+					DCproc[numdc] = new Worker("mtprotoproc.js")
+					DCproc[numdc].onmessage = get_fileloaderdata
+					DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
+					console.log("ping bad restart.."+numdc)
+				}
+			}
+		}
 	}
 }
 function restore_input(){
@@ -198,12 +222,10 @@ function mainloop(){
 	if(testcounter0 % 10 == 4){if(DCproc[4] != null) DCproc[4].postMessage(['process_message_queue'])}
 	if(testcounter0 % 10 == 5){if(DCproc[5] != null) DCproc[5].postMessage(['process_message_queue'])}
 	if(pingcounter0 > 6000){
-		if(mtprotoproc != null && mode == 7) mtprotoproc.postMessage(['ping'])
-		if(DCstatus[1].logined) DCproc[1].postMessage(['ping'])
-		if(DCstatus[2].logined) DCproc[2].postMessage(['ping'])
-		if(DCstatus[3].logined) DCproc[3].postMessage(['ping'])
-		if(DCstatus[4].logined) DCproc[4].postMessage(['ping'])
-		if(DCstatus[5].logined) DCproc[5].postMessage(['ping'])
+		if(mtprotoproc != null && mode == 7) {
+			mtprotoproc.postMessage(['ping'])
+			pingtestDCconnection()
+		}
 		pingcounter0=0
 	}
 	if(mode == 1) mtproto_state.innerHTML = 'Connecting to server '+dataC+' ... '+testcounter0
@@ -214,13 +236,10 @@ function start(){
 }
 
 if(window.Worker) {
-	
 	mtprotoproc = new Worker("mtprotoproc.js")
 	mtprotoproc.onmessage = get_mtprotoprocdata
-	
 	start()
-	
-}else{
+} else {
 	console.log('Your browser doesn\'t support web workers.')
 }
 function get_fileloaderdata(e){
@@ -254,6 +273,11 @@ function get_fileloaderdata(e){
 			var ob = parse_answer(e.data[1].message_answer)
 			var tl_constructor = "0x0"
 			if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
+				if(tl_constructor == "0x347773c5"){//pong
+					DCstatus[e.data[2]].ping=false
+//					console.log("pong .."+e.data[2])
+					break
+				}
 				if(not_requested_msg[tl_constructor] != undefined) {
 					not_requested_msg[tl_constructor](ob)
 				} else {
@@ -466,7 +490,6 @@ function parse_answer(body){
 	ret.tl_constructor = tl_constructor
 	return ret
 }
-
 function pick_out(arr,tl_info){
 	var out = {}
 	var length = Object.keys(tl_info).length
