@@ -317,6 +317,12 @@ function parse_answer(body){
 	var tl_constructor = readUInt32LE(body,0)
 	body = body.slice(4) //remove tl_constructor
 	_flags = readUInt32LE(body, 0)
+//
+//artefact or bugs mtproto105
+//	
+	if(tl_constructor == 0xa437c3ed || tl_constructor == 0xd5529d06){
+		_flags = readUInt32LE(body, 4)
+	}
 	request = getrequest(tl_constructor,_flags,vector_type)
 	if( request == null ){ //if constructor not have fields
 		len = body.length

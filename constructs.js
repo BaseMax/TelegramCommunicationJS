@@ -468,10 +468,6 @@ function getrequest(tl_constructor,_flags,vector_type){
 		if(_flags & (1 << 5)) request[i++]=Object.fromEntries([["report_geo","true"]])
 		break
 	}
-	case 0xa437c3ed: {// wallPaper
-		request = {[i++]:{id:"long"},[i++]:{flags:"#"},[i++]:{creator:"flags.0?true"},[i++]:{default:"flags.1?true"},[i++]:{pattern:"flags.3?true"},[i++]:{dark:"flags.4?true"},[i++]:{access_hash:"long"},[i++]:{slug:"string"},[i++]:{document:"Document"},[i++]:{settings:"flags.2?WallPaperSettings"}}
-		break
-	}
 	case 0x58dbcab8: {// inputReportReasonSpam
 		request = {}
 		break
@@ -1246,7 +1242,7 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {[i++]:{id:"long"},[i++]:{date:"int"}}
 		break
 	}
-	case 0xfa64e172: {// webPage
+	case 0xe89c45b2: {// webPage
 		request = {}
 		request[i++]=Object.fromEntries([["flags","#"]])
 		request[i++]=Object.fromEntries([["id","long"]])
@@ -1265,8 +1261,8 @@ function getrequest(tl_constructor,_flags,vector_type){
 		if(_flags & (1 << 7)) request[i++]=Object.fromEntries([["duration","int"]])
 		if(_flags & (1 << 8)) request[i++]=Object.fromEntries([["author","string"]])
 		if(_flags & (1 << 9)) request[i++]=Object.fromEntries([["document","Document"]])
-		if(_flags & (1 << 11)) request[i++]=Object.fromEntries([["documents","Vector<Document>"]])
 		if(_flags & (1 << 10)) request[i++]=Object.fromEntries([["cached_page","Page"]])
+		if(_flags & (1 << 12)) request[i++]=Object.fromEntries([["attributes","Vector<WebPageAttribute>"]])
 		break
 	}
 	case 0xa32dd600: {// messageMediaWebPage
@@ -3796,10 +3792,6 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {[i++]:{text:"string"},[i++]:{option:"bytes"}}
 		break
 	}
-	case 0xd5529d06: {// poll
-		request = {[i++]:{id:"long"},[i++]:{flags:"#"},[i++]:{closed:"flags.0?true"},[i++]:{public_voters:"flags.1?true"},[i++]:{multiple_choice:"flags.2?true"},[i++]:{quiz:"flags.3?true"},[i++]:{question:"string"},[i++]:{answers:"Vector<PollAnswer>"}}
-		break
-	}
 	case 0x3b6ddad2: {// pollAnswerVoters
 		request = {}
 		request[i++]=Object.fromEntries([["flags","#"]])
@@ -3908,16 +3900,18 @@ function getrequest(tl_constructor,_flags,vector_type){
 		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["allow_app_hash","true"]])
 		break
 	}
-	case 0xa12f40b8: {// wallPaperSettings
+	case 0x5086cf8: {// wallPaperSettings
 		request = {}
 		request[i++]=Object.fromEntries([["flags","#"]])
 		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["blur","true"]])
 		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["motion","true"]])
 		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["background_color","int"]])
+		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["second_background_color","int"]])
 		if(_flags & (1 << 3)) request[i++]=Object.fromEntries([["intensity","int"]])
+		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["rotation","int"]])
 		break
 	}
-	case 0xd246fd47: {// autoDownloadSettings
+	case 0xe04232f3: {// autoDownloadSettings
 		request = {}
 		request[i++]=Object.fromEntries([["flags","#"]])
 		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["disabled","true"]])
@@ -3927,6 +3921,7 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request[i++]=Object.fromEntries([["photo_size_max","int"]])
 		request[i++]=Object.fromEntries([["video_size_max","int"]])
 		request[i++]=Object.fromEntries([["file_size_max","int"]])
+		request[i++]=Object.fromEntries([["video_upload_maxbitrate","int"]])
 		break
 	}
 	case 0x63cacf26: {// account.autoDownloadSettings
@@ -4211,11 +4206,7 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {[i++]:{slug:"string"}}
 		break
 	}
-	case 0x483d270c: {// themeDocumentNotModified
-		request = {}
-		break
-	}
-	case 0xf7d90ce0: {// theme
+	case 0x28f1114: {// theme
 		request = {}
 		request[i++]=Object.fromEntries([["flags","#"]])
 		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["creator","true"]])
@@ -4225,6 +4216,7 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request[i++]=Object.fromEntries([["slug","string"]])
 		request[i++]=Object.fromEntries([["title","string"]])
 		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["document","Document"]])
+		if(_flags & (1 << 3)) request[i++]=Object.fromEntries([["settings","ThemeSettings"]])
 		request[i++]=Object.fromEntries([["installs_count","int"]])
 		break
 	}
@@ -4248,17 +4240,136 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {}
 		break
 	}
+	case 0x871fb939: {// updateGeoLiveViewed
+		request = {[i++]:{peer:"Peer"},[i++]:{msg_id:"int"}}
+		break
+	}
+	case 0x564fe691: {// updateLoginToken
+		request = {}
+		break
+	}
+	case 0x629f1980: {// auth.loginToken
+		request = {[i++]:{expires:"int"},[i++]:{token:"bytes"}}
+		break
+	}
+	case 0x68e9916: {// auth.loginTokenMigrateTo
+		request = {[i++]:{dc_id:"int"},[i++]:{token:"bytes"}}
+		break
+	}
+	case 0x390d5c5e: {// auth.loginTokenSuccess
+		request = {[i++]:{authorization:"auth.Authorization"}}
+		break
+	}
+	case 0x57e28221: {// account.contentSettings
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["sensitive_enabled","true"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["sensitive_can_change","true"]])
+		break
+	}
+	case 0xa927fec5: {// messages.inactiveChats
+		request = {[i++]:{dates:"Vector<int>"},[i++]:{chats:"Vector<Chat>"},[i++]:{users:"Vector<User>"}}
+		break
+	}
+	case 0xc3a12462: {// baseThemeClassic
+		request = {}
+		break
+	}
+	case 0xfbd81688: {// baseThemeDay
+		request = {}
+		break
+	}
+	case 0xb7b31ea8: {// baseThemeNight
+		request = {}
+		break
+	}
+	case 0x6d5f77ee: {// baseThemeTinted
+		request = {}
+		break
+	}
+	case 0x5b11125a: {// baseThemeArctic
+		request = {}
+		break
+	}
+	case 0x8427bbac: {// inputWallPaperNoFile
+		request = {}
+		break
+	}
+	case 0x8af40b25: {// wallPaperNoFile
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["default","true"]])
+		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["dark","true"]])
+		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["settings","WallPaperSettings"]])
+		break
+	}
+	case 0xbd507cd1: {// inputThemeSettings
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		request[i++]=Object.fromEntries([["base_theme","BaseTheme"]])
+		request[i++]=Object.fromEntries([["accent_color","int"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["message_top_color","int"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["message_bottom_color","int"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["wallpaper","InputWallPaper"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["wallpaper_settings","WallPaperSettings"]])
+		break
+	}
+	case 0x9c14984a: {// themeSettings
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		request[i++]=Object.fromEntries([["base_theme","BaseTheme"]])
+		request[i++]=Object.fromEntries([["accent_color","int"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["message_top_color","int"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["message_bottom_color","int"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["wallpaper","WallPaper"]])
+		break
+	}
+	case 0x54b56617: {// webPageAttributeTheme
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["documents","Vector<Document>"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["settings","ThemeSettings"]])
+		break
+	}
+
+//	not standart constructors
+
+	case 0xd5529d06: {// poll
+		request = {}
+		request[i++]=Object.fromEntries([["id","long"]])
+		request[i++]=Object.fromEntries([["flags","#"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["closed","true"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["public_voters","true"]])
+		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["multiple_choice","true"]])
+		if(_flags & (1 << 3)) request[i++]=Object.fromEntries([["quiztrue"]])
+		request[i++]=Object.fromEntries([["question","string"]])
+		request[i++]=Object.fromEntries([["answers","Vector<PollAnswer>"]])
+		break
+	}
+	case 0xa437c3ed: {// wallPaper
+		request = {}
+		request[i++]=Object.fromEntries([["id","long"]])
+		request[i++]=Object.fromEntries([["flags","#"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["creator","true"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["default","true"]])
+		if(_flags & (1 << 3)) request[i++]=Object.fromEntries([["pattern","true"]])
+		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["dark","true"]])
+		request[i++]=Object.fromEntries([["access_hash","long"]])
+		request[i++]=Object.fromEntries([["slug","string"]])
+		request[i++]=Object.fromEntries([["document","Document"]])
+		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["settings","WallPaperSettings"]])
+		break
+	}
+
+//	manual added constructors
+
 	case 0x2144ca19:{//RPCerror error:int message:string
 		request = {[i++]:{error:"int"},[i++]:{error_text:"string"}}
 		break
 	}
-	case 0x62d6b459:{//msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck;
-		request = {[i++]:{msg_ids:"Vector<long>"}}
-		break
+	case 0x62d6b459:{//msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck		request = {[i++]:{msg_ids:"Vector<long>"}}		break
 	}
-	case 0xa7eff811:{//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification;
-		request = {[i++]:{bad_msg_id:"long"},[i++]:{bad_msg_seqno:"int"},[i++]:{error_code:"int"}}
-		break
+	case 0xa7eff811:{//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification		request = {[i++]:{bad_msg_id:"long"},[i++]:{bad_msg_seqno:"int"},[i++]:{error_code:"int"}}		break
 	}
 	default:{
 		request = null
