@@ -365,7 +365,13 @@ function message_loop(message){
 			if(message_to_mark != false){
 				var tl_body_constructor = readUInt32LE(message_body,12)
 				if(tl_body_constructor == 0x3072cfa1) { //gzippacked unpack it string 4 byte length "fe" => l>254 => skip 4 byte
-					var bytesinflated = inflate(message_body.slice(12+4+4+10))
+//					var bytesinflated = inflate(message_body.slice(12+4+4+10))
+					var bytesinflated =null
+					if(message_body[12+4] == 0xfe){
+						bytesinflated = inflate(message_body.slice(12+4+4+10))
+					} else {
+						bytesinflated = inflate(message_body.slice(12+4+1+10))
+					}
 					message_queue(message_to_mark).update({isresponse_received:true,message_answer:bytesinflated})
 				}else{
 					message_queue(message_to_mark).update({isresponse_received:true,message_answer:message_body.slice(12)})

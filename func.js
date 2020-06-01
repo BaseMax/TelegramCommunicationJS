@@ -116,3 +116,10 @@ r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' 
 		);
 		return unicodeString;
 	}
+	function stringifyReplacer(key, value) {
+		if (typeof value === 'bigint') {
+			return value.toString() + 'n';
+		} else {
+			return value;
+		}
+	}

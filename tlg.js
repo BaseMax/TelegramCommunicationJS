@@ -28,7 +28,30 @@ var _password=""
 var SPR=null
 var tl_request=null
 var testcounter0= 0
-
+//===========================---functions---=============================
+function getContacts(){//contacts.getStatuses#c4a353ee = Vector<ContactStatus>;
+	var i = 0
+    tl_request={id:"GetContacts",body:{[i++]:{tl_constructor:{uint4:0xc4a353ee}}}}
+	mode = 8
+	
+}
+function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;
+	var i = 0
+    tl_request={id:"getDialogs",body:{[i++]:{tl_constructor:{uint4:0xa0ee3b73}},
+									   [i++]:{flags:{uint4:0}},
+									   [i++]:{offset_date:{uint4:0}},
+									   [i++]:{offset_id:{uint4:0}},
+									   [i++]:{offset_peer:{uint4:0x7da07ec9}},
+									   [i++]:{limit:{uint4:80}},
+									   [i++]:{hash:{uint4:0}}}} 
+	mode = 8
+}
+function logOut(){ //auth.logOut#5717da40 = Bool;
+	var i = 0
+    tl_request={id:"logOut",body:{[i++]:{tl_constructor:{uint4:0x5717da40}}}} 
+	mode = 8
+}
+//=======================================================================
 function restore_input(){
 	document.getElementById('phonelabel').hidden=true
 	document.getElementById('phonelabel').style=""
@@ -46,7 +69,6 @@ function sendphonenum(number){
 									[i++]:{api_hash:{string:api_hash}},
 									[i++]:{settings:{uint4:0xdebebe83}},
 									[i++]:{flags:{uint4:0}}}} 
-//	phonenum={id:"nearestdc",body:{tl_constructor:{uint4:0x1fb33026}}}
 	document.getElementById('phonelabel').style="pointer-events: none; opacity: 0.4;" 
 	_phonenum = number.replace("+","")
 	mode = 3
@@ -123,12 +145,6 @@ function createPassHash(algo){
 }
 
 
-function getContacts(){
-	var i = 0
-    tl_request={id:"GetContacts",body:{[i++]:{tl_constructor:{uint4:0xc4a353ee}}}}
-	mode = 8
-	
-}
 function mainloop(){
 	console.log("mainloop event")
     testcounter0++
@@ -159,8 +175,8 @@ function mainloop(){
 				break
 		}
 		case 8:{
-			    mode = 7 //wait answer
-			    mtprotoproc.postMessage(['message_to_queue',tl_request,'Request contact list..'])
+			    mode = 7 //send request and wait answer
+			    mtprotoproc.postMessage(['message_to_queue',tl_request,'User request '+tl_request.id])
 			    break
 		}
 	}
@@ -226,6 +242,9 @@ function get_mtprotoprocdata(e){
 								*/
 								testcounter0 = 0
 								restore_input()
+							}
+							if(ob.error == 406){ //password flood
+								mtproto_state.innerHTML = ob.error_text
 							}
 						}
 						break
@@ -295,6 +314,35 @@ tg_out.scrollTop = tg_out.scrollHeight;
 						
 						break
 					}					
+					case "getDialogs":{
+						if(ob.tl_constructor == 0x15ba6c40){//messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs;)
+							tg_out.innerHTML += "<br><br>==================Chats=====================<br>"
+							for(var i=1;i<ob.chats[0];i++){
+								tg_out.innerHTML += "<br><br> chat " + utf8Decode(JSON.stringify(ob.chats[i],stringifyReplacer))
+							}
+							tg_out.innerHTML += "<br><br>==================Dialogs====================<br>"
+							for(var i=1;i<ob.dialogs[0];i++){
+								tg_out.innerHTML += "<br><br> dialod " + utf8Decode(JSON.stringify(ob.dialogs[i],stringifyReplacer))
+							}
+							tg_out.innerHTML += "<br><br>==================Messages===================<br>"
+							for(var i=1;i<ob.messages[0];i++){
+								if(ob.messages[i].message != undefined && ob.messages[i].from_id != undefined){
+								  tg_out.innerHTML += "<br><br> from ID"+ob.messages[i].from_id+ ": " + utf8Decode(JSON.stringify(ob.messages[i],stringifyReplacer))
+								}
+							}
+							tg_out.innerHTML += "<br><br>====================Users=====================<br>"
+							for(var i=1;i<ob.users[0];i++){
+								tg_out.innerHTML += "<br><br>"+i+ " user " + utf8Decode(JSON.stringify(ob.users[i],stringifyReplacer))
+							}
+							
+						}
+						break
+					}
+					case "logOut": {
+						mtproto_state.innerHTML = "logOut Ok"
+						break
+					}					
+
 				}
 				break
 				}
@@ -316,17 +364,13 @@ tg_out.scrollTop = tg_out.scrollHeight;
 					case 0x74ae4240:{//updates#74ae4240
 						if(ob.updates !== undefined){ 
 							for(var i=0;i<ob.updates[0];i++){
+								if(ob.updates[i+1].message !== undefined){
+									tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +" "+ob.updates[i+1].message.id +"<br>"
+								}
 								if(ob.updates[i+1].messages !== undefined){
 									for(var j=0;j<ob.updates[i+1].messages[0];j++){
 										tg_out.innerHTML += "x delete message num " + ob.updates[i+1].messages[j+1]+"<br>"
 									}
-								}
-							}
-						}
-						if(ob.updates !== undefined){ 
-							for(var i=0;i<ob.updates[0];i++){
-								if(ob.updates[i+1].message !== undefined){
-									tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +" "+ob.updates[i+1].message.id +"<br>"
 								}
 							}
 						}
