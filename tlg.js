@@ -6,7 +6,7 @@ include('requested_message.js')
 include('not_requested_message.js')
 
 //enable-dissable auto connect to file DC
-const DCenable = false
+const DCenable = true//false
 //
 
 const userlist = document.getElementById('users_list')

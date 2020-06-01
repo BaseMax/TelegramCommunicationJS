@@ -71,8 +71,8 @@
 					r["_id_frompeer"]=saved_history.chats[1].id
 					r["_access_hash_frompeer"]=BigInt(saved_history.chats[1].access_hash)
 				}else{
-					for(var user_count=1;user_count<saved_history.users[0];user_count++){
-						if(saved_history.messages[msg_counter].from_id == saved_history.users[user_count].id ){
+					for(var user_count=1;user_count<=saved_history.users[0];user_count++){
+						if(saved_history.messages[msg_counter].from_id === saved_history.users[user_count].id ){
 							r["_from_peer"]=0x7b8e7de6
 							r["_id_frompeer"]=saved_history.users[user_count].id
 							r["_access_hash_frompeer"]=BigInt(saved_history.users[user_count].access_hash)

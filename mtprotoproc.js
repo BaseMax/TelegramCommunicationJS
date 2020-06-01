@@ -442,7 +442,7 @@ var finalobfuscate = obfuscate.slice();
 
 async function connect(){
     return new Promise(function(resolve, reject) {
-        socket = new WebSocket(DC_addr);
+        socket = new WebSocket(DC_addr,"binary");
 		socket.binaryType = "arraybuffer";
 
 		socket.onmessage = getmessage;
@@ -612,7 +612,7 @@ connect().then(
 
 // запрос на сервер  для расчета pq
 async function pq_crutch(respq){
-	let response = await fetch('/pq/pq.php?num='+respq.toString())
+	let response = await fetch('pq/pq.php?num='+respq.toString())
 	pq_crutch_result = await response.text()
 	console.log(pq_crutch_result)
 	connect_state=21
