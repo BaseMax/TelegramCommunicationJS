@@ -299,6 +299,7 @@ function process_message(){
 			var field_type = Object.getOwnPropertyNames(t)[0]
 			var field_value = t[Object.getOwnPropertyNames(t)]
 			switch (field_type){
+				case "int":
 				case "uint4":{
 					data = data.concat(readBufferFromBigInt(field_value, 4, true, false))
 					break
@@ -313,6 +314,9 @@ function process_message(){
 				}
 				case "bytes":{
 					data = data.concat(readBufferFromArray(field_value))
+					break
+				}
+				case "skip":{
 					break
 				}
 				default:{

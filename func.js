@@ -130,3 +130,33 @@ r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' 
 			return value;
 		}
 	}
+	function r_with_peer(peer){
+		var r={}
+		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
+		switch (peer.type){
+			case "broadcast":
+			case "channel":{
+						r["_id"]=parseInt(peer.id,10)
+						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
+						r["_peer"]=0x20adaef8
+				break
+			}
+			case "user":
+			case "bot":{
+						r["_id"]=parseInt(peer.id,10)
+						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
+						r["_peer"]=0x7b8e7de6
+				break
+			}
+			case "chat":{
+						r["_id"]=parseInt(peer.id,10)
+						r["_peer"]=0x179be863
+				break
+			}
+			case "self":{
+						r["_peer"]=0x7da07ec9
+				break
+			}
+		}						
+		return r
+	}

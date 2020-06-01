@@ -20,3 +20,13 @@ const _0x347773c5 = function(ob){
 	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
 }
 not_requested_msg["0x347773c5"]=_0x347773c5
+
+const _0xf35c6d01 = function(ob){
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
+}
+not_requested_msg["0xf35c6d01"]=_0xf35c6d01
+
+const _0x62d6b459 = function(ob){
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
+}
+not_requested_msg["0x62d6b459"]=_0x62d6b459

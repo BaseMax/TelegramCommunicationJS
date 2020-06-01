@@ -47,7 +47,7 @@
 		<button type="button" onClick="gsl()">Send Sticker</button>
 		<button type="button" onClick="getStickerSet()">GetStickerSet</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
-		<button type="button" onClick="sendPrivateMessage()">Send private test message</button><br>
+		<!--button type="button" onClick="sendPrivateMessage()">Send private test message</button><br-->
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
   <script src="tlg.js"></script>
@@ -61,50 +61,32 @@
 	function sendHistory(){
 		if(saved_history != null){
 			if(msg_counter == 0)msg_counter=saved_history.messages[0]
-				var r={}
-				var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-				r["_id"]=parseInt(peer.id,10)
-				switch (peer.type){
-					case "broadcast":
-					case "channel":{
-								r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-								r["_peer"]=0x20adaef8
-						break
-					}
-					case "user":
-					case "bot":{
-								r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-								r["_peer"]=0x7b8e7de6
-						break
-					}
-					case "chat":{
-								r["_peer"]=0x179be863
+			var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
+			var r=r_with_peer(peer)
+			r["_flags"] = 0
+			r["_msg_id"]=saved_history.messages[msg_counter].id
+			r["_random_id"]=BigInt(Math.random().toString().substring(2))
+//todo mark saved history type
+			if(saved_history.chats[0]==1){
+				if(saved_history.chats[1].access_hash == undefined){
+					r["_from_peer"]=0x179be863
+					r["_id_frompeer"]=saved_history.chats[1].id
+				} else {
+					r["_from_peer"]=0x20adaef8
+					r["_id_frompeer"]=saved_history.chats[1].id
+					r["_access_hash_frompeer"]=BigInt(saved_history.chats[1].access_hash)
+				}
+			}else{
+				for(var user_count=1;user_count<=saved_history.users[0];user_count++){
+					if(saved_history.messages[msg_counter].from_id === saved_history.users[user_count].id ){
+						r["_from_peer"]=0x7b8e7de6
+						r["_id_frompeer"]=saved_history.users[user_count].id
+						r["_access_hash_frompeer"]=BigInt(saved_history.users[user_count].access_hash)
 						break
 					}
 				}
-				r["_flags"] = 0
-				r["_msg_id"]=saved_history.messages[msg_counter].id
-				r["_random_id"]=BigInt(Math.random().toString().substring(2))
-				if(saved_history.chats[0]==1){
-					if(saved_history.chats[1].access_hash == undefined){
-						r["_from_peer"]=0x179be863
-						r["_id_frompeer"]=saved_history.chats[1].id
-					} else {
-						r["_from_peer"]=0x20adaef8
-						r["_id_frompeer"]=saved_history.chats[1].id
-						r["_access_hash_frompeer"]=BigInt(saved_history.chats[1].access_hash)
-					}
-				}else{
-					for(var user_count=1;user_count<=saved_history.users[0];user_count++){
-						if(saved_history.messages[msg_counter].from_id === saved_history.users[user_count].id ){
-							r["_from_peer"]=0x7b8e7de6
-							r["_id_frompeer"]=saved_history.users[user_count].id
-							r["_access_hash_frompeer"]=BigInt(saved_history.users[user_count].access_hash)
-							break
-						}
-					}
-				}
-				send_history(r,send_history_result)
+			}
+			send_history(r,send_history_result)
 		}
 	}
 	function send_history_result(){
@@ -129,27 +111,8 @@
 		if(arguments[0].stickers != undefined && arguments[0].stickers[0] > 0){
 			for(var stcount=1;stcount<=arguments[0].stickers[0];stcount++){
 				if(arguments[0].stickers[stcount].mime_type == "application/x-tgsticker"){
-					r={}
 					var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-					r["_id"]=parseInt(peer.id,10)
-					switch (peer.type){
-						case "broadcast":
-						case "channel":{
-									r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-									r["_peer"]=0x20adaef8
-							break
-						}
-						case "user":
-						case "bot":{
-									r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-									r["_peer"]=0x7b8e7de6
-							break
-						}
-						case "chat":{
-									r["_peer"]=0x179be863
-							break
-						}
-					}
+					var r=r_with_peer(peer)
 					r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
 					r["_id_st"]=arguments[0].stickers[stcount].id
 					r["_access_hash_st"]=arguments[0].stickers[stcount].access_hash
@@ -167,26 +130,7 @@
 	function getProfilePhoto(){
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
 		if(peer.photo.dc_id != undefined){
-			var r = {}
-			r["_id"]=parseInt(peer.id,10)
-			switch (peer.type){
-				case "broadcast":
-				case "channel":{
-							r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-							r["_peer"]=0x20adaef8
-					break
-				}
-				case "user":
-				case "bot":{
-							r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-							r["_peer"]=0x7b8e7de6
-					break
-				}
-				case "chat":{
-							r["_peer"]=0x179be863
-					break
-				}
-			}
+			var r=r_with_peer(peer)
 			r["_flags"]=0
 			r["_volume_id"]=BigInt(peer.photo.photo_small.volume_id.replace("n",""))
 			r["_local_id"]=peer.photo.photo_small.local_id
@@ -213,27 +157,8 @@
 		document.getElementById('tgresult').querySelectorAll('*').forEach(n => n.remove());
 	}
 	function getHistory(){
-		var r={}
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
+		var r=r_with_peer(peer)
 		r["_offset_id"]=0
 		r["_offset_date"]=0
 		r["_add_offset"]=0
@@ -248,88 +173,25 @@
 		saved_history = arguments[0]
 	}
 	function sendSmile(){
-		var r={}
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
+		var r=r_with_peer(peer)
 		r["_message"]=new TextDecoder().decode(new Uint8Array([0xF0, 0x9F, 0x98, 0x81]))
 		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
 		send_textmessage(r,send_textmessage_result)
 	}
 	function sendMessage(){
-		var r={}
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
+		var r=r_with_peer(peer)
 		r["_message"]="text message"
 		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
 		send_textmessage(r,send_textmessage_result)
-	}
-	function sendPrivateMessage(){
-		var r={}
-		r["_message"]="text message"
-		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
-		send_privatetextmessage(r,send_textmessage_result)
 	}
 	function send_textmessage_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send text message"));
 	}
 	function sendMedia(){
-		var r={}
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
+		var r=r_with_peer(peer)
 		r["_URL"]="i.gifer.com/6D.gif"
 		r["_q"]=""
 		r["_message"]="message about GIF"
@@ -355,27 +217,14 @@
 		saveFile(r,is_filesaved)
 	}
 	function is_filesaved(){
-		var r=({"_MD5":arguments[0],"_blocks":arguments[1],"_filename":arguments[2],"_datatype":arguments[3],"_file_length":arguments[4],"_file_random_id":arguments[5]})
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
+		var r=r_with_peer(peer)
+		r["_MD5"]=arguments[0]
+		r["_blocks"]=arguments[1]
+		r["_filename"]=arguments[2]
+		r["_datatype"]=arguments[3]
+		r["_file_length"]=arguments[4]
+		r["_file_random_id"]=arguments[5]
 		r["_message"]="message about file"
 		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
 		send_saved_mediaFile(r,send_saved_result)

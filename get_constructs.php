@@ -85,6 +85,11 @@ echo "\t}\n";
 
 //constructors not included in https://core.telegram.org/schema/json
 echo "\n//\tmanual added constructors\n\n";
+echo "\tcase 0xf35c6d01:{//rpc_result#f35c6d01 req_msg_id:long result:Object = RpcResult;\n";
+echo "\t\trequest = {}\n";
+echo "\t\trequest[i++]=Object.fromEntries([[\"req_msg_id\",\"long\"]])\n";
+echo "\t\tbreak\n";
+echo "\t}\n";
 echo "\tcase 0xfa64e172:{//webPage#fa64e172 flags:# id:long url:string display_url:string hash:int type:flags.0?string site_name:flags.1?string title:flags.2?string description:flags.3?string photo:flags.4?Photo embed_url:flags.5?string embed_type:flags.5?string embed_width:flags.6?int embed_height:flags.6?int duration:flags.7?int author:flags.8?string document:flags.9?Document documents:flags.11?Vector<Document> cached_page:flags.10?Page = WebPage;\n";
 echo "\t\trequest = {}\n";
 echo "\t\trequest[i++]=Object.fromEntries([[\"flags\",\"#\"]])\n";
