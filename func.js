@@ -58,7 +58,10 @@ r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' 
 		return ret
 	}
 	function utf8Decode(utf8String) {
-		if (typeof utf8String != 'string') throw new TypeError('parameter ‘utf8String’ is not a string');
+		if (typeof utf8String != 'string') {
+			console.hex(utf8String)
+			return "possible mediadata"//throw new TypeError('parameter ‘utf8String’ is not a string');
+		}
 		// note: decode 3-byte chars first as decoded 2-byte strings could appear to be 3-byte char!
 		const unicodeString = utf8String.replace(
 			/[\u00e0-\u00ef][\u0080-\u00bf][\u0080-\u00bf]/g,  // 3-byte chars

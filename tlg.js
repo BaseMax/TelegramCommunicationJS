@@ -175,9 +175,9 @@ function get_mtprotoprocdata(e){
 							}
 						}
 						tg_out.innerHTML += "<br>"
-//
+//todo for test remove
 tg_out.scrollTop = tg_out.scrollHeight;
-//						
+						
 						break
 					}					
 				}
@@ -185,22 +185,42 @@ tg_out.scrollTop = tg_out.scrollHeight;
 				}
 		case 3:{//message from mtproto
 				var ob = parse_answer(e.data[1].message_answer)
-				if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.was_online !== undefined){
-					tg_out.innerHTML += ob.update.user_id + " was online " +ob.update.status.was_online +"<br>"
-				}
-				if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.expires !== undefined){
-					tg_out.innerHTML += ob.update.user_id + " online now. expiried " +ob.update.status.expires +"<br>"
-				}
-				if(ob.updates !== undefined){ 
-					for(var i=0;i<ob.updates[0];i++){
-						if(ob.updates[i+1].message !== undefined){
-							tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +"<br>"
+				var tl_constructor = 0
+				if(ob.tl_constructor !== undefined) tl_constructor= ob.tl_constructor
+				switch (tl_constructor) {
+//todo optimise all if()						
+					case 0x78d4dec1:{//updateShort#78d4dec1
+						if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.was_online !== undefined){
+							tg_out.innerHTML += ob.update.user_id + " was online " +ob.update.status.was_online +"<br>"
 						}
+						if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.expires !== undefined){
+							tg_out.innerHTML += ob.update.user_id + " online now. expiried " +ob.update.status.expires +"<br>"
+						}
+						break
+					}
+					case 0x74ae4240:{//updates#74ae4240
+						if(ob.updates !== undefined){ 
+							for(var i=0;i<ob.updates[0];i++){
+								if(ob.updates[i+1].messages !== undefined){
+									for(var j=0;j<ob.updates[i+1].messages[0];j++){
+										tg_out.innerHTML += "x delete message num " + ob.updates[i+1].messages[j+1]+"<br>"
+									}
+								}
+							}
+						}
+						if(ob.updates !== undefined){ 
+							for(var i=0;i<ob.updates[0];i++){
+								if(ob.updates[i+1].message !== undefined){
+									tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +" "+ob.updates[i+1].message.id +"<br>"
+								}
+							}
+						}
+						break
 					}
 				}
-//
+//todo for test remove
 tg_out.scrollTop = tg_out.scrollHeight;
-//			
+
 				break
 				}
 		case 10:{
@@ -217,6 +237,7 @@ tg_out.scrollTop = tg_out.scrollHeight;
 
 function parse_answer(body){
 	var isrec = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false
+	var vector_type = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : "unknown_vector"
 	var res = null
 	var ret = null
 	var len = 0
@@ -226,7 +247,7 @@ function parse_answer(body){
 	var tl_constructor = readUInt32LE(body,0)
 	body = body.slice(4) //remove tl_constructor
 	_flags = readUInt32LE(body, 0)
-	request = getrequest(tl_constructor,_flags)
+	request = getrequest(tl_constructor,_flags,vector_type)
 	if( request == null ){ //if constructor not have fields
 		len = body.length
 		ret = tl_constructor
@@ -238,6 +259,7 @@ function parse_answer(body){
 	}
 
 	if(isrec) return {len, ret}
+	ret.tl_constructor = tl_constructor
 	return ret
 }
 
@@ -278,7 +300,16 @@ function pick_out(arr,tl_info){
 				break
 			}
 			default:{
-				res = parse_answer(arr,true)
+				if(properties_type.includes('Vector')){
+					var match = properties_type.match(/<(.*)>/)
+					if(match) {
+						res = parse_answer(arr,true,match[1])
+					} else {
+						res = parse_answer(arr,true)
+					}
+				}else{
+					res = parse_answer(arr,true)
+				}
 				out[properties] = res.ret
 				arr = arr.slice(-res.len)
 			}

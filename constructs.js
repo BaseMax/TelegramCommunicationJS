@@ -1,4 +1,4 @@
-function getrequest(tl_constructor,_flags){
+function getrequest(tl_constructor,_flags,vector_type){
 	var request = null
 	var i = 0
 	switch (tl_constructor){
@@ -78,7 +78,7 @@ function getrequest(tl_constructor,_flags){
 		case 0x1cb5c415:{ //vector
 			request = {[i++]:{"0":"uint4"}}
 			for( i; i<=_flags; i++){
-				request[i] = Object.fromEntries([[i,"vectordata"]])
+				request[i] = Object.fromEntries([[i,vector_type]]) //"vectordata"]])
 			}
 			break
 		}
@@ -189,6 +189,10 @@ function getrequest(tl_constructor,_flags){
 			request[i++]=Object.fromEntries([["max_id","int"]])
 			request[i++]=Object.fromEntries([["still_unread_count","int"]])
 			request[i++]=Object.fromEntries([["pts","int"]])
+			break
+		}
+		case 0xa20db0e5:{//updateDeleteMessages#a20db0e5 messages:Vector<int> pts:int pts_count:int = Update;
+			request = {[i++]:{messages:"Vector<int>"},[i++]:{pts:"int"},[i++]:{pts_count:"int"}}
 			break
 		}
 		default:{
