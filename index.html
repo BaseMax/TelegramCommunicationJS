@@ -43,7 +43,7 @@
 		<button type="button" onClick="sendSmile()">Send smile</button>
 		<button type="button" onClick="sendMedia()">Send media</button>
 		<button type="button" onClick="cv()">Send file</button>
-		<button type="button" onClick="gph()">Get Photo</button>
+		<button type="button" onClick="getProfilePhoto()">Get Photo</button>
 		<button type="button" onClick="gsl()">Send Sticker</button>
 		<button type="button" onClick="getStickerSet()">GetStickerSet</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
@@ -163,60 +163,48 @@
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send Sticker result"));
 //		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"thumb decoded from 'get Sticker thumb.bytes'"));
 	}
-	function gph(){
-		var r = {}
+	function getProfilePhoto(){
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		r["_id"]=parseInt(peer.id,10)
-		switch (peer.type){
-			case "broadcast":
-			case "channel":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x20adaef8
-				break
-			}
-			case "user":
-			case "bot":{
-						r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
-						r["_peer"]=0x7b8e7de6
-				break
-			}
-			case "chat":{
-						r["_peer"]=0x179be863
-				break
-			}
-		}
-		r["_flags"] = 0
-		r["_offset"] = 0
-		r["_max_id"] = 0
-		r["_limit"] = 0
-		getUserPhotos(r,getPhotoFile)
-	}
-	function getPhotoFile(){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get User photo"));
-		if(arguments[0].photos != undefined && arguments[0].photos[0] > 0){
+		if(peer.photo.dc_id != undefined){
 			var r = {}
+			r["_id"]=parseInt(peer.id,10)
+			switch (peer.type){
+				case "broadcast":
+				case "channel":{
+							r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
+							r["_peer"]=0x20adaef8
+					break
+				}
+				case "user":
+				case "bot":{
+							r["_access_hash"]=BigInt(peer.access_hash.replace("n",""))
+							r["_peer"]=0x7b8e7de6
+					break
+				}
+				case "chat":{
+							r["_peer"]=0x179be863
+					break
+				}
+			}
 			r["_flags"]=0
-			r["_id"]=arguments[0].photos[1].id
-			r["_access_hash"]=arguments[0].photos[1].access_hash
-			r["_tl_location"] = 0x40181ffe
-			r["_file_reference"] = arguments[0].photos[1].file_reference
-			r["_thumb_size"] = arguments[0].photos[1].sizes[1].type
+			r["_volume_id"]=BigInt(peer.photo.photo_small.volume_id.replace("n",""))
+			r["_local_id"]=peer.photo.photo_small.local_id
+			r["_dc_id"] = peer.photo.dc_id
 			r["_offset"] = 0
 			r["_limit"] = 524288
-			r["_dc_id"] = arguments[0].photos[1].dc_id
 			if(DCenable){
-				if(arguments[0].photos[1].dc_id == dataC){
-						getFile(r,getUserPhotoFile)
+				if(peer.photo.dc_id == dataC){
+						getFileProfilePhoto(r,profilr_photo_result)
 				} else {
-						getFileDC(r,getUserPhotoFile)
+						getFileProfilePhotoDC(r,profilr_photo_result)
 				}
 			}else{
-				getFile(r,getUserPhotoFile)
+				getFileProfilePhoto(r,profilr_photo_result)
 			}
 		}
 	}
-	function getUserPhotoFile(){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get User Photo File"));
+	function profilr_photo_result(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"profile photo"));
 		var x = document.getElementById("myImg");
 		x.src= 'data:image/jpg;base64,'+btoa(String.fromCharCode(...new Uint8Array(arguments[0].bytes)))
 	}
@@ -248,7 +236,7 @@
 		r["_offset_id"]=0
 		r["_offset_date"]=0
 		r["_add_offset"]=0
-		r["_count"]=10
+		r["_count"]=0
 		r["_max_id"]=0
 		r["_min_id"]=0
 		r["_hash"]=0

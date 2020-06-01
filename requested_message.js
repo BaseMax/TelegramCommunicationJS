@@ -256,7 +256,7 @@ function send_sticker(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function getFile(request, callback){
+function getFileProfilePhoto(request, callback){
 	var request_name = "get_File"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
@@ -267,11 +267,13 @@ function getFile(request, callback){
 	tl_request={id:request_name,
 					body:{[i++]:{tl_constructor:{uint4:0xb15a9afc}},//upload.getFile#b15a9afc flags:# precise:flags.0?true cdn_supported:flags.1?true location:InputFileLocation offset:int limit:int = upload.File;
 							[i++]:{flags:{uint4:request._flags}},
-							[i++]:{inputPhotoFileLocation:{uint4:0x40181ffe}},//inputPhotoFileLocation#40181ffe id:long access_hash:long file_reference:bytes thumb_size:string = InputFileLocation;
-							[i++]:{id:{long:request._id.toString()}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{file_reference:{bytes:request._file_reference}},
-							[i++]:{thumb_size:{string:request._thumb_size}},
+								[i++]:{inputPhotoFileLocation:{uint4:0x27d69997}},//inputPeerPhotoFileLocation#27d69997 flags:# big:flags.0?true peer:InputPeer volume_id:long local_id:int = InputFileLocation;
+								[i++]:{flags:{uint4:0}},
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{volume_id:{long:request._volume_id.toString()}},
+								[i++]:{local_id:{uint4:request._local_id}},
 							[i++]:{offset:{uint4:request._offset}},
 							[i++]:{limit:{uint4:request._limit}},
 						 }}
@@ -285,7 +287,7 @@ function getFile(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function getFileDC(request, callback){
+function getFileProfilePhotoDC(request, callback){
 	var request_name = "get_File_DC_"+request._dc_id
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
@@ -296,11 +298,13 @@ function getFileDC(request, callback){
 	var dc_tl_request={id:request_name,
 					body:{[i++]:{tl_constructor:{uint4:0xb15a9afc}},//upload.getFile#b15a9afc flags:# precise:flags.0?true cdn_supported:flags.1?true location:InputFileLocation offset:int limit:int = upload.File;
 							[i++]:{flags:{uint4:request._flags}},
-							[i++]:{inputPhotoFileLocation:{uint4:0x40181ffe}},//inputPhotoFileLocation#40181ffe id:long access_hash:long file_reference:bytes thumb_size:string = InputFileLocation;
-							[i++]:{id:{long:request._id.toString()}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{file_reference:{bytes:request._file_reference}},
-							[i++]:{thumb_size:{string:request._thumb_size}},
+								[i++]:{inputPhotoFileLocation:{uint4:0x27d69997}},//inputPeerPhotoFileLocation#27d69997 flags:# big:flags.0?true peer:InputPeer volume_id:long local_id:int = InputFileLocation;
+								[i++]:{flags:{uint4:0}},
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{volume_id:{long:request._volume_id.toString()}},
+								[i++]:{local_id:{uint4:request._local_id}},
 							[i++]:{offset:{uint4:request._offset}},
 							[i++]:{limit:{uint4:request._limit}},
 						 }}
@@ -559,12 +563,14 @@ const _getDialogs = function(ob){
 							opt.value = JSON.stringify({"type":"channel",
 														"id":ob.chats[j].id,
 														"access_hash":ob.chats[j].access_hash,
+														"photo":(ob.chats[j].photo != undefined)? ob.chats[j].photo:{},
 														"data":ob.chats[j]},stringifyReplacer)
 						}else{
 							opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)+" (br)"));
 							opt.value = JSON.stringify({"type":"broadcast",
 														"id":ob.chats[j].id,
 														"access_hash":ob.chats[j].access_hash,
+														"photo":(ob.chats[j].photo != undefined)? ob.chats[j].photo:{},
 														"data":ob.chats[j]},stringifyReplacer)
 						}
 						userlist.appendChild(opt); 
@@ -579,6 +585,7 @@ const _getDialogs = function(ob){
 						opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)+" (ch)"));
 						opt.value = JSON.stringify({"type":"chat",
 													"id":ob.chats[j].id,
+													"photo":(ob.chats[j].photo != undefined)? ob.chats[j].photo:{},
 													"data":ob.chats[j]},stringifyReplacer)
 						userlist.appendChild(opt); 
 					}
@@ -594,12 +601,14 @@ const _getDialogs = function(ob){
 							opt.value = JSON.stringify({"type":"user",
 														"id":ob.users[j].id,
 														"access_hash":ob.users[j].access_hash,
+														"photo":(ob.users[j].photo != undefined)? ob.users[j].photo:{},
 														"data":ob.users[j]},stringifyReplacer)
 						} else {
 							opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)+" (bot)"));
 							opt.value = JSON.stringify({"type":"bot",
 														"id":ob.users[j].id,
 														"access_hash":ob.users[j].access_hash,
+														"photo":(ob.users[j].photo != undefined)? ob.users[j].photo:{},
 														"data":ob.users[j]},stringifyReplacer)
 						}
 						userlist.appendChild(opt); 
