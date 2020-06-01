@@ -108,6 +108,72 @@ function getThumbs(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
+function send_sticker_to_User(request, callback){
+	var request_name = "send_sticker_to_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
+									[i++]:{id:{long:request._id_st.toString()}},
+									[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
+									[i++]:{file_reference:{bytes:request._file_reference}},
+							[i++]:{message:{string:""}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function send_sticker_to_Channel(request, callback){
+	var request_name = "send_sticker_to_Channel"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
+									[i++]:{id:{long:request._id_st.toString()}},
+									[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
+									[i++]:{file_reference:{bytes:request._file_reference}},
+							[i++]:{message:{string:""}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 function getFile(request, callback){
 	var request_name = "get_File"
 	var is_callback = false;

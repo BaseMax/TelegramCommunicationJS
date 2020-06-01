@@ -39,10 +39,11 @@
 	</select>
 		<button type="button" onClick="getHistory()">Get History</button>
 		<button type="button" onClick="sendMessage()">Send test message</button>
+		<button type="button" onClick="sendSmile()">Send smile</button>
 		<button type="button" onClick="sendMedia()">Send media</button>
 		<button type="button" onClick="cv()">Send file</button>
 		<button type="button" onClick="gph()">Get Photo</button>
-		<button type="button" onClick="gsl()">Get Stickers list</button>
+		<button type="button" onClick="gsl()">Send Sticker</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
@@ -53,33 +54,35 @@
 
 <script>
 	function gsl(){
-		call_tl_func({0:{tl_constructor:{uint4:0x1c9618b1}},1:{hash:{uint4:0}}},getStiskersList)
+//		call_tl_func({0:{tl_constructor:{uint4:0x1c9618b1}},1:{hash:{uint4:0}}},getStiskersList)
+		call_tl_func({0:{tl_constructor:{uint4:0x43d4f2c}},1:{emoticon:{string:new TextDecoder().decode(new Uint8Array([0xF0, 0x9F, 0x98, 0x81]))}},2:{hash:{uint4:0}}},getStiskersList)//messages.getStickers#43d4f2c emoticon:string hash:int = messages.Stickers;
 	}
 	function getStiskersList(){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get stickers list"));
-		if(arguments[0].sets != undefined && arguments[0].sets[0] > 0){
-			var r = {}
-			r["_flags"]=0
-			r["_id"]=arguments[0].sets[1].id
-			r["_access_hash"]=arguments[0].sets[1].access_hash
-			r["_tl_location"] = 0xdbaeae9
-			r["_volume_id"] = arguments[0].sets[1].thumb.location.volume_id
-			r["_local_id"] = arguments[0].sets[1].thumb.location.local_id
-			r["_short_name"] = arguments[0].sets[1].short_name
-			r["_offset"] = 0
-			r["_limit"] = 524288
-			r["_dc_id"] = arguments[0].sets[1].thumb_dc_id
-//
-//			if(arguments[0].photos[1].dc_id == dataC){
-					getThumbs(r,getThumbsFile)
-//			} else {
-//					getFileDC(r,getUserPhotoFile)
-//			}
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"stickers"));
+		if(arguments[0].stickers != undefined && arguments[0].stickers[0] > 0){
+			for(var stcount=1;stcount<=arguments[0].stickers[0];stcount++){
+				if(arguments[0].stickers[stcount].mime_type == "application/x-tgsticker"){
+					r={}
+					r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
+					r["_access_hash"]=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
+					r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
+					r["_id_st"]=arguments[0].stickers[stcount].id
+					r["_access_hash_st"]=arguments[0].stickers[stcount].access_hash
+					r["_file_reference"]=arguments[0].stickers[stcount].file_reference
+					if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
+						send_sticker_to_Channel(r,send_textmessage_result)
+					} else {
+						send_sticker_to_User(r,sendThumbsResult)
+					}
+					break
+				}
+			}
 		}
 	}
-	function getThumbsFile(){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Sticker thumb"));
-		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"thumb decoded from 'get Sticker thumb.bytes'"));
+	
+	function sendThumbsResult(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send Sticker result"));
+//		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"thumb decoded from 'get Sticker thumb.bytes'"));
 	}
 	function gph(){
 		var r = {}
@@ -143,7 +146,18 @@
 	function get_history_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get history"));
 	}
-
+	function sendSmile(){
+		var r={}
+		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
+		r["_access_hash"]=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
+		r["_message"]=new TextDecoder().decode(new Uint8Array([0xF0, 0x9F, 0x98, 0x81]))
+		r["_message_rnd_id"]=BigInt(Math.random().toString().substring(2))
+		if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
+			send_textmessage_to_Channel(r,send_textmessage_result)
+		} else {
+			send_textmessage_to_User(r,send_textmessage_result)
+		}
+	}
 	function sendMessage(){
 		var r={}
 		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
