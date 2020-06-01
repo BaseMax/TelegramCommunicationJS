@@ -4363,6 +4363,29 @@ function getrequest(tl_constructor,_flags,vector_type){
 
 //	manual added constructors
 
+	case 0xfa64e172:{//webPage#fa64e172 flags:# id:long url:string display_url:string hash:int type:flags.0?string site_name:flags.1?string title:flags.2?string description:flags.3?string photo:flags.4?Photo embed_url:flags.5?string embed_type:flags.5?string embed_width:flags.6?int embed_height:flags.6?int duration:flags.7?int author:flags.8?string document:flags.9?Document documents:flags.11?Vector<Document> cached_page:flags.10?Page = WebPage;
+		request = {}
+		request[i++]=Object.fromEntries([["flags","#"]])
+		request[i++]=Object.fromEntries([["id","long"]])
+		request[i++]=Object.fromEntries([["url","string"]])
+		request[i++]=Object.fromEntries([["display_url","string"]])
+		request[i++]=Object.fromEntries([["hash","int"]])
+		if(_flags & (1 << 0)) request[i++]=Object.fromEntries([["type","string"]])
+		if(_flags & (1 << 1)) request[i++]=Object.fromEntries([["site_name","string"]])
+		if(_flags & (1 << 2)) request[i++]=Object.fromEntries([["title","string"]])
+		if(_flags & (1 << 3)) request[i++]=Object.fromEntries([["description","string"]])
+		if(_flags & (1 << 4)) request[i++]=Object.fromEntries([["photo","Photo"]])
+		if(_flags & (1 << 5)) request[i++]=Object.fromEntries([["embed_url","string"]])
+		if(_flags & (1 << 5)) request[i++]=Object.fromEntries([["embed_type","string"]])
+		if(_flags & (1 << 6)) request[i++]=Object.fromEntries([["embed_width","int"]])
+		if(_flags & (1 << 6)) request[i++]=Object.fromEntries([["embed_heigth","int"]])
+		if(_flags & (1 << 7)) request[i++]=Object.fromEntries([["duration","int"]])
+		if(_flags & (1 << 8)) request[i++]=Object.fromEntries([["author","string"]])
+		if(_flags & (1 << 9)) request[i++]=Object.fromEntries([["document","Document"]])
+		if(_flags & (1 << 11)) request[i++]=Object.fromEntries([["documents","Vector<Document>"]])
+		if(_flags & (1 << 10)) request[i++]=Object.fromEntries([["cahet_page","Page"]])
+		break
+	}
 	case 0x2144ca19:{//RPCerror error:int message:string
 		request = {[i++]:{error:"int"},[i++]:{error_text:"string"}}
 		break

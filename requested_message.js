@@ -16,66 +16,83 @@ function call_tl_func(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_history_to_User(request, callback){
-	var request_name = "send_history_to_User"
+function send_history(request, callback){
+	var request_name = "send_history"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
-					body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},
-							[i++]:{flags:{uint4:request._flags}},
-							[i++]:{from_peer:{uint4:request._from_peer}},
-								[i++]:{from_user_id:{uint4:request._id_frompeer}},
-								[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
-							[i++]:{vector_id:{uint4:0x1cb5c415}},
-								[i++]:{vector_id_len:{uint4:0x1}},
-								[i++]:{_id:{uint4:request._id}},
-							[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
-								[i++]:{vector_rnd_id_len:{uint4:0x1}},
-								[i++]:{_rnd_id:{long:request._random_id.toString()}},
-							[i++]:{to_peer:{uint4:0x7b8e7de6}},
-							[i++]:{to_user_id:{uint4:request._id_topeer}},
-							[i++]:{to_access_hash:{long:request._access_hash_topeer.toString()}},
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	if(request._peer == 0x179be863){
+		if(request._from_peer == 0x179be863){
+			tl_request ={id:request_name,
+							body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+									[i++]:{flags:{uint4:request._flags}},
+									[i++]:{from_peer:{uint4:request._from_peer}},
+										[i++]:{from_user_id:{uint4:request._id_frompeer}},
+									[i++]:{vector_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_id_len:{uint4:0x1}},
+										[i++]:{_id:{uint4:request._msg_id}},
+									[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_rnd_id_len:{uint4:0x1}},
+										[i++]:{_rnd_id:{long:request._random_id.toString()}},
+									[i++]:{to_peer:{uint4:request._peer}},
+									[i++]:{to_user_id:{uint4:request._id}},
+							}}
+		} else {
+			tl_request ={id:request_name,
+							body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+									[i++]:{flags:{uint4:request._flags}},
+									[i++]:{from_peer:{uint4:request._from_peer}},
+										[i++]:{from_user_id:{uint4:request._id_frompeer}},
+										[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
+									[i++]:{vector_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_id_len:{uint4:0x1}},
+										[i++]:{_id:{uint4:request._msg_id}},
+									[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_rnd_id_len:{uint4:0x1}},
+										[i++]:{_rnd_id:{long:request._random_id.toString()}},
+									[i++]:{to_peer:{uint4:request._peer}},
+									[i++]:{to_user_id:{uint4:request._id}},
+							}}
+		}
+	} else {
+		if(request._from_peer == 0x179be863){
+			tl_request ={id:request_name,
+							body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+									[i++]:{flags:{uint4:request._flags}},
+									[i++]:{from_peer:{uint4:request._from_peer}},
+										[i++]:{from_user_id:{uint4:request._id_frompeer}},
+									[i++]:{vector_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_id_len:{uint4:0x1}},
+										[i++]:{_id:{uint4:request._msg_id}},
+									[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_rnd_id_len:{uint4:0x1}},
+										[i++]:{_rnd_id:{long:request._random_id.toString()}},
+									[i++]:{to_peer:{uint4:request._peer}},
+									[i++]:{to_user_id:{uint4:request._id}},
+									[i++]:{to_access_hash:{long:request._access_hash.toString()}},
+							}}
+		} else {
+			tl_request ={id:request_name,
+							body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+									[i++]:{flags:{uint4:request._flags}},
+									[i++]:{from_peer:{uint4:request._from_peer}},
+										[i++]:{from_user_id:{uint4:request._id_frompeer}},
+										[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
+									[i++]:{vector_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_id_len:{uint4:0x1}},
+										[i++]:{_id:{uint4:request._msg_id}},
+									[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+										[i++]:{vector_rnd_id_len:{uint4:0x1}},
+										[i++]:{_rnd_id:{long:request._random_id.toString()}},
+									[i++]:{to_peer:{uint4:request._peer}},
+									[i++]:{to_user_id:{uint4:request._id}},
+									[i++]:{to_access_hash:{long:request._access_hash.toString()}},
+							}}
+		}
 	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function send_history_to_Channel(request, callback){
-	var request_name = "send_history_to_User"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
-//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
-					body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},
-							[i++]:{flags:{uint4:request._flags}},
-							[i++]:{from_peer:{uint4:request._from_peer}},
-								[i++]:{from_user_id:{uint4:request._id_frompeer}},
-								[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
-							[i++]:{vector_id:{uint4:0x1cb5c415}},
-								[i++]:{vector_id_len:{uint4:0x1}},
-								[i++]:{_id:{uint4:request._id}},
-							[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
-								[i++]:{vector_rnd_id_len:{uint4:0x1}},
-								[i++]:{_rnd_id:{long:request._random_id.toString()}},
-							[i++]:{to_peer:{uint4:0x20adaef8}},
-							[i++]:{to_user_id:{uint4:request._id_topeer}},
-							[i++]:{to_access_hash:{long:request._access_hash_topeer.toString()}},
-					}}
 	mode = 8
 
 	const _internal = function(ob){
@@ -123,22 +140,33 @@ function saveFile(request, callback){
 }
 
 function getUserPhotos(request, callback){
-	var request_name = "get_User_Photos"
+	var request_name = "get_Photo"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x91cd32a8}},//photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
-							[i++]:{inputUser:{uint4:0xd8292816}},//inputUser#d8292816 user_id:int access_hash:long = InputUser;
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{offset:{uint4:request._offset}},
-							[i++]:{max_id:{long:request._max_id.toString()}},
-							[i++]:{limit:{uint4:request._limit}},
-						 }}
+	if(request._peer == 0x179be863){
+		tl_request={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x91cd32a8}},//photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
+								[i++]:{inputUser:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{offset:{uint4:request._offset}},
+								[i++]:{max_id:{long:request._max_id.toString()}},
+								[i++]:{limit:{uint4:request._limit}},
+							 }}
+	} else {
+		tl_request={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x91cd32a8}},//photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
+								[i++]:{inputUser:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{offset:{uint4:request._offset}},
+								[i++]:{max_id:{long:request._max_id.toString()}},
+								[i++]:{limit:{uint4:request._limit}},
+							 }}
+	}
 	mode = 8
 
 	const _internal = function(ob){
@@ -178,62 +206,46 @@ function getThumbs(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_sticker_to_User(request, callback){
-	var request_name = "send_sticker_to_User"
+function send_sticker(request, callback){
+	var request_name = "send_sticker"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-								[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+	if(request._peer == 0x179be863){
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
 								[i++]:{flags:{uint4:0x0}},
-								[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
-									[i++]:{id:{long:request._id_st.toString()}},
-									[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
-									[i++]:{file_reference:{bytes:request._file_reference}},
-							[i++]:{message:{string:""}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
-	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function send_sticker_to_Channel(request, callback){
-	var request_name = "send_sticker_to_Channel"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-								[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+									[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+									[i++]:{flags:{uint4:0x0}},
+									[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
+										[i++]:{id:{long:request._id_st.toString()}},
+										[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
+										[i++]:{file_reference:{bytes:request._file_reference}},
+								[i++]:{message:{string:""}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	} else {
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
 								[i++]:{flags:{uint4:0x0}},
-								[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
-									[i++]:{id:{long:request._id_st.toString()}},
-									[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
-									[i++]:{file_reference:{bytes:request._file_reference}},
-							[i++]:{message:{string:""}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+									[i++]:{inputMediaDocument:{uint4:0x23ab23d2}},//inputMediaDocument#23ab23d2 flags:# id:InputDocument ttl_seconds:flags.0?int = InputMedia;
+									[i++]:{flags:{uint4:0x0}},
+									[i++]:{inputDocument:{uint4:0x1abfb575}},//inputDocument#1abfb575 id:long access_hash:long file_reference:bytes = InputDocument;
+										[i++]:{id:{long:request._id_st.toString()}},
+										[i++]:{access_hash_doc:{long:request._access_hash_st.toString()}},
+										[i++]:{file_reference:{bytes:request._file_reference}},
+								[i++]:{message:{string:""}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	}
 	mode = 8
 
 	const _internal = function(ob){
@@ -302,35 +314,58 @@ function getFileDC(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_saved_mediaFile_to_User(request, callback){
-	var request_name = "send_saved_mediaFile_to_User"
+function send_saved_mediaFile(request, callback){
+	var request_name = "send_saved_mediaFile"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-								[i++]:{inputMediaDocument:{uint4:0x5b38c6c1}},//inputMediaUploadedDocument#5b38c6c1 flags:# nosound_video:flags.3?true file:InputFile thumb:flags.2?InputFile mime_type:string attributes:Vector<DocumentAttribute> stickers:flags.0?Vector<InputDocument> ttl_seconds:flags.1?int = InputMedia;
+	if(request._peer == 0x179be863){
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
 								[i++]:{flags:{uint4:0x0}},
-								[i++]:{inputFile:{uint4:0xf52ff27f}},//inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile;											
-									[i++]:{id:{long:request._file_random_id.toString()}},
-									[i++]:{parts:{uint4:request._blocks}},
-									[i++]:{name:{string:request._filename}},
-									[i++]:{md5_checksum:{string:request._MD5}},
-								[i++]:{name:{string:request._datatype}},
-								[i++]:{attributes:{uint4:0x1cb5c415}},
-									[i++]:{count:{uint4:0x1}},
-									[i++]:{documentAttributeFilename:{uint4:0x15590068}},
-									[i++]:{name:{string:request._filename}},
-							[i++]:{message:{string:request._message}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+									[i++]:{inputMediaDocument:{uint4:0x5b38c6c1}},//inputMediaUploadedDocument#5b38c6c1 flags:# nosound_video:flags.3?true file:InputFile thumb:flags.2?InputFile mime_type:string attributes:Vector<DocumentAttribute> stickers:flags.0?Vector<InputDocument> ttl_seconds:flags.1?int = InputMedia;
+									[i++]:{flags:{uint4:0x0}},
+									[i++]:{inputFile:{uint4:0xf52ff27f}},//inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile;											
+										[i++]:{id:{long:request._file_random_id.toString()}},
+										[i++]:{parts:{uint4:request._blocks}},
+										[i++]:{name:{string:request._filename}},
+										[i++]:{md5_checksum:{string:request._MD5}},
+									[i++]:{name:{string:request._datatype}},
+									[i++]:{attributes:{uint4:0x1cb5c415}},
+										[i++]:{count:{uint4:0x1}},
+										[i++]:{documentAttributeFilename:{uint4:0x15590068}},
+										[i++]:{name:{string:request._filename}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	} else {
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+									[i++]:{inputMediaDocument:{uint4:0x5b38c6c1}},//inputMediaUploadedDocument#5b38c6c1 flags:# nosound_video:flags.3?true file:InputFile thumb:flags.2?InputFile mime_type:string attributes:Vector<DocumentAttribute> stickers:flags.0?Vector<InputDocument> ttl_seconds:flags.1?int = InputMedia;
+									[i++]:{flags:{uint4:0x0}},
+									[i++]:{inputFile:{uint4:0xf52ff27f}},//inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile;											
+										[i++]:{id:{long:request._file_random_id.toString()}},
+										[i++]:{parts:{uint4:request._blocks}},
+										[i++]:{name:{string:request._filename}},
+										[i++]:{md5_checksum:{string:request._MD5}},
+									[i++]:{name:{string:request._datatype}},
+									[i++]:{attributes:{uint4:0x1cb5c415}},
+										[i++]:{count:{uint4:0x1}},
+										[i++]:{documentAttributeFilename:{uint4:0x15590068}},
+										[i++]:{name:{string:request._filename}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	}
 	mode = 8
 
 	const _internal = function(ob){
@@ -341,57 +376,31 @@ function send_saved_mediaFile_to_User(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_saved_mediaFile_to_Channel(request, callback){
-	var request_name = "send_saved_mediaFile_to_Channel"
+function send_external_GIF(request, callback){
+	var request_name = "send_external_GIF"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-								[i++]:{inputMediaDocument:{uint4:0x5b38c6c1}},//inputMediaUploadedDocument#5b38c6c1 flags:# nosound_video:flags.3?true file:InputFile thumb:flags.2?InputFile mime_type:string attributes:Vector<DocumentAttribute> stickers:flags.0?Vector<InputDocument> ttl_seconds:flags.1?int = InputMedia;
+	if(request._peer == 0x179be863){
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
 								[i++]:{flags:{uint4:0x0}},
-								[i++]:{inputFile:{uint4:0xf52ff27f}},//inputFile#f52ff27f id:long parts:int name:string md5_checksum:string = InputFile;											
-									[i++]:{id:{long:request._file_random_id.toString()}},
-									[i++]:{parts:{uint4:request._blocks}},
-									[i++]:{name:{string:request._filename}},
-									[i++]:{md5_checksum:{string:request._MD5}},
-								[i++]:{name:{string:request._datatype}},
-								[i++]:{attributes:{uint4:0x1cb5c415}},
-									[i++]:{count:{uint4:0x1}},
-									[i++]:{documentAttributeFilename:{uint4:0x15590068}},
-									[i++]:{name:{string:request._filename}},
-							[i++]:{message:{string:request._message}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
-	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function send_external_GIF_to_User(request, callback){
-	var request_name = "send_external_GIF_to_User"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
+								   [i++]:{url:{string:request._URL}},
+								   [i++]:{q:{string:request._q}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	} else {
+		tl_request ={id:request_name,
 					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
 							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{inputPeer:{uint4:request._peer}},
 							[i++]:{user_id:{uint4:request._id}},
 							[i++]:{access_hash:{long:request._access_hash.toString()}},
 							   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
@@ -400,6 +409,7 @@ function send_external_GIF_to_User(request, callback){
 							[i++]:{message:{string:request._message}},
 							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
 					}}
+  }
 	mode = 8
 
 	const _internal = function(ob){
@@ -410,26 +420,34 @@ function send_external_GIF_to_User(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_external_GIF_to_Channel(request, callback){
-	var request_name = "send_external_GIF_to_Channel"
+function send_textmessage(request, callback){
+	var request_name = "send_textmessage"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
-							   [i++]:{url:{string:request._URL}},
-							   [i++]:{q:{string:request._q}},
-							[i++]:{message:{string:request._message}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
+	if(request._peer == 0x179be863){
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	} else {
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+								[i++]:{flags:{uint4:0x0}},
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{message:{string:request._message}},
+								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+						}}
+	}
 	mode = 8
 
 	const _internal = function(ob){
@@ -440,112 +458,42 @@ function send_external_GIF_to_Channel(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-function send_textmessage_to_User(request, callback){
-	var request_name = "send_textmessage_to_User"
+function get_history(request, callback){
+	var request_name = "get_history"
 	var is_callback = false;
 	if (arguments.length > 1 && arguments[1] !== undefined){
 		is_callback = true
 		request_name = callback.name
 	}
 	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{message:{string:request._message}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	if(request._peer == 0x179be863){
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{offset_id:{uint4:request._offset_id}},
+								[i++]:{offset_date:{uint4:request._offset_date}},
+								[i++]:{add_offset:{uint4:request._add_offset}},
+								[i++]:{limit:{uint4:request._count}},
+								[i++]:{max_id:{uint4:request._max_id}},
+								[i++]:{min_id:{uint4:request._min_id}},
+								[i++]:{hash:{uint4:request._hash}}
+						}}
+	} else {
+		tl_request ={id:request_name,
+						body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
+								[i++]:{inputPeer:{uint4:request._peer}},
+								[i++]:{user_id:{uint4:request._id}},
+								[i++]:{access_hash:{long:request._access_hash.toString()}},
+								[i++]:{offset_id:{uint4:request._offset_id}},
+								[i++]:{offset_date:{uint4:request._offset_date}},
+								[i++]:{add_offset:{uint4:request._add_offset}},
+								[i++]:{limit:{uint4:request._count}},
+								[i++]:{max_id:{uint4:request._max_id}},
+								[i++]:{min_id:{uint4:request._min_id}},
+								[i++]:{hash:{uint4:request._hash}}
+						}}
 	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function send_textmessage_to_Channel(request, callback){
-	var request_name = "send_textmessage_to_Channel"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
-							[i++]:{flags:{uint4:0x0}},
-							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{message:{string:request._message}},
-							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
-	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function get_history_from_User(request, callback){
-	var request_name = "get_history_from_User"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
-							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{offset_id:{uint4:request._offset_id}},
-							[i++]:{offset_date:{uint4:request._offset_date}},
-							[i++]:{add_offset:{uint4:request._add_offset}},
-							[i++]:{limit:{uint4:request._count}},
-							[i++]:{max_id:{uint4:request._max_id}},
-							[i++]:{min_id:{uint4:request._min_id}},
-							[i++]:{hash:{uint4:request._hash}}
-					}}
-	mode = 8
-
-	const _internal = function(ob){
-		console.log(request_name)
-		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
-	}
-	
-	requested_msg[request_name]=is_callback ? arguments[1] : _internal
-}
-
-function get_history_from_Channel(request, callback){
-	var request_name = "get_history_from_Channel"
-	var is_callback = false;
-	if (arguments.length > 1 && arguments[1] !== undefined){
-		is_callback = true
-		request_name = callback.name
-	}
-	var i = 0
-	tl_request ={id:request_name,
-					body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
-							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
-							[i++]:{user_id:{uint4:request._id}},
-							[i++]:{access_hash:{long:request._access_hash.toString()}},
-							[i++]:{offset_id:{uint4:request._offset_id}},
-							[i++]:{offset_date:{uint4:request._offset_date}},
-							[i++]:{add_offset:{uint4:request._add_offset}},
-							[i++]:{limit:{uint4:request._count}},
-							[i++]:{max_id:{uint4:request._max_id}},
-							[i++]:{min_id:{uint4:request._min_id}},
-							[i++]:{hash:{uint4:request._hash}}
-					}}
 	mode = 8
 
 	const _internal = function(ob){
@@ -601,37 +549,68 @@ const _getDialogs = function(ob){
     }
 //end test code	=============================================================================================
 
-//		for(var i=1;i<ob.chats[0];i++){
-//		}
-		for(var i=1;i<ob.dialogs[0];i++){
-			if(ob.dialogs[i].flags & 0x1){
-				for(var j=1;j<ob.chats[0];j++){
+		for(var i=1;i<=ob.dialogs[0];i++){
+			if(ob.dialogs[i].peer.channel_id != undefined){
+				for(var j=1;j<=ob.chats[0];j++){
 					if(ob.dialogs[i].peer.channel_id == ob.chats[j].id) {
 						var opt = document.createElement('option');
-						opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)));
-						opt.value = JSON.stringify(ob.chats[j],stringifyReplacer)
+						if(ob.chats[j].broadcast == undefined){
+							opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)+" (cnl)"));
+							opt.value = JSON.stringify({"type":"channel",
+														"id":ob.chats[j].id,
+														"access_hash":ob.chats[j].access_hash,
+														"data":ob.chats[j]},stringifyReplacer)
+						}else{
+							opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)+" (br)"));
+							opt.value = JSON.stringify({"type":"broadcast",
+														"id":ob.chats[j].id,
+														"access_hash":ob.chats[j].access_hash,
+														"data":ob.chats[j]},stringifyReplacer)
+						}
 						userlist.appendChild(opt); 
 					}
 				}
-			}else{
-				for(var j=1;j<ob.users[0];j++){
+				continue
+			}
+			if(ob.dialogs[i].peer.chat_id != undefined){
+				for(var j=1;j<=ob.chats[0];j++){
+					if(ob.dialogs[i].peer.chat_id == ob.chats[j].id) {
+						var opt = document.createElement('option');
+						opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)+" (ch)"));
+						opt.value = JSON.stringify({"type":"chat",
+													"id":ob.chats[j].id,
+													"data":ob.chats[j]},stringifyReplacer)
+						userlist.appendChild(opt); 
+					}
+				}
+				continue
+			}
+			if(ob.dialogs[i].peer.user_id != undefined){
+				for(var j=1;j<=ob.users[0];j++){
 					if(ob.dialogs[i].peer.user_id == ob.users[j].id) {
 						var opt = document.createElement('option');
-						opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)));
-						opt.value = JSON.stringify(ob.users[j],stringifyReplacer)
+						if(ob.users[j].bot == undefined){
+							opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)+" (usr)"));
+							opt.value = JSON.stringify({"type":"user",
+														"id":ob.users[j].id,
+														"access_hash":ob.users[j].access_hash,
+														"data":ob.users[j]},stringifyReplacer)
+						} else {
+							opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)+" (bot)"));
+							opt.value = JSON.stringify({"type":"bot",
+														"id":ob.users[j].id,
+														"access_hash":ob.users[j].access_hash,
+														"data":ob.users[j]},stringifyReplacer)
+						}
 						userlist.appendChild(opt); 
 					}
 				}
+				continue
 			}
 		}
-//		for(var i=1;i<ob.messages[0];i++){
-//		}
-//		for(var i=1;i<ob.users[0];i++){
-//		}
 	}
 }
 requested_msg["getDialogs"]=_getDialogs
-
 
 ////help.getConfig#c4f9186b
 function getConfig(){//help.getConfig#c4f9186b = Config;
