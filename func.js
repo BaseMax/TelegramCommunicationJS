@@ -6,6 +6,8 @@ c.toString(16).padStart(2, 0) + (i === a.length - 1 || i % 16 === 15 ?
 r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' : ''), ''));
 
 	function readUInt32LE (buffer, offset) {offset = offset || 0;return ((buffer[offset]) | (buffer[offset + 1] << 8) | (buffer[offset + 2] << 16)) + (buffer[offset + 3] * 0x1000000)}
+	function readBigIntFromBuffer(buffer) {var little = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;var signed = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : false;var randBuffer = Array.from(buffer);var bytesNumber = randBuffer.length;if (little) {randBuffer = randBuffer.reverse();}var res="";for(var i=0; i<randBuffer.length;i++){res = res+(('0' + (randBuffer[i] & 0xFF).toString(16)).slice(-2));}var bigInt = BigInt('0x' + res);if (signed && Math.floor(bigInt.toString('2').length / 8) >= bytesNumber) {bigInt -= bigIntPower(BigInt(2), BigInt(bytesNumber * 8));}return bigInt;}
+	function bigIntPower(a, b) {var i;var pow = BigInt(1);for (i = BigInt(0); i < b; i++) {pow = pow * a;}return pow;}
 	function readString(inArray){
 		var value=[]
 		var start = 1
