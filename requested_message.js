@@ -16,6 +16,76 @@ function call_tl_func(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
+function send_history_to_User(request, callback){
+	var request_name = "send_history_to_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+					body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},
+							[i++]:{flags:{uint4:request._flags}},
+							[i++]:{from_peer:{uint4:request._from_peer}},
+								[i++]:{from_user_id:{uint4:request._id_frompeer}},
+								[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
+							[i++]:{vector_id:{uint4:0x1cb5c415}},
+								[i++]:{vector_id_len:{uint4:0x1}},
+								[i++]:{_id:{uint4:request._id}},
+							[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+								[i++]:{vector_rnd_id_len:{uint4:0x1}},
+								[i++]:{_rnd_id:{long:request._random_id.toString()}},
+							[i++]:{to_peer:{uint4:0x7b8e7de6}},
+							[i++]:{to_user_id:{uint4:request._id_topeer}},
+							[i++]:{to_access_hash:{long:request._access_hash_topeer.toString()}},
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function send_history_to_Channel(request, callback){
+	var request_name = "send_history_to_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+//messages.forwardMessages#d9fee60e from_peer:InputPeer id:Vector<int> random_id:Vector<long> to_peer:InputPeer schedule_date:flags.10?int = Updates;			
+					body:{[i++]:{tl_constructor:{uint4:0xd9fee60e}},
+							[i++]:{flags:{uint4:request._flags}},
+							[i++]:{from_peer:{uint4:request._from_peer}},
+								[i++]:{from_user_id:{uint4:request._id_frompeer}},
+								[i++]:{from_access_hash:{long:request._access_hash_frompeer.toString()}},
+							[i++]:{vector_id:{uint4:0x1cb5c415}},
+								[i++]:{vector_id_len:{uint4:0x1}},
+								[i++]:{_id:{uint4:request._id}},
+							[i++]:{vector_rnd_id:{uint4:0x1cb5c415}},
+								[i++]:{vector_rnd_id_len:{uint4:0x1}},
+								[i++]:{_rnd_id:{long:request._random_id.toString()}},
+							[i++]:{to_peer:{uint4:0x20adaef8}},
+							[i++]:{to_user_id:{uint4:request._id_topeer}},
+							[i++]:{to_access_hash:{long:request._access_hash_topeer.toString()}},
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 function saveFile(request, callback){
 	const block_size = 1024
 	var file_length = request._file_data_array.length
