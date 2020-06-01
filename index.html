@@ -20,7 +20,12 @@
   </head>
   <body>
 
-  <p  id="mtprotoresult">Connecting to server......</p><br>	  
+	  <p style="display: inline-block;"  id="mtprotoresult">Connecting to server......</p>
+	  <p style="display: inline-block; color:gray;" id="DC1">DC1</p>
+	  <p style="display: inline-block; color:gray;" id="DC2">DC2</p>
+	  <p style="display: inline-block; color:gray;" id="DC3">DC3</p>
+	  <p style="display: inline-block; color:gray;" id="DC4">DC4</p>
+	  <p style="display: inline-block; color:gray;" id="DC5">DC5</p><br>	  
 	<div hidden id="phonelabel"><label>phone number</label><input type="text" id="phone">
   		<button type="button" onClick="sendphonenum(document.getElementById('phone').value)">Send</button><br>
 	</div>
@@ -35,8 +40,10 @@
 		<button type="button" onClick="getHistory()">Get History</button>
 		<button type="button" onClick="sendMessage()">Send test message</button>
 		<button type="button" onClick="sendMedia()">Send media</button>
-		<button type="button" onClick="cv()">Send file</button><br>
-		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;"></div>	  
+		<button type="button" onClick="cv()">Send file</button>
+		<button type="button" onClick="gph()">Get Photo</button>
+		<button type="button" onClick="clearlog()">ClearLog</button><br>
+		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
   <script src="tlg.js"></script>
 
@@ -44,6 +51,44 @@
 </html>
 
 <script>
+	function gph(){
+		var r = {}
+		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
+		r["_access_hash"]=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
+		r["_flags"] = 0
+		r["_offset"] = 0
+		r["_max_id"] = 0
+		r["_limit"] = 0
+		getUserPhotos(r,getPhotoFile)
+	}
+	function getPhotoFile(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get User photo"));
+		if(arguments[0].photos != undefined && arguments[0].photos[0] > 0){
+			var r = {}
+			r["_flags"]=0
+			r["_id"]=arguments[0].photos[1].id
+			r["_access_hash"]=arguments[0].photos[1].access_hash
+			r["_tl_location"] = 0x40181ffe
+			r["_file_reference"] = arguments[0].photos[1].file_reference
+			r["_thumb_size"] = arguments[0].photos[1].sizes[1].type
+			r["_offset"] = 0
+			r["_limit"] = 524288
+			r["_dc_id"] = arguments[0].photos[1].dc_id
+			if(arguments[0].photos[1].dc_id == dataC){
+					getFile(r,getUserPhotoFile)
+			} else {
+					getFileDC(r,getUserPhotoFile)
+			}
+		}
+	}
+	function getUserPhotoFile(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get User Photo File"));
+		var x = document.getElementById("myImg");
+		x.src= 'data:image/jpg;base64,'+btoa(String.fromCharCode(...new Uint8Array(arguments[0].bytes)))
+	}
+	function clearlog(){
+		document.getElementById('tgresult').querySelectorAll('*').forEach(n => n.remove());
+	}
 	function getHistory(){
 		var r={}
 		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
@@ -62,7 +107,7 @@
 		}
 	}
 	function get_history_result(){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get history",));
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get history"));
 	}
 
 	function sendMessage(){

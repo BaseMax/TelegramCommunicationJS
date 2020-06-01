@@ -21,3 +21,8 @@ const _0x914fbf11 = function(ob){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"updateShortMessage"));
 }
 not_requested_msg["0x914fbf11"]=_0x914fbf11
+
+const _0x347773c5 = function(ob){
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
+}
+not_requested_msg["0x347773c5"]=_0x347773c5

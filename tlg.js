@@ -17,14 +17,23 @@ var M2Hash = localStorage.getItem('M2')
 if(M2Hash == null) M2Hash = null
 //localStorage.setItem('M2',M2Hash)
 
-//====================array for requested message handler================
+//====================array for requested message handler===============
 var requested_msg = {}
 //====================array for incoming message handler================
 var not_requested_msg = {}
+//====================array for DC access ==============================
+var DCproc = {}
+var DCstatus = {1:{connected:false,logined:false},
+				2:{connected:false,logined:false},
+			    3:{connected:false,logined:false},
+			    4:{connected:false,logined:false},
+			    5:{connected:false,logined:false}}
+var DCaddr4 = {}
 
 const mainloopdelay = 10
 var mainlooptimer = null
 var mtprotoproc = null
+var fileloader = null
 var mode = 0 //start
 var phonenum=null
 var _phonenum=null
@@ -35,7 +44,22 @@ var _password=""
 var SPR=null
 var tl_request=null
 var testcounter0= 0
+var pingcounter0= 0
+var runonce= true
 
+function startDCconnect(){
+	if(runonce){
+		for(var numdc =1; numdc<=5;numdc++){
+			if(dataC != numdc){
+				DCproc[numdc] = new Worker("mtprotoproc.js")
+				DCproc[numdc].onmessage = get_fileloaderdata
+				DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
+
+			}
+		}
+		runonce = false
+	}
+}
 function restore_input(){
 	document.getElementById('phonelabel').hidden=true
 	document.getElementById('phonelabel').style=""
@@ -43,12 +67,17 @@ function restore_input(){
 	document.getElementById('codelabel').style=""
 	document.getElementById('getContacts').hidden=true
 	document.getElementById('getContacts').style=""
+	document.getElementById("DC1").style.color = "gray"
+	document.getElementById("DC2").style.color = "gray"
+	document.getElementById("DC3").style.color = "gray"
+	document.getElementById("DC4").style.color = "gray"
+	document.getElementById("DC5").style.color = "gray"
 }
 function sendphonenum(number){
 	//auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
 	var i = 0
 	phonenum={id:"PhoneNumber",body:{[i++]:{tl_constructor:{uint4:0xa677244f}},
-									[i++]:{phone_number:{string:number.replace("+","")}},
+									[i++]:{phone_number:{string:number.replace(/\+| /g,"")}},
 									[i++]:{api_id:{uint4:api_id}},
 									[i++]:{api_hash:{string:api_hash}},
 									[i++]:{settings:{uint4:0xdebebe83}},
@@ -128,10 +157,12 @@ function createPassHash(algo){
 function mainloop(){
 	console.log("mainloop event")
     testcounter0++
+	pingcounter0++
 	switch (mode){
 		case 0: {
 			    mode = 1 //wait connect
 			    mtprotoproc.postMessage(['connect',dataC])
+				DCproc[dataC] = mtprotoproc
 			    break
 		}
 		case 3:{
@@ -155,12 +186,26 @@ function mainloop(){
 				break
 		}
 		case 8:{
-			    mode = 7 //send request and wait answer
+				mode = 7 //send request and wait answer
 			    mtprotoproc.postMessage(['message_to_queue',tl_request,'User request '+tl_request.id])
 			    break
 		}
 	}
-	if(testcounter0 % 10 == 0){mtprotoproc.postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 0){if(mtprotoproc != null) mtprotoproc.postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 1){if(DCproc[1] != null) DCproc[1].postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 2){if(DCproc[2] != null) DCproc[2].postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 3){if(DCproc[3] != null) DCproc[3].postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 4){if(DCproc[4] != null) DCproc[4].postMessage(['process_message_queue'])}
+	if(testcounter0 % 10 == 5){if(DCproc[5] != null) DCproc[5].postMessage(['process_message_queue'])}
+	if(pingcounter0 > 6000){
+		if(mtprotoproc != null && mode == 7) mtprotoproc.postMessage(['ping'])
+		if(DCstatus[1].logined) DCproc[1].postMessage(['ping'])
+		if(DCstatus[2].logined) DCproc[2].postMessage(['ping'])
+		if(DCstatus[3].logined) DCproc[3].postMessage(['ping'])
+		if(DCstatus[4].logined) DCproc[4].postMessage(['ping'])
+		if(DCstatus[5].logined) DCproc[5].postMessage(['ping'])
+		pingcounter0=0
+	}
 	if(mode == 1) mtproto_state.innerHTML = 'Connecting to server '+dataC+' ... '+testcounter0
 	start()
 }
@@ -178,7 +223,98 @@ if(window.Worker) {
 }else{
 	console.log('Your browser doesn\'t support web workers.')
 }
-
+function get_fileloaderdata(e){
+	switch (e.data[0]){
+		case 1:{
+			document.getElementById("DC"+e.data[2]).style.color = "black"
+			DCstatus[e.data[2]].connected = true;
+			if(e.data[2] == 1) exportAutorization(e.data[2],getAut1)
+			if(e.data[2] == 2) exportAutorization(e.data[2],getAut2)
+			if(e.data[2] == 3) exportAutorization(e.data[2],getAut3)
+			if(e.data[2] == 4) exportAutorization(e.data[2],getAut4)
+			if(e.data[2] == 5) exportAutorization(e.data[2],getAut5)
+			break
+		}
+		case 2:{
+			var ob = parse_answer(e.data[1].message_answer)
+			if(ob.tl_constructor == 0xcd050916 ){
+				DCstatus[e.data[2]].logined = true;
+				document.getElementById("DC"+e.data[2]).style.color = "blue"
+				//document.getElementById('tgresult').appendChild(renderjson(ob,"Autorization result "+e.data[2]));
+			} else {
+				if(requested_msg[e.data[1].id] != undefined) {
+					requested_msg[e.data[1].id](ob)
+				} else {
+					console.log("handler for DC "+e.data[2]+ " "+e.data[1].id+" not found in requested_messages.js")
+				}
+			}
+			break
+		}
+		case 3:{
+			var ob = parse_answer(e.data[1].message_answer)
+			var tl_constructor = "0x0"
+			if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
+				if(not_requested_msg[tl_constructor] != undefined) {
+					not_requested_msg[tl_constructor](ob)
+				} else {
+					console.log("handler for DC "+e.data[2]+ " "+tl_constructor+" not found in not_requested_messages.js")
+				}
+			break
+			}
+		case 11:{
+				DCproc[e.data[2]].terminate()
+				DCproc[e.data[2]] = new Worker("mtprotoproc.js")
+				DCproc[e.data[2]].onmessage = get_fileloaderdata
+				DCproc[e.data[2]].postMessage(['connectDC',DCaddr4[e.data[2]],e.data[2]])
+				break
+				}
+	}
+}
+function getAut1(){
+//	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Autorization 1",));
+	var i = 0
+	var setAuth={id:"set_Auth",body:{[i++]:{tl_constructor:{uint4:0xe3ef9613}},
+									[i++]:{id:{uint4:arguments[0].id}},
+									[i++]:{bytes:{bytes:arguments[0].bytes}}
+								}} 
+	DCproc[1].postMessage(['message_to_queue',setAuth,'Send Auth code.. 1'])
+}
+function getAut2(){
+//	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Autorization 2",));
+	var i = 0
+	var setAuth={id:"set_Auth",body:{[i++]:{tl_constructor:{uint4:0xe3ef9613}},
+									[i++]:{id:{uint4:arguments[0].id}},
+									[i++]:{bytes:{bytes:arguments[0].bytes}}
+								}} 
+	DCproc[2].postMessage(['message_to_queue',setAuth,'Send Auth code.. 2'])
+}
+function getAut3(){
+//	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Autorization 3",));
+	var i = 0
+	var setAuth={id:"set_Auth",body:{[i++]:{tl_constructor:{uint4:0xe3ef9613}},
+									[i++]:{id:{uint4:arguments[0].id}},
+									[i++]:{bytes:{bytes:arguments[0].bytes}}
+								}} 
+	DCproc[3].postMessage(['message_to_queue',setAuth,'Send Auth code.. 3'])
+}
+function getAut4(){
+//	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Autorization 4",));
+	var i = 0
+	var setAuth={id:"set_Auth",body:{[i++]:{tl_constructor:{uint4:0xe3ef9613}},
+									[i++]:{id:{uint4:arguments[0].id}},
+									[i++]:{bytes:{bytes:arguments[0].bytes}}
+								}} 
+	DCproc[4].postMessage(['message_to_queue',setAuth,'Send Auth code.. 4'])
+}
+function getAut5(){
+//	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Autorization 5",));
+	var i = 0
+	var setAuth={id:"set_Auth",body:{[i++]:{tl_constructor:{uint4:0xe3ef9613}},
+									[i++]:{id:{uint4:arguments[0].id}},
+									[i++]:{bytes:{bytes:arguments[0].bytes}}
+								}} 
+	DCproc[5].postMessage(['message_to_queue',setAuth,'Send Auth code.. 5'])
+}
 
 function get_mtprotoprocdata(e){
 	switch (e.data[0]){
@@ -186,6 +322,7 @@ function get_mtprotoprocdata(e){
 				mtproto_state.innerHTML = "Wait phone num"
 				mode = 2 //connected
 				document.getElementById('phonelabel').hidden=false
+				document.getElementById("DC"+e.data[2]).style.color = "green"
 				break
 				}
 		case 2:{//answer from mtproto
@@ -217,11 +354,12 @@ function get_mtprotoprocdata(e){
 					case "PhoneCode": {
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
+//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
 							getDialogs()
+							startDCconnect()
 							//mode = 10 //connected to server and logined
 						}else{
 							if(ob.error == 401){ //SESSION_PASSWORD_NEEDED
@@ -240,11 +378,12 @@ document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login")
 					case "inputCheckPasswordSRP":{
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
+//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
 							getDialogs()
+							startDCconnect()
 							//mode = 10 //connected to server and logined
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
@@ -257,7 +396,7 @@ document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login")
 						if(requested_msg[e.data[1].id] != undefined) {
 							requested_msg[e.data[1].id](ob)
 						} else {
-							console.log("handler for "+e.data[1].id+" not found in requested_messages.js")
+							console.log("handler for "+ob.tl_constructor+" not found in requested_messages.js")
 						}
 						break
 					}
@@ -268,20 +407,11 @@ document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login")
 				var ob = parse_answer(e.data[1].message_answer)
 				var tl_constructor = "0x0"
 				if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
-//				switch (tl_constructor) {
-//todo remove swutch in no need
-//					default:{
-						if(not_requested_msg[tl_constructor] != undefined) {
-							not_requested_msg[tl_constructor](ob)
-						} else {
-							console.log("handler for incoming message "+tl_constructor+" not found in not_requested_messages.js")
-						}
-//						break
-//					}
-//				}
-
-//todo for test remove
-//tg_out.scrollTop = tg_out.scrollHeight;
+					if(not_requested_msg[tl_constructor] != undefined) {
+						not_requested_msg[tl_constructor](ob)
+					} else {
+						console.log("handler for incoming message "+tl_constructor+" not found in not_requested_messages.js")
+					}
 				break
 				}
 		case 10:{
@@ -291,6 +421,13 @@ document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login")
 				// 2 - wait Request to Start Diffie-Hellman Key Exchange
 				// 3 - wait server verifies that auth_key_hash is unique.
 				// 4 - connected to server
+				break
+				}
+		case 11:{
+				mtprotoproc.terminate()
+				mtprotoproc = new Worker("mtprotoproc.js")
+				mtprotoproc.onmessage = get_mtprotoprocdata
+				mode = 0
 				break
 				}
 	}

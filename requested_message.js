@@ -10,7 +10,7 @@ function call_tl_func(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -52,6 +52,91 @@ function saveFile(request, callback){
 	_saveOneBlock()
 }
 
+function getUserPhotos(request, callback){
+	var request_name = "get_User_Photos"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x91cd32a8}},//photos.getUserPhotos#91cd32a8 user_id:InputUser offset:int max_id:long limit:int = photos.Photos;
+							[i++]:{inputUser:{uint4:0xd8292816}},//inputUser#d8292816 user_id:int access_hash:long = InputUser;
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{offset:{uint4:request._offset}},
+							[i++]:{max_id:{long:request._max_id.toString()}},
+							[i++]:{limit:{uint4:request._limit}},
+						 }}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function getFile(request, callback){
+	var request_name = "get_File"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xb15a9afc}},//upload.getFile#b15a9afc flags:# precise:flags.0?true cdn_supported:flags.1?true location:InputFileLocation offset:int limit:int = upload.File;
+							[i++]:{flags:{uint4:request._flags}},
+							[i++]:{inputPhotoFileLocation:{uint4:0x40181ffe}},//inputPhotoFileLocation#40181ffe id:long access_hash:long file_reference:bytes thumb_size:string = InputFileLocation;
+							[i++]:{id:{long:request._id.toString()}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{file_reference:{bytes:request._file_reference}},
+							[i++]:{thumb_size:{string:request._thumb_size}},
+							[i++]:{offset:{uint4:request._offset}},
+							[i++]:{limit:{uint4:request._limit}},
+						 }}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function getFileDC(request, callback){
+	var request_name = "get_File_DC_"+request._dc_id
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name+"_"+request._dc_id
+	}
+	var i = 0
+	var dc_tl_request={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xb15a9afc}},//upload.getFile#b15a9afc flags:# precise:flags.0?true cdn_supported:flags.1?true location:InputFileLocation offset:int limit:int = upload.File;
+							[i++]:{flags:{uint4:request._flags}},
+							[i++]:{inputPhotoFileLocation:{uint4:0x40181ffe}},//inputPhotoFileLocation#40181ffe id:long access_hash:long file_reference:bytes thumb_size:string = InputFileLocation;
+							[i++]:{id:{long:request._id.toString()}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{file_reference:{bytes:request._file_reference}},
+							[i++]:{thumb_size:{string:request._thumb_size}},
+							[i++]:{offset:{uint4:request._offset}},
+							[i++]:{limit:{uint4:request._limit}},
+						 }}
+	DCproc[request._dc_id].postMessage(['message_to_queue',dc_tl_request,request_name])
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 function send_saved_mediaFile_to_User(request, callback){
 	var request_name = "send_saved_mediaFile_to_User"
 	var is_callback = false;
@@ -85,7 +170,7 @@ function send_saved_mediaFile_to_User(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -124,7 +209,7 @@ function send_saved_mediaFile_to_Channel(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -154,7 +239,7 @@ function send_external_GIF_to_User(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -184,7 +269,7 @@ function send_external_GIF_to_Channel(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -211,7 +296,7 @@ function send_textmessage_to_User(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -238,7 +323,7 @@ function send_textmessage_to_Channel(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -269,7 +354,7 @@ function get_history_from_User(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
@@ -300,12 +385,33 @@ function get_history_from_Channel(request, callback){
 
 	const _internal = function(ob){
 		console.log(request_name)
-		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
 	}
 	
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
+function exportAutorization(DC_ID, callback){
+	var request_name = "export_Autorization"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xe5bfffcd}},
+							[i++]:{dc_id:{uint4:DC_ID}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
 
 //messages.getDialogs#a0ee3b73
 function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;
@@ -369,6 +475,9 @@ function getConfig(){//help.getConfig#c4f9186b = Config;
 	mode = 8
 }
 const _getConfig = function(ob){
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Config result"));
+	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Config result"));
+	for(var i=1;i<ob.dc_options[0];i++){
+		if(ob.dc_options[i].static)	DCaddr4[ob.dc_options[i].id] = "ws://"+ob.dc_options[i].ip_address + "/apiws"
+	}
 }
 requested_msg["getConfig"]=_getConfig

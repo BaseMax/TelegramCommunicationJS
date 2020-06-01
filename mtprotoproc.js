@@ -16,15 +16,22 @@ var _nonce = null
 var timeOffset = 0
 var connect_state = 0;
 var message_id = 0
-var ok_message = [1,'Connected to server: <b>Ok</b>']
+var DCnum=0
 var message_queue = TAFFY([])
 var process_message_running = false
-var DCindex = 0
-
+var DC_addr = ""
 onmessage = function(e) {
   switch (e.data[0]){
 	case 'connect': {
-						DCindex = parseInt(e.data[1])
+						DC_addr= DC[parseInt(e.data[1])]
+						DCnum=parseInt(e.data[1])
+//						console.log(message_body) 
+						connect_to_server()
+						break
+	  				}
+	case 'connectDC': {
+						DC_addr= e.data[1]
+						DCnum=e.data[2]
 //						console.log(message_body) 
 						connect_to_server()
 						break
@@ -44,10 +51,18 @@ onmessage = function(e) {
 						if(!process_message_running) process_message()
 						break
 	  				}
+	case 'ping': {
+						ping={id:"PingDC",body:{[0]:{tl_constructor:{uint4:0x7abe77ec}},[1]:{id:{long:BigInt(Math.random().toString().substring(2)).toString()}}}}
+						ping.issent = false
+    					ping.isresponse_received = false
+    					ping.isread = false
+						message_queue.insert(ping)
+						break
+	  				}
 
 	case 'status': {
 						console.log('MtProto status reqest') 
-						postMessage([10,connect_state]);
+						postMessage([10,connect_state,DCnum]);
 						break
 	  				}
   
@@ -322,7 +337,7 @@ function process_message(){
 	}
 	var message_to_read = message_queue({isresponse_received:true,isread:false}).get();
 	for(var i = 0 ; i < message_to_read.length; i++){
-		postMessage([2,message_to_read[i]]);
+		postMessage([2,message_to_read[i],DCnum]);
 		message_queue(message_to_read[i]).remove()
 	}
 	process_message_running=false
@@ -382,7 +397,7 @@ function message_loop(message){
 				var ret = {}
 				message_body = message_body.slice(16+bytes)
 				ret.message_answer = possibleUnZip(body)
-				postMessage([3,ret]);
+				postMessage([3,ret,DCnum]);
 			//console.log('message box')
 			//console.hex(body)
 			}
@@ -395,7 +410,7 @@ function message_loop(message){
 		default:{
 			var ret = {}
 			ret.message_answer = possibleUnZip(message_body)
-			postMessage([3,ret]);
+			postMessage([3,ret,DCnum]);
 			//console.log('default message')
 			//console.hex(message_body)
 		}
@@ -428,12 +443,12 @@ var finalobfuscate = obfuscate.slice();
 
 async function connect(){
     return new Promise(function(resolve, reject) {
-        socket = new WebSocket(DC[DCindex]);
+        socket = new WebSocket(DC_addr);
 		socket.binaryType = "arraybuffer";
 
 		socket.onmessage = getmessage;
 		socket.onopen =  function()      { resolve(); };
-		socket.onerror = function(error) { console.log("Sosket error") ;reject(error); };
+		socket.onerror = function(error) { postMessage([11,'Reconnect to server...',DCnum]); console.log("Sosket error") ;reject(error); };
 	});
 };
 
@@ -775,7 +790,7 @@ function getmessage(message){
 			var data = newNonce.concat(packed)
 			var shaData = Sha1(data).slice(4, 20);
 			var newNonceHash = readBigIntFromBuffer(shaData, true, true);
-			if( newNonceHash != Client_DH_params_answer.new_nonce_hash.value) throw Error(' Все было хорошо но что то пошло не так ')
+			if( newNonceHash != Client_DH_params_answer.new_nonce_hash.value) postMessage([11,'Reconnect to server...',DCnum])//;throw Error(' Все было хорошо но что то пошло не так ')
 			var srv_nonce = readBufferFromBigInt(P_Q_inner_data.server_nonce,16,false,true).slice(0,8)
 			var srv_n_nonce = readBufferFromBigInt(P_Q_inner_data.new_nonce,32,false,true).slice(0,8)
 			
@@ -870,7 +885,7 @@ function getmessage(message){
 			var to_send  = encryptor.crypt(setLength(encrypt_data))
 			socket.send(to_send)	
 			if(readBigIntFromBuffer(decrypted_message.slice(32,36)) == 0x9ec20908){ //new session created
-				postMessage(ok_message);
+				postMessage([1,'Connected to server: <b>Ok</b> ',DCnum]);
 				connect_state = 6; //server Ok
 				socket.onmessage=message_loop;
 			}
@@ -899,7 +914,7 @@ function removeLength(arr){
 	}
 }
 function decryptMessageData(body) {
-	if (body.length < 8) { throw Error('Message <8 bytes ');  }
+	if (body.length < 8) { postMessage([11,'Reconnect to server...',DCnum])/*throw Error('Message <8 bytes ');  */}
 
 	const keyId = readBigIntFromBuffer(body.slice(0, 8))
 
