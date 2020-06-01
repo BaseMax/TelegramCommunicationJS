@@ -2,6 +2,8 @@
 
 A pure script to communicate with Telegram server without any Third-party tools and library.
 
+![Telegram Communication Javascript Mtproto](Telegram.svg)
+
 ## Telegram Javascript (JS)
 
 We don't work for money and prizes, We do this for science only. (Because the telegram had set a gift for this)
