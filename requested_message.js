@@ -424,9 +424,8 @@ function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flag
 	mode = 8
 }
 const _getDialogs = function(ob){
+	document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Dialog result"));
 	if(ob.tl_constructor == 0x15ba6c40 | ob.tl_constructor == 0x71e094f3){//messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs;)
-		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Dialog result"));
-
 //for test only clear dialog list==============================================================================
 	var  len = userlist.options.length;
     for (var j=len; j; j--) {

@@ -2,7 +2,7 @@
 	var forwarded_history=null
 	var msg_counter = 0
 	var history_length = 0
-	var portion = 20
+	var portion = 100
 	var history_pos = 0
 	var history_forwarded = 0
 	var history_forward_source = null
@@ -26,7 +26,7 @@
 		if(history_length <= history_forwarded){
 			document.getElementById('resend').disabled= true
 		}
-		document.getElementById('resend').innerHTML="ReSend " + history_forwarded + " out of " + history_length
+		//document.getElementById('resend').innerHTML="ReSend " + history_forwarded + " out of " + history_length
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"forward history"));
 		forwarded_history = arguments[0]
 		forwardHistory()
@@ -77,6 +77,7 @@
 	function forward_history_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"forward history element"));
 		msg_counter--
+		document.getElementById('resend').innerHTML="ReSend " + (history_forwarded-msg_counter) + " out of " + history_length
 		if(msg_counter>0) { 
 			forwardHistory()
 		}  else {

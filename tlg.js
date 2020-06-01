@@ -6,7 +6,7 @@ include('requested_message.js')
 include('not_requested_message.js')
 
 //enable-dissable auto connect to file DC
-const DCenable = true//false
+const DCenable = false
 //
 const userlist = document.getElementById('users_list')
 const mtproto_state = document.getElementById('mtprotoresult')
