@@ -2,13 +2,14 @@
 	var forwarded_history=null
 	var msg_counter = 0
 	var history_length = 0
-	var portion = 100
+	var portion = 20
 	var history_pos = 0
 	var history_forwarded = 0
+	var history_forward_source = null
 	function resendHistory(){
 		document.getElementById('resend').disabled= true
-		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		var r=r_with_peer(peer)
+		//var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
+		var r=history_forward_source//r_with_peer(peer)
 		r["_offset_id"]=0
 		r["_offset_date"]=0
 		r["_add_offset"]=history_pos
@@ -33,7 +34,7 @@
 	function forwardHistory(){
 		if(forwarded_history != null){
 			if(msg_counter == 0)msg_counter=forwarded_history.messages[0]
-			var peer=JSON.parse(userlist.options[0].value)
+			var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
 			var r=r_with_peer(peer)
 			r["_flags"] = 0
 			r["_msg_id"]=forwarded_history.messages[msg_counter].id
@@ -90,11 +91,7 @@
 		history_length = 0
 		history_pos = 0
 		history_forwarded = 0
-		if(userlist.selectedIndex > 1){
-			document.getElementById('resend').disabled= false
-		} else {
-			document.getElementById('resend').disabled= true
-		}
+		document.getElementById('resend').disabled= false
 		document.getElementById('resend').innerHTML="ReSend "// + history_forwarded + " out of " + history_length
 	}
 	function sendHistory(){
@@ -207,8 +204,10 @@
 		document.getElementById('tgresult').querySelectorAll('*').forEach(n => n.remove());
 	}
 	function getHistory(){
-		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
-		var r=r_with_peer(peer)
+		var peer = JSON.parse(userlist.options[userlist.selectedIndex].value)
+		history_forward_source = r_with_peer(peer)
+		document.getElementById('history').innerHTML = "Get History from "+userlist.options[userlist.selectedIndex].text
+		/*
 		r["_offset_id"]=0
 		r["_offset_date"]=0
 		r["_add_offset"]=0
@@ -217,6 +216,7 @@
 		r["_min_id"]=0
 		r["_hash"]=0
 		get_history(r,get_history_result)
+		*/
 	}
 	function get_history_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get history"));
