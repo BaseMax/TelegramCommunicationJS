@@ -1,5 +1,5 @@
 <div align="center">
-  <a href="https://metacall.io" target="_blank"><img src="Telegram.svg" alt="Telegram Communication Javascript MT-Proto" style="max-width:100%; margin: 0 auto;" width="80" height="80">
+  <a href="https://github.com/BaseMax/TelegramCommunicationJS" target="_blank"><img src="Telegram.svg" alt="Telegram Communication Javascript MT-Proto" style="max-width:100%; margin: 0 auto;" width="80" height="80">
   <p><b>T E L E G R A M &nbsp;&nbsp; M T - P R O T O</b></p></a>
   <p>A pure script to communicate with Telegram server without any Third-party tools and library.</p>
 </div>
