@@ -79,7 +79,7 @@
 	}
 	function getThumbsFile(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Sticker thumb"));
-		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"Sticker thumb"));
+		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"thumb decoded from 'get Sticker thumb.bytes'"));
 	}
 	function gph(){
 		var r = {}
@@ -104,10 +104,14 @@
 			r["_offset"] = 0
 			r["_limit"] = 524288
 			r["_dc_id"] = arguments[0].photos[1].dc_id
-			if(arguments[0].photos[1].dc_id == dataC){
-					getFile(r,getUserPhotoFile)
-			} else {
-					getFileDC(r,getUserPhotoFile)
+			if(DCenable){
+				if(arguments[0].photos[1].dc_id == dataC){
+						getFile(r,getUserPhotoFile)
+				} else {
+						getFileDC(r,getUserPhotoFile)
+				}
+			}else{
+				getFile(r,getUserPhotoFile)
 			}
 		}
 	}

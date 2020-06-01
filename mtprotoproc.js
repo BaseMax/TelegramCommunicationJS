@@ -59,13 +59,11 @@ onmessage = function(e) {
 						message_queue.insert(ping)
 						break
 	  				}
-
 	case 'status': {
 						console.log('MtProto status reqest') 
 						postMessage([10,connect_state,DCnum]);
 						break
 	  				}
-  
   }
 }
 

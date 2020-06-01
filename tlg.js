@@ -5,6 +5,10 @@ include('settings.js');
 include('requested_message.js')
 include('not_requested_message.js')
 
+//enable-dissable auto connect to file DC
+const DCenable = false
+//
+
 const userlist = document.getElementById('users_list')
 const mtproto_state = document.getElementById('mtprotoresult')
 const tg_out = document.getElementById('tgresult')
@@ -48,7 +52,7 @@ var pingcounter0= 0
 var runonce= true
 
 function startDCconnect(){
-	if(runonce){
+	if(DCenable && runonce){
 		for(var numdc =1; numdc<=5;numdc++){
 			if(dataC != numdc){
 				DCproc[numdc] = new Worker("mtprotoproc.js")
@@ -60,17 +64,28 @@ function startDCconnect(){
 	}
 }
 function pingtestDCconnection(){
-	for(var numdc =1; numdc<=5;numdc++){
-		if(dataC != numdc){
-			if(DCstatus[numdc].logined) { 
-				if(DCstatus[numdc].ping == false){
-					DCproc[numdc].postMessage(['ping'])
-					DCstatus[numdc].ping=true
-//					console.log("ping .."+numdc)
-				} else {
-					DCstatus[numdc].ping=false
-					DCstatus[numdc].logined=false
-					DCstatus[numdc].connected=false
+	if(DCenable){
+		for(var numdc =1; numdc<=5;numdc++){
+			if(dataC != numdc){
+				if(DCstatus[numdc].logined) { 
+					if(DCstatus[numdc].ping == false){
+						DCproc[numdc].postMessage(['ping'])
+						DCstatus[numdc].ping=true
+	//					console.log("ping .."+numdc)
+					} else {
+						DCstatus[numdc].ping=false
+						DCstatus[numdc].logined=false
+						DCstatus[numdc].connected=false
+						if(DCproc[numdc] != null){
+							DCproc[numdc].terminate()
+						}
+						document.getElementById("DC"+numdc).style.color = "gray"
+						DCproc[numdc] = new Worker("mtprotoproc.js")
+						DCproc[numdc].onmessage = get_fileloaderdata
+						DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
+						console.log("ping bad restart.."+numdc)
+					}
+				}else{
 					if(DCproc[numdc] != null){
 						DCproc[numdc].terminate()
 					}
@@ -78,17 +93,8 @@ function pingtestDCconnection(){
 					DCproc[numdc] = new Worker("mtprotoproc.js")
 					DCproc[numdc].onmessage = get_fileloaderdata
 					DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
-					console.log("ping bad restart.."+numdc)
+					console.log("lost connection restart.."+numdc)
 				}
-			}else{
-				if(DCproc[numdc] != null){
-					DCproc[numdc].terminate()
-				}
-				document.getElementById("DC"+numdc).style.color = "gray"
-				DCproc[numdc] = new Worker("mtprotoproc.js")
-				DCproc[numdc].onmessage = get_fileloaderdata
-				DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
-				console.log("lost connection restart.."+numdc)
 			}
 		}
 	}
@@ -225,11 +231,13 @@ function mainloop(){
 		}
 	}
 	if(testcounter0 % 10 == 0){if(mtprotoproc != null) mtprotoproc.postMessage(['process_message_queue'])}
-	if(testcounter0 % 10 == 1){if(DCproc[1] != null) DCproc[1].postMessage(['process_message_queue'])}
-	if(testcounter0 % 10 == 2){if(DCproc[2] != null) DCproc[2].postMessage(['process_message_queue'])}
-	if(testcounter0 % 10 == 3){if(DCproc[3] != null) DCproc[3].postMessage(['process_message_queue'])}
-	if(testcounter0 % 10 == 4){if(DCproc[4] != null) DCproc[4].postMessage(['process_message_queue'])}
-	if(testcounter0 % 10 == 5){if(DCproc[5] != null) DCproc[5].postMessage(['process_message_queue'])}
+	if(DCenable){
+		if(testcounter0 % 10 == 1){if(DCproc[1] != null) DCproc[1].postMessage(['process_message_queue'])}
+		if(testcounter0 % 10 == 2){if(DCproc[2] != null) DCproc[2].postMessage(['process_message_queue'])}
+		if(testcounter0 % 10 == 3){if(DCproc[3] != null) DCproc[3].postMessage(['process_message_queue'])}
+		if(testcounter0 % 10 == 4){if(DCproc[4] != null) DCproc[4].postMessage(['process_message_queue'])}
+		if(testcounter0 % 10 == 5){if(DCproc[5] != null) DCproc[5].postMessage(['process_message_queue'])}
+	}
 	if(pingcounter0 > 6000){
 		if(mtprotoproc != null && mode == 7) {
 			mtprotoproc.postMessage(['ping'])
