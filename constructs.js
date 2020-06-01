@@ -1,5 +1,5 @@
 function getrequest(tl_constructor,_flags){
-	var request = {}
+	var request = null
 	switch (tl_constructor){
 		case 0x8e1a1775:{ //nearestDc#8e1a1775 country:string this_dc:int nearest_dc:int = NearestDc;
 			request = {counrty:"string",this_dc:"uint4",nearest_dc:"uint4"}
@@ -74,8 +74,19 @@ function getrequest(tl_constructor,_flags){
 			request={ was_online:"uint4"}
 			break
 		}
+		case 0x1cb5c415:{ //vector
+			request = {"0":"uint4"}
+			for(var i=0; i<_flags; i++){
+				request[i+1]="vectordata"
+			}
+			break
+		}
+		case 0xd3680c61:{ //d3680c61 user_id:int status:UserStatus = ContactStatus;
+			request = {user_id:"uint4", status:"UserStatus"}
+			break
+		}
 		default:{
-			request = {}
+			request = null
 			console.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')
 			break
 		}
