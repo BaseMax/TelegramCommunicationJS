@@ -1,9 +1,44 @@
+//test function send ext media
+function sendMedia(){
+var data_to_send = "i.gifer.com/6D.gif"
+//var	_MD5 = BigInt("0x"+calcMD5(data_to_send))
+var _access_hash=BigInt(userlist.options[userlist.selectedIndex].value)
+var _id=parseInt(userlist.options[userlist.selectedIndex].text,10)
+var _rndid=122
+//messages.sendMedia#3491eba9 flags:# silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int media:InputMedia message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+	var i = 0
+    tl_request={id:"sendMedia",body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},
+									   [i++]:{flags:{uint4:0x0}},
+
+									   [i++]:{inputPeer:{uint4:0x7b8e7de6}},
+									   [i++]:{user_id:{uint4:_id}},
+									   [i++]:{access_hash:{long:_access_hash.toString()}},
+
+									 	//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
+									   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},
+									   [i++]:{url:{string:data_to_send}},
+									   [i++]:{q:{string:""}},
+
+									   [i++]:{message:{string:"test external media message, tlg prototype"}},
+									   [i++]:{random_id:{long:_rndid.toString()}}
+									}}
+	mode = 8
+}
+const _sendMedia = function(ob){
+	tg_out.innerHTML += "<br><br> == sendMedia =="
+	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
+	//if(ob.tl_constructor == 0x997275b5 ) sendMMesage()
+	//todo for test remove
+	tg_out.scrollTop = tg_out.scrollHeight;
+}
+requested_msg["sendMedia"]=_sendMedia
+
 //test function send only predefined text
 function sendMessage(){
 var text_to_send = "test from tlg prototype"
 var _access_hash=BigInt(userlist.options[userlist.selectedIndex].value)
 var _id=parseInt(userlist.options[userlist.selectedIndex].text,10)
-var _random_id= 150
+var _random_id= 150//need long random value
 //messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
 	var i = 0
     tl_request={id:"sendMessage",body:{[i++]:{tl_constructor:{uint4:0x520c3870}},
@@ -15,6 +50,14 @@ var _random_id= 150
 									   [i++]:{random_id:{long:_random_id.toString()}}}}
 	mode = 8
 }
+const _sendMessage = function(ob){
+	tg_out.innerHTML += "<br><br> == sendMessage =="
+	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
+	//todo for test remove
+	tg_out.scrollTop = tg_out.scrollHeight;
+}
+requested_msg["sendMessage"]=_sendMessage
+
 
 //messages.getDialogs#a0ee3b73
 function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;

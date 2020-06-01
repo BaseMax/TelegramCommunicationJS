@@ -82,7 +82,6 @@ function getPassword(){
 	password={id:"GetPassword",body:{[i++]:{tl_constructor:{uint4:0x548a30f5}}}}
 	mode = 61
 }
-
 function createPassHash(algo){
 	//inputCheckPasswordSRP #d27ff082 srp_id: long A: bytes M1: bytes = InputCheckPasswordSRP ; 
 	var i = 0
@@ -135,8 +134,6 @@ function createPassHash(algo){
 										[i++]:{M1:{bytes:M1}}}}
 	mode = 62
 }
-
-
 function mainloop(){
 	console.log("mainloop event")
     testcounter0++
@@ -176,11 +173,9 @@ function mainloop(){
 	if(mode == 1) mtproto_state.innerHTML = 'Connecting to server '+dataC+' ... '+testcounter0
 	start()
 }
-
 function start(){
 	mainlooptimer = setTimeout(mainloop, mainloopdelay)
 }
-
 
 if(window.Worker) {
 	
@@ -282,17 +277,17 @@ function get_mtprotoprocdata(e){
 				var ob = parse_answer(e.data[1].message_answer)
 				var tl_constructor = "0x0"
 				if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
-				switch (tl_constructor) {
+//				switch (tl_constructor) {
 //todo remove swutch in no need
-					default:{
+//					default:{
 						if(not_requested_msg[tl_constructor] != undefined) {
 							not_requested_msg[tl_constructor](ob)
 						} else {
 							console.log("handler for incoming message "+tl_constructor+" not found in not_requested_messages.js")
 						}
-						break
-					}
-				}
+//						break
+//					}
+//				}
 
 //todo for test remove
 tg_out.scrollTop = tg_out.scrollHeight;
