@@ -79,6 +79,35 @@ function getUserPhotos(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
+function getThumbs(request, callback){
+	var request_name = "get_File"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xb15a9afc}},//upload.getFile#b15a9afc flags:# precise:flags.0?true cdn_supported:flags.1?true location:InputFileLocation offset:int limit:int = upload.File;
+							[i++]:{flags:{uint4:request._flags}},
+								[i++]:{inputPhotoFileLocation:{uint4:0xdbaeae9}},//inputStickerSetThumb#dbaeae9 stickerset:InputStickerSet volume_id:long local_id:int = InputFileLocation;
+						  			[i++]:{inputStickerSetShortName:{uint4:0x861cc8a0}},//inputStickerSetShortName#861cc8a0 short_name:string = InputStickerSet;
+						  			[i++]:{short_name:{string:request._short_name}},
+								[i++]:{volume_id:{long:request._volume_id.toString()}},
+								[i++]:{local_id:{uint4:request._local_id}},
+							[i++]:{offset:{uint4:request._offset}},
+							[i++]:{limit:{uint4:request._limit}},
+						 }}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console.log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 function getFile(request, callback){
 	var request_name = "get_File"
 	var is_callback = false;

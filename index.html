@@ -42,6 +42,7 @@
 		<button type="button" onClick="sendMedia()">Send media</button>
 		<button type="button" onClick="cv()">Send file</button>
 		<button type="button" onClick="gph()">Get Photo</button>
+		<button type="button" onClick="gsl()">Get Stickers list</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
@@ -51,6 +52,35 @@
 </html>
 
 <script>
+	function gsl(){
+		call_tl_func({0:{tl_constructor:{uint4:0x1c9618b1}},1:{hash:{uint4:0}}},getStiskersList)
+	}
+	function getStiskersList(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get stickers list"));
+		if(arguments[0].sets != undefined && arguments[0].sets[0] > 0){
+			var r = {}
+			r["_flags"]=0
+			r["_id"]=arguments[0].sets[1].id
+			r["_access_hash"]=arguments[0].sets[1].access_hash
+			r["_tl_location"] = 0xdbaeae9
+			r["_volume_id"] = arguments[0].sets[1].thumb.location.volume_id
+			r["_local_id"] = arguments[0].sets[1].thumb.location.local_id
+			r["_short_name"] = arguments[0].sets[1].short_name
+			r["_offset"] = 0
+			r["_limit"] = 524288
+			r["_dc_id"] = arguments[0].sets[1].thumb_dc_id
+//
+//			if(arguments[0].photos[1].dc_id == dataC){
+					getThumbs(r,getThumbsFile)
+//			} else {
+//					getFileDC(r,getUserPhotoFile)
+//			}
+		}
+	}
+	function getThumbsFile(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Sticker thumb"));
+		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"Sticker thumb"));
+	}
 	function gph(){
 		var r = {}
 		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)

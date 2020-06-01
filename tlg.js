@@ -80,6 +80,15 @@ function pingtestDCconnection(){
 					DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
 					console.log("ping bad restart.."+numdc)
 				}
+			}else{
+				if(DCproc[numdc] != null){
+					DCproc[numdc].terminate()
+				}
+				document.getElementById("DC"+numdc).style.color = "gray"
+				DCproc[numdc] = new Worker("mtprotoproc.js")
+				DCproc[numdc].onmessage = get_fileloaderdata
+				DCproc[numdc].postMessage(['connectDC',DCaddr4[numdc],numdc])
+				console.log("lost connection restart.."+numdc)
 			}
 		}
 	}
