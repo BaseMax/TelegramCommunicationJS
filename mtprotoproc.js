@@ -888,7 +888,8 @@ function setLength(arr){
 	if((arr.length >> 2) < 0x7f){
 		return [(arr.length >> 2)].concat(arr)
 	}else{
-		//
+		var length_div4 = arr.length >> 2
+		return [0x7f,(length_div4 & 0xff),((length_div4 >> 8 )& 0xff),((length_div4 >> 16 )& 0xff)].concat(arr)
 	}
 }
 function removeLength(arr){
