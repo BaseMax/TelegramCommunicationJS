@@ -1,8 +1,9 @@
 # Telegram Communication Javascript (JS)
 
+<center>
+<img width="250px" src="Telegram.svg" alt="Telegram Communication Javascript MT-Proto"><br>
 A pure script to communicate with Telegram server without any Third-party tools and library.
-
-<img width="250px" src="Telegram.svg" alt="Telegram Communication Javascript MT-Proto">
+</center>
 
 ## Telegram Javascript (JS)
 
