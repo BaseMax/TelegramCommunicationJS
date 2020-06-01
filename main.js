@@ -6,6 +6,7 @@
 	var history_pos = 0
 	var history_forwarded = 0
 	function resendHistory(){
+		document.getElementById('resend').disabled= true
 		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
 		var r=r_with_peer(peer)
 		r["_offset_id"]=0
@@ -48,12 +49,17 @@
 					r["_access_hash_frompeer"]=BigInt(forwarded_history.chats[1].access_hash)
 				}
 			}else{
-				for(var user_count=1;user_count<=forwarded_history.users[0];user_count++){
-					if(forwarded_history.messages[msg_counter].from_id === forwarded_history.users[user_count].id ){
-						r["_from_peer"]=0x7b8e7de6
-						r["_id_frompeer"]=forwarded_history.users[user_count].id
-						r["_access_hash_frompeer"]=BigInt(forwarded_history.users[user_count].access_hash)
-						break
+				if(forwarded_history.messages[msg_counter].from_id == undefined){
+					r["_from_peer"]=0x179be863
+					r["_id_frompeer"]=forwarded_history.chats[1].id
+				} else {
+					for(var user_count=1;user_count<=forwarded_history.users[0];user_count++){
+						if(forwarded_history.messages[msg_counter].from_id === forwarded_history.users[user_count].id ){
+							r["_from_peer"]=0x7b8e7de6
+							r["_id_frompeer"]=forwarded_history.users[user_count].id
+							r["_access_hash_frompeer"]=BigInt(forwarded_history.users[user_count].access_hash)
+							break
+						}
 					}
 				}
 			}
@@ -63,7 +69,15 @@
 	function forward_history_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"forward history element"));
 		msg_counter--
-		if(msg_counter>0) forwardHistory()
+		if(msg_counter>0) { 
+			forwardHistory()
+		}  else {
+			if(history_length <= history_forwarded){
+				document.getElementById('resend').disabled= true
+			} else {
+				document.getElementById('resend').disabled= false
+			}
+		}
 	}
 	function reset_history_forward(){
 		history_length = 0

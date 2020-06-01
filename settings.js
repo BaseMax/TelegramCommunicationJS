@@ -43,6 +43,7 @@ const systemVersion = "18.04"
 const appVersion = "1.00"
 const langCode = "en"
 const systemLangCode = "en"
+const api_layer = 108
 
 const DC = [
 	"", //DC0
