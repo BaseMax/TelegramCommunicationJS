@@ -260,7 +260,7 @@ function get_mtprotoprocdata(e){
 							//mode = 10 //connected to server and logined
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
-								mtproto_state.innerHTML = "Bad password? may be reconnect"
+								mtproto_state.innerHTML = ob.error_text+" Bad password? may be reconnect"
 							}
 						}
 						break
@@ -281,33 +281,7 @@ function get_mtprotoprocdata(e){
 				var tl_constructor = "0x0"
 				if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
 				switch (tl_constructor) {
-//todo optimise all if()						
-/*					case "0x78d4dec1":{//updateShort#78d4dec1
-						if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.was_online !== undefined){
-							tg_out.innerHTML += ob.update.user_id + " was online " +ob.update.status.was_online +"<br>"
-						}
-						if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.expires !== undefined){
-							tg_out.innerHTML += ob.update.user_id + " online now. expiried " +ob.update.status.expires +"<br>"
-						}
-						break
-					}
-					
-					case "0x74ae4240":{//updates#74ae4240
-						if(ob.updates !== undefined){ 
-							for(var i=0;i<ob.updates[0];i++){
-								if(ob.updates[i+1].message !== undefined){
-									tg_out.innerHTML += ((ob.updates[i+1].message.from_id !== undefined)?" from "+ob.updates[i+1].message.from_id+ " " : "") + "> " + ob.updates[i+1].message.to_id.user_id + " : " + utf8Decode(ob.updates[i+1].message.message) +" "+ob.updates[i+1].message.id +"<br>"
-								}
-								if(ob.updates[i+1].messages !== undefined){
-									for(var j=0;j<ob.updates[i+1].messages[0];j++){
-										tg_out.innerHTML += "x delete message num " + ob.updates[i+1].messages[j+1]+"<br>"
-									}
-								}
-							}
-						}
-						break
-					}
-*/						
+//todo remove swutch in no need
 					default:{
 						if(not_requested_msg[tl_constructor] != undefined) {
 							not_requested_msg[tl_constructor](ob)
@@ -317,9 +291,9 @@ function get_mtprotoprocdata(e){
 						break
 					}
 				}
+
 //todo for test remove
 tg_out.scrollTop = tg_out.scrollHeight;
-
 				break
 				}
 		case 10:{

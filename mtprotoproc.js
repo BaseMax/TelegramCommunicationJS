@@ -278,9 +278,7 @@ function process_message(){
 	var message_to_send = message_queue({issent:false}).get();
 	for(var i = 0 ; i < message_to_send.length; i++){
 		var data = []
-//todo numerate properties	
 		var properties_length = Object.keys(message_to_send[i].body).length
-//		var properties = Object.getOwnPropertyNames(message_to_send[i].body)
 		for(var j = 0; j < properties_length; j++){
 			var f =  Object.getOwnPropertyNames(message_to_send[i].body[j])[0]
 			var t = message_to_send[i].body[j][Object.getOwnPropertyNames(message_to_send[i].body[j])]
@@ -326,7 +324,7 @@ function process_message(){
 	for(var i = 0 ; i < message_to_read.length; i++){
 		//send all message
 		postMessage([2,message_to_read[i]]);
-		message_queue(message_to_read[i]).remove()//update({isread:true})
+		message_queue(message_to_read[i]).remove()
 	}
 	process_message_running=false
 }
@@ -363,21 +361,11 @@ function message_loop(message){
 			var body_message_id = readBigIntFromBuffer(message_body.slice(4,12))
 			var message_to_mark = message_queue({message_id:body_message_id.toString(16)}).first();
 			if(message_to_mark != false){
-				var tl_body_constructor = readUInt32LE(message_body,12)
-				if(tl_body_constructor == 0x3072cfa1) { //gzippacked unpack it string 4 byte length "fe" => l>254 => skip 4 byte
-//					var bytesinflated = inflate(message_body.slice(12+4+4+10))
-					var bytesinflated =null
-					if(message_body[12+4] == 0xfe){
-						bytesinflated = inflate(message_body.slice(12+4+4+10))
-					} else {
-						bytesinflated = inflate(message_body.slice(12+4+1+10))
-					}
-					message_queue(message_to_mark).update({isresponse_received:true,message_answer:bytesinflated})
-				}else{
-					message_queue(message_to_mark).update({isresponse_received:true,message_answer:message_body.slice(12)})
-				}
+				var body = message_body.slice(12)
+				var bytesinflated = possibleUnZip(body)
+				message_queue(message_to_mark).update({isresponse_received:true,message_answer:bytesinflated})
 			}else{
-				message_body = message_body.slice(12)
+				message_body = possibleUnZip(message_body.slice(12))
 				console.log('Unknown incoming RPC message')
 				console.hex(message_body)
 			}
@@ -394,7 +382,7 @@ function message_loop(message){
 				var body = message_body.slice(16,16+bytes)
 				var ret = {}
 				message_body = message_body.slice(16+bytes)
-				ret.message_answer = body // ??? unpack ???
+				ret.message_answer = possibleUnZip(body)
 				postMessage([3,ret]);
 			//console.log('message box')
 			//console.hex(body)
@@ -403,17 +391,7 @@ function message_loop(message){
 		}
 		default:{
 			var ret = {}
-			if(readUInt32LE(message_body,0) == 0x3072cfa1){
-				var bytesinflated =null
-				if(message_body[5] == 0xfe){
-					bytesinflated = inflate(message_body.slice(4+4+10))
-				} else {
-					bytesinflated = inflate(message_body.slice(4+1+10))
-				}
-				ret.message_answer = bytesinflated
-			} else {
-				ret.message_answer = message_body
-			}
+			ret.message_answer = possibleUnZip(message_body)
 			postMessage([3,ret]);
 			//console.log('default message')
 			//console.hex(message_body)
@@ -964,6 +942,19 @@ function _calcKey(authKey, msgKey, client) {
 	return { key: key, iv: iv  };
 }
 function mod(n, m) {
-  return (n % m + m) % m;
+	return (n % m + m) % m;
 }
-
+function possibleUnZip(body){
+	var tl_body_constructor = readUInt32LE(body)
+	if(tl_body_constructor == 0x3072cfa1) { //gzippacked unpack it string 4 byte length "fe" => l>254 => skip 4 byte
+		var bytesinflated =null
+		if(body[4] == 0xfe){
+			bytesinflated = inflate(body.slice(4+4+10))
+		} else {
+			bytesinflated = inflate(body.slice(4+1+10))
+		}
+		return bytesinflated
+	}else{
+		return body
+	}
+}
