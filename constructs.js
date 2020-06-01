@@ -4252,6 +4252,10 @@ function getrequest(tl_constructor,_flags,vector_type){
 		request = {[i++]:{error:"int"},[i++]:{error_text:"string"}}
 		break
 	}
+	case 0x62d6b459:{//msgs_ack#62d6b459 msg_ids:Vector<long> = MsgsAck;
+		request = {[i++]:{msg_ids:"Vector<long>"}}
+		break
+	}
 	default:{
 		request = null
 		console.log('Unknown tl_constructor 0x'+tl_constructor.toString(16)+' add it at constructs.js')

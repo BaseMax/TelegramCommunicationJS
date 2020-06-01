@@ -34,7 +34,6 @@ const _getDialogs = function(ob){
 }
 requested_msg["getDialogs"]=_getDialogs
 
-
 //contacts.getStatuses#c4a353ee
 function getContacts(){//contacts.getStatuses#c4a353ee = Vector<ContactStatus>;
 	var i = 0
@@ -61,3 +60,17 @@ const _logOut = function(ob){
 	mtproto_state.innerHTML = "logOut Ok"
 }
 requested_msg["logOut"]=_logOut
+
+////help.getConfig#c4f9186b
+function getConfig(){//help.getConfig#c4f9186b = Config;
+	var i = 0
+    tl_request={id:"getConfig",body:{[i++]:{tl_constructor:{uint4:0xc4f9186b}}}}
+	mode = 8
+}
+const _getConfig = function(ob){
+	tg_out.innerHTML += "<br><br> == GetConfig =="
+	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
+	//todo for test remove
+	tg_out.scrollTop = tg_out.scrollHeight;
+}
+requested_msg["getConfig"]=_getConfig

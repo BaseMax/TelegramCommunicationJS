@@ -211,8 +211,8 @@ function get_mtprotoprocdata(e){
 								localStorage.setItem('dc',dataC)
 								testcounter0 = 0
 								restore_input()
-							}
-							if(ob.error == 406){ //password flood
+							}else{
+//							if(ob.error == 406){ //password flood
 								mtproto_state.innerHTML = ob.error_text
 							}
 						}
@@ -221,12 +221,8 @@ function get_mtprotoprocdata(e){
 					case "PhoneCode": {
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-							tg_out.innerHTML += "name: "+ob.user.first_name+"<br>"
-							tg_out.innerHTML += "last name: "+ob.user.last_name+"<br>"
-							tg_out.innerHTML += "user name: "+ob.user.username+"<br>"
-							tg_out.innerHTML += "phone: "+ob.user.phone+"<br>"
-							tg_out.innerHTML += "status: "+ob.user.status.was_online+"<br>"
-
+							tg_out.innerHTML += "<br><br> == User =="
+							tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
@@ -248,12 +244,8 @@ function get_mtprotoprocdata(e){
 					case "inputCheckPasswordSRP":{
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-							tg_out.innerHTML += "name: "+ob.user.first_name+"<br>"
-							tg_out.innerHTML += "last name: "+ob.user.last_name+"<br>"
-							tg_out.innerHTML += "user name: "+ob.user.username+"<br>"
-							tg_out.innerHTML += "phone: "+ob.user.phone+"<br>"
-							tg_out.innerHTML += "status: "+ob.user.status.was_online+"<br>"
-
+							tg_out.innerHTML += "<br><br> == User =="
+							tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true

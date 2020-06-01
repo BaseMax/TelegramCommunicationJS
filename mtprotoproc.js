@@ -389,6 +389,10 @@ function message_loop(message){
 			}
 			break
 		}
+		case 0xedab447b:{//bad_server_salt#edab447b bad_msg_id:long bad_msg_seqno:int error_code:int new_server_salt:long = BadMsgNotification;
+			_salt = readBigIntFromBuffer(message_body.slice(20))
+			break
+		}
 		default:{
 			var ret = {}
 			ret.message_answer = possibleUnZip(message_body)
@@ -845,7 +849,7 @@ function getmessage(message){
 				var to_send  = encryptor.crypt(setLength(encrypt_data))
 
 				socket.send(to_send)
-				message_queue.insert({id:"GetConfig",body:{[0]:{tl_constructor:{uint4:0}}},issent:true,message_id:UserMessage.message_time.value.toString(16),
+				message_queue.insert({id:"getConfig",body:{[0]:{tl_constructor:{uint4:0}}},issent:true,message_id:UserMessage.message_time.value.toString(16),
     					isresponse_received:false,	isread:false})
 			}
 			connect_state = 5; //wait config
