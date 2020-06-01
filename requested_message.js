@@ -78,8 +78,8 @@ function send_saved_mediaFile_to_User(request, callback){
 									[i++]:{count:{uint4:0x1}},
 									[i++]:{documentAttributeFilename:{uint4:0x15590068}},
 									[i++]:{name:{string:request._filename}},
-								[i++]:{message:{string:request._message}},
-								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
 					}}
 	mode = 8
 
@@ -117,8 +117,8 @@ function send_saved_mediaFile_to_Channel(request, callback){
 									[i++]:{count:{uint4:0x1}},
 									[i++]:{documentAttributeFilename:{uint4:0x15590068}},
 									[i++]:{name:{string:request._filename}},
-								[i++]:{message:{string:request._message}},
-								[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
 					}}
 	mode = 8
 
@@ -130,72 +130,182 @@ function send_saved_mediaFile_to_Channel(request, callback){
 	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
 
-
-//test function send ext media
-function sendMedia(){
-var data_to_send = "i.gifer.com/6D.gif"
-var _access_hash=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
-var _id=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
-var peer=0x7b8e7de6
-if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
-	peer=0x20adaef8
-}
-var _rndid=122
-//messages.sendMedia#3491eba9 flags:# silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int media:InputMedia message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+function send_external_GIF_to_User(request, callback){
+	var request_name = "send_external_GIF_to_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
 	var i = 0
-    tl_request={id:"sendMedia",body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},
-									   [i++]:{flags:{uint4:0x0}},
-									   [i++]:{inputPeer:{uint4:peer}},
-									   [i++]:{user_id:{uint4:_id}},
-									   [i++]:{access_hash:{long:_access_hash.toString()}},
-
-									 	//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
-									   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},
-									   [i++]:{url:{string:data_to_send}},
-									   [i++]:{q:{string:""}},
-
-									   [i++]:{message:{string:"test external media message, tlg prototype"}},
-									   [i++]:{random_id:{long:_rndid.toString()}}
-									}}
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
+							   [i++]:{url:{string:request._URL}},
+							   [i++]:{q:{string:request._q}},
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
 	mode = 8
-}
-const _sendMedia = function(ob){
-	tg_out.innerHTML += "<br><br> == sendMedia =="
-	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
-	//if(ob.tl_constructor == 0x997275b5 ) sendMMesage()
-	//todo for test remove
-	tg_out.scrollTop = tg_out.scrollHeight;
-}
-requested_msg["sendMedia"]=_sendMedia
 
-//test function send only predefined text
-function sendMessage(){
-var text_to_send = "test from tlg prototype"
-var _access_hash=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
-var _id=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
-var peer=0x7b8e7de6
-if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
-	peer=0x20adaef8
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
-var _random_id= 150//need long random value
-//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+
+function send_external_GIF_to_Channel(request, callback){
+	var request_name = "send_external_GIF_to_Channel"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
 	var i = 0
-    tl_request={id:"sendMessage",body:{[i++]:{tl_constructor:{uint4:0x520c3870}},
-									   [i++]:{flags:{uint4:0x0}},
-									   [i++]:{inputPeer:{uint4:peer}},
-									   [i++]:{user_id:{uint4:_id}},
-									   [i++]:{access_hash:{long:_access_hash.toString()}},
-									   [i++]:{message:{string:text_to_send}},
-									   [i++]:{random_id:{long:_random_id.toString()}}}}
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x3491eba9}},//messages.sendMedia#3491eba9 flags:# peer:InputPeer media:InputMedia message:string random_id:long 
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							   [i++]:{inputMediaGifExternal:{uint4:0x4843b0fd}},//inputMediaGifExternal#4843b0fd url:string q:string = InputMedia;
+							   [i++]:{url:{string:request._URL}},
+							   [i++]:{q:{string:request._q}},
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
 	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
-const _sendMessage = function(ob){
-	tg_out.innerHTML += "<br><br> == sendMessage =="
-	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
-	//todo for test remove
-	tg_out.scrollTop = tg_out.scrollHeight;
+
+function send_textmessage_to_User(request, callback){
+	var request_name = "send_textmessage_to_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
 }
-requested_msg["sendMessage"]=_sendMessage
+
+function send_textmessage_to_Channel(request, callback){
+	var request_name = "send_textmessage_to_Channel"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0x520c3870}},//messages.sendMessage#520c3870 flags:# no_webpage:flags.1?true silent:flags.5?true background:flags.6?true clear_draft:flags.7?true peer:InputPeer reply_to_msg_id:flags.0?int message:string random_id:long reply_markup:flags.2?ReplyMarkup entities:flags.3?Vector<MessageEntity> schedule_date:flags.10?int = Updates;
+							[i++]:{flags:{uint4:0x0}},
+							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{message:{string:request._message}},
+							[i++]:{random_id:{long:request._message_rnd_id.toString()}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function get_history_from_User(request, callback){
+	var request_name = "get_history_from_User"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
+							[i++]:{inputPeer:{uint4:0x7b8e7de6}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{offset_id:{uint4:request._offset_id}},
+							[i++]:{offset_date:{uint4:request._offset_date}},
+							[i++]:{add_offset:{uint4:request._add_offset}},
+							[i++]:{limit:{uint4:request._count}},
+							[i++]:{max_id:{uint4:request._max_id}},
+							[i++]:{min_id:{uint4:request._min_id}},
+							[i++]:{hash:{uint4:request._hash}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
+function get_history_from_Channel(request, callback){
+	var request_name = "get_history_from_Channel"
+	var is_callback = false;
+	if (arguments.length > 1 && arguments[1] !== undefined){
+		is_callback = true
+		request_name = callback.name
+	}
+	var i = 0
+	tl_request ={id:request_name,
+					body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
+							[i++]:{inputPeer:{uint4:0x20adaef8}},//inputPeerUser#7b8e7de6 user_id:int access_hash:long = InputPeer;											
+							[i++]:{user_id:{uint4:request._id}},
+							[i++]:{access_hash:{long:request._access_hash.toString()}},
+							[i++]:{offset_id:{uint4:request._offset_id}},
+							[i++]:{offset_date:{uint4:request._offset_date}},
+							[i++]:{add_offset:{uint4:request._add_offset}},
+							[i++]:{limit:{uint4:request._count}},
+							[i++]:{max_id:{uint4:request._max_id}},
+							[i++]:{min_id:{uint4:request._min_id}},
+							[i++]:{hash:{uint4:request._hash}}
+					}}
+	mode = 8
+
+	const _internal = function(ob){
+		console.log(request_name)
+		console_log(utf8Decode(JSON.stringify(ob,stringifyReplacer)))
+	}
+	
+	requested_msg[request_name]=is_callback ? arguments[1] : _internal
+}
+
 
 //messages.getDialogs#a0ee3b73
 function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;
@@ -264,18 +374,6 @@ userlist.appendChild(opt);
 }
 requested_msg["getDialogs"]=_getDialogs
 
-/*
-//=== auth.logOut#5717da40 
-function logOut(){ //auth.logOut#5717da40 = Bool;
-	var i = 0
-    tl_request={id:"logOut",body:{[i++]:{tl_constructor:{uint4:0x5717da40}}}} 
-	mode = 8
-}
-const _logOut = function(ob){
-	mtproto_state.innerHTML = "logOut Ok"
-}
-requested_msg["logOut"]=_logOut
-*/
 
 ////help.getConfig#c4f9186b
 function getConfig(){//help.getConfig#c4f9186b = Config;
@@ -290,38 +388,3 @@ const _getConfig = function(ob){
 	tg_out.scrollTop = tg_out.scrollHeight;
 }
 requested_msg["getConfig"]=_getConfig
-
-//test function get history 
-function getHistory(count, callback){
-var _access_hash=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
-var _id=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
-var peer=0x7b8e7de6
-if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
-	peer=0x20adaef8
-}
-//messages.getHistory#dcbb8260 peer:InputPeer offset_id:int offset_date:int add_offset:int limit:int max_id:int min_id:int hash:int = messages.Messages;
-	var i = 0
-    tl_request={id:"getHistory",body:{[i++]:{tl_constructor:{uint4:0xdcbb8260}},
-									   [i++]:{inputPeer:{uint4:peer}},
-									   [i++]:{user_id:{uint4:_id}},
-									   [i++]:{access_hash:{long:_access_hash.toString()}},
-									   [i++]:{offset_id:{uint4: 0}},
-									   [i++]:{offset_date:{uint4: 0}},
-									   [i++]:{add_offset:{uint4: 0}},
-									   [i++]:{limit:{uint4: parseInt(count,10)}},
-									   [i++]:{max_id:{uint4: 0}},
-									   [i++]:{min_id:{uint4: 0}},
-									   [i++]:{hash:{uint4: 0}}
-									 }}
-	mode = 8
-//}
-const _internal = function(ob){
-	tg_out.innerHTML += "<br><br> == getHistory =="
-	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
-	//todo for test remove
-	tg_out.scrollTop = tg_out.scrollHeight;
-}
- 
-requested_msg["getHistory"]=arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : _internal//_getHistory
-}
-
