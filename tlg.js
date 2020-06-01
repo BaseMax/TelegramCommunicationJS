@@ -280,6 +280,11 @@ function pick_out(arr,tl_info){
 				arr = arr.slice(4)
 				break
 			}
+			case "#":{
+				out[properties] = readUInt32LE(arr, 0)
+				arr = arr.slice(4)
+				break
+			}
 			case "long":{
 				out[properties] = readBigIntFromBuffer(arr.slice(0,8), true, true)
 				arr = arr.slice(8)
