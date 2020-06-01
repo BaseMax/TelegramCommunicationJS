@@ -14,17 +14,52 @@
   		<button type="button" onClick="sendcode(document.getElementById('code').value)">Send</button><br>
 	</div>
 	<div hidden id="getContacts" > 
-  		<button type="button" onClick="getContacts()">Get Contact List</button><br>
-		<button type="button" onClick="getDialogs()">Get Dialogs</button><br>
-		<button type="button" onClick="logOut()">LogOut</button><br>
+  		<button type="button" onClick="call_tl_func({0:{tl_constructor:{uint4:0xc4a353ee}}},get_contacts)">Get Contact List</button><br>
+		<button type="button" onClick="call_tl_func({0:{tl_constructor:{uint4:0x5717da40}}},logout)">LogOut</button><br>
 	<select id="users_list">
 	</select>
+		<button type="button" onClick="getHistory('20')">Get History(last 20)</button>
 		<button type="button" onClick="sendMessage()">Send test message</button>
 		<button type="button" onClick="sendMedia()">Send media</button>
-		<button type="button" onClick="sendFile()">Send file</button><br>
+		<button type="button" onClick="cv()">Send file</button><br>
 		<div id="tgresult" style="background-color:black;color:white;padding:20px;overflow-y: auto;height: 60vh;"></div>	  
 	</div>
   <script src="tlg.js"></script>
 
 	</body>
 </html>
+
+<script>
+	function logout(){
+		document.getElementById('mtprotoresult').innerHTML = "logOut "
+	}
+	function get_contacts(){
+		document.getElementById('tgresult').innerHTML += "<br><br> == get Contacts =="
+		document.getElementById('tgresult').innerHTML += "<br>" + utf8Decode(JSON.stringify(arguments[0],stringifyReplacer)) + "<br>"
+	}
+	function cv(){
+		var t_array = readArrayFromString("messages.getUnreadMentions 	Get unread messages where we were mentionedmessages.readHistory 	Marks message history as read.messages.readMentions 	Mark mentions as readmessages.readMessageContents 	Notifies the sender about the recipient having listened a voice message or watched a video.messages.receivedMessages 	Confirms receipt of messages by a client, cancels PUSH-notification sending.messages.search 	Gets back found messagesmessages.searchGlobal 	Search for messages and peers globallymessages.sendMedia 	Send a mediamessages.sendMessage 	Sends a message to a chatmessages.sendMultiMedia 	Send an album of mediamessages.updatePinnedMessage 	Pin a messageWorking with notification settingsName 	Descriptionaccount.registerDevice 	Register device to receive PUSH notificationsaccount.unregisterDevice 	Deletes a device by its token, stops sending PUSH-notifications to it.account.updateDeviceLocked 	When client-side passcode lock feature is enabled, will not show message texts in incoming PUSH notifications.account.getNotifyExceptions 	Returns list of chats with non-default notification settingsaccount.getNotifySettings 	Gets current notification settings for a given user/group, from all users/all groups.account.updateNotifySettings 	Edits notification settings from a given user/group, from all users/all groups.account.resetNotifySettings 	Resets all notification settings from users and groups.Working with other usersName 	Descriptionusers.getFullUser 	Returns extended user info by ID.users.getUsers 	Returns basic user info according to their identifiers.Working with paymentsName 	Descriptionpayments.getSavedInfo 	Get saved payment informationpayments.clearSavedInfo 	Clear saved payment informationpayments.getPaymentForm 	Get a payment formpayments.validateRequestedInfo 	Submit requested order information for validationmessages.setBotShippingResults 	If you sent an invoice requesting a shipping address and the parameter is_flexible was specified, the bot will receive an updateBotShippingQuery update. Use this method to reply to shipping queries.account.getTmpPassword 	Get temporary payment passwordpayments.sendPaymentForm 	Send compiled payment formmessages.setBotPrecheckoutResults 	Once the user has confirmed their payment and shipping details, the bot receives an updateBotPrecheckoutQuery update.Use this method to respond to such pre-checkout queries.Note: Telegram must receive an answer within 10 seconds after the pre-checkout query was sent.payments.getPaymentReceipt 	Get payment receiptWorking with pollsName 	Descriptionmessages.getPollResults 	Get poll resultsmessages.sendVote 	Vote in a pollWorking with scheduled messagesName 	Descriptionmessages.sendScheduledMessages 	Send scheduled messages right awaymessages.getScheduledHistory 	Get scheduled messagesmessages.deleteScheduledMessages 	Delete scheduled messagesmessages.getScheduledMessages 	Get scheduled messagesWorking with sensitive content (NSFW)Name 	Descriptionaccount.getContentSettings 	Get sensitive content settingsaccount.setContentSettings 	Set sensitive content settings (for viewing or hiding NSFW content)Working with sponsored proxiesName 	Descriptionhelp.getProxyData 	Get promotion info of the currently-used MTProxyWorking with stickersName 	Descriptionstickers.addStickerToSet 	Add a sticker to a stickerset, bots only. The sticker set must have been created by the bot.stickers.changeStickerPosition 	Changes the absolute position of a sticker in the set to which it belongs; for bots only. The sticker set must have been created by the botstickers.createStickerSet 	Create a stickerset, bots only.stickers.removeStickerFromSet 	Remove a sticker from the set where it belongs, bots only. The sticker set must have been created by the bot.messages.clearRecentStickers 	Clear recent stickersmessages.faveSticker 	Mark a sticker as favoritemessages.getAllStickers 	Get all installed stickersmessages.getArchivedStickers 	Get all archived stickersmessages.getAttachedStickers 	Get stickers attached to a photo or videomessages.getFavedStickers 	Get faved stickersmessages.getFeaturedStickers 	Get featured stickersmessages.getMaskStickers 	Get installed mask stickersmessages.getRecentStickers 	Get recent stickersmessages.getStickerSet 	Get info about a stickersetmessages.getStickers 	Get stickers by emojimessages.saveRecentSticker 	Add/remove sticker from recent stickers listmessages.installStickerSet 	Install a stickersetmessages.readFeaturedStickers 	Mark new featured stickers as readmessages.reorderStickerSets 	Reorder installed stickersetsmessages.searchStickerSets 	Search for stickersetsmessages.uninstallStickerSet 	Uninstall a stickersetWorking with the user's accountName 	Descriptionaccount.changePhone 	Change the phone number of the current accountaccount.confirmPhone 	Confirm a phone number to cancel account deletion, for more info click here »account.deleteAccount 	Delete the user's account from the telegram servers. Can be used, for example, to delete the account of a user that provided the login code, but forgot the 2FA password and no recovery method is configured.account.getAccountTTL 	Get days to live of accountaccount.getPrivacy 	Get privacy settings of current accountaccount.resetAuthorization 	Log out an active authorized session by its hashaccount.sendChangePhoneCode 	Verify a new phone number to associate to the current accountaccount.sendConfirmPhoneCode 	Send confirmation code to cancel account deletion, for more info click here »account.setAccountTTL 	Set account self-destruction periodaccount.setPrivacy 	Change privacy settings of current accountaccount.updateProfile 	Updates user profile.account.updateStatus 	Updates online user status.Working with user profile picturesName 	Descriptionphotos.deletePhotos 	Deletes profile photos.photos.getUserPhotos 	Returns the list of user photos.photos.updateProfilePhoto 	Installs a previously uploaded photo as a profile photo.photos.uploadProfilePhoto 	Updates current user profile photo.Working with usernamesName 	Descriptionchannels.checkUsername 	Check if a username is free and can be assigned to a channel/supergroupchannels.updateUsername 	Change the username of a supergroup/channelaccount.updateUsername 	Changes username for the current user.account.checkUsername 	Validates a username and checks availability.contacts.resolveUsername 	Resolve a @username to get peer infoWorking with wallpapersName 	Descriptionaccount.getMultiWallPapers 	Get info about multiple wallpapersaccount.getWallPaper 	Get info about a certain wallpaperaccount.getWallPapers 	Returns a list of available wallpapers.account.installWallPaper 	Install wallpaperaccount.resetWallPapers 	Delete installed wallpapersaccount.saveWallPaper 	Install/uninstall wallpaperaccount.uploadWallPaper 	Create and upload a new wallpaperTelegramTelegram is a cloud-based mobile and desktop messaging app with a focus on security and speed.About    FAQ    Blog    JobsMobile Apps    iPhone/iPad    Android    Windows PhoneDesktop Apps    PC/Mac/Linux    macOS    Web-browserPlatform    API    Translations    Instant View")
+		var r = {}
+		r["_file_data_array"] = t_array
+		r["_file_name"]="filename.txt"
+		r["_file_data_type"]="text/plain"
+		r["_file_random_id"]=133
+		saveFile(r,is_filesaved)
+	}
+	function is_filesaved(){
+		var r=({"_MD5":arguments[0],"_blocks":arguments[1],"_filename":arguments[2],"_datatype":arguments[3],"_file_length":arguments[4],"_file_random_id":arguments[5]})
+		r["_id"]=parseInt(JSON.parse(userlist.options[userlist.selectedIndex].value).id,10)
+		r["_access_hash"]=BigInt(JSON.parse(userlist.options[userlist.selectedIndex].value).access_hash.replace("n",""))
+		r["_message"]="message about file"
+		r["_message_rnd_id"]=115 //rnd long
+		if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
+			send_saved_mediaFile_to_Channel(r,send_saved_result)
+		} else {
+			send_saved_mediaFile_to_User(r,send_saved_result)
+		}
+	}
+	function send_saved_result(){
+		document.getElementById('tgresult').innerHTML += "<br><br> == send Saved File result =="
+		document.getElementById('tgresult').innerHTML += "<br>" + utf8Decode(JSON.stringify(arguments[0],stringifyReplacer)) + "<br>"
+	}
+</script>

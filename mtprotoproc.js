@@ -322,7 +322,6 @@ function process_message(){
 	}
 	var message_to_read = message_queue({isresponse_received:true,isread:false}).get();
 	for(var i = 0 ; i < message_to_read.length; i++){
-		//send all message
 		postMessage([2,message_to_read[i]]);
 		message_queue(message_to_read[i]).remove()
 	}
@@ -882,7 +881,7 @@ function getmessage(message){
 
 }
 
-//todo https://core.telegram.org/mtproto/mtproto-transports#abridged
+//https://core.telegram.org/mtproto/mtproto-transports#abridged
 function setLength(arr){
 	arr.concat([].slice.call(new Uint8Array(4-arr.length % 4)))
 	if((arr.length >> 2) < 0x7f){

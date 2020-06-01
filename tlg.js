@@ -222,6 +222,7 @@ function get_mtprotoprocdata(e){
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
+							getDialogs()
 							//mode = 10 //connected to server and logined
 						}else{
 							if(ob.error == 401){ //SESSION_PASSWORD_NEEDED
@@ -245,6 +246,7 @@ function get_mtprotoprocdata(e){
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
+							getDialogs()
 							//mode = 10 //connected to server and logined
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
@@ -284,6 +286,13 @@ function get_mtprotoprocdata(e){
 tg_out.scrollTop = tg_out.scrollHeight;
 				break
 				}
+/*		case 4:{//message for realise command
+				var ob = parse_answer(e.data[1].message_answer)
+				if(requested_msg[e.data[1].id] != undefined) requested_msg[e.data[1].id](ob)
+				break
+				}
+*/
+			
 		case 10:{
 				// e.data[1] - current mtproto state 
 				// 0 - init
