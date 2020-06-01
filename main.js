@@ -2,7 +2,7 @@
 	var forwarded_history=null
 	var msg_counter = 0
 	var history_length = 0
-	var portion = 20
+	var portion = 100
 	var history_pos = 0
 	var history_forwarded = 0
 	function resendHistory(){
@@ -50,8 +50,15 @@
 				}
 			}else{
 				if(forwarded_history.messages[msg_counter].from_id == undefined){
-					r["_from_peer"]=0x179be863
-					r["_id_frompeer"]=forwarded_history.chats[1].id
+					if(forwarded_history.chats[1].access_hash == undefined){
+						r["_from_peer"]=0x179be863
+						r["_id_frompeer"]=forwarded_history.chats[1].id
+					} else {
+						r["_from_peer"]=0x20adaef8
+						r["_id_frompeer"]=forwarded_history.chats[1].id
+						r["_access_hash_frompeer"]=BigInt(forwarded_history.chats[1].access_hash)
+					}
+					
 				} else {
 					for(var user_count=1;user_count<=forwarded_history.users[0];user_count++){
 						if(forwarded_history.messages[msg_counter].from_id === forwarded_history.users[user_count].id ){
@@ -109,12 +116,23 @@
 					r["_access_hash_frompeer"]=BigInt(saved_history.chats[1].access_hash)
 				}
 			}else{
-				for(var user_count=1;user_count<=saved_history.users[0];user_count++){
-					if(saved_history.messages[msg_counter].from_id === saved_history.users[user_count].id ){
-						r["_from_peer"]=0x7b8e7de6
-						r["_id_frompeer"]=saved_history.users[user_count].id
-						r["_access_hash_frompeer"]=BigInt(saved_history.users[user_count].access_hash)
-						break
+				if(saved_history.messages[msg_counter].from_id == undefined){
+					if(saved_history.chats[1].access_hash == undefined){
+						r["_from_peer"]=0x179be863
+						r["_id_frompeer"]=saved_history.chats[1].id
+					} else {
+						r["_from_peer"]=0x20adaef8
+						r["_id_frompeer"]=saved_history.chats[1].id
+						r["_access_hash_frompeer"]=BigInt(saved_history.chats[1].access_hash)
+					}
+				} else {
+					for(var user_count=1;user_count<=saved_history.users[0];user_count++){
+						if(saved_history.messages[msg_counter].from_id === saved_history.users[user_count].id ){
+							r["_from_peer"]=0x7b8e7de6
+							r["_id_frompeer"]=saved_history.users[user_count].id
+							r["_access_hash_frompeer"]=BigInt(saved_history.users[user_count].access_hash)
+							break
+						}
 					}
 				}
 			}
@@ -194,7 +212,7 @@
 		r["_offset_id"]=0
 		r["_offset_date"]=0
 		r["_add_offset"]=0
-		r["_count"]=0
+		r["_count"]=portion
 		r["_max_id"]=0
 		r["_min_id"]=0
 		r["_hash"]=0
