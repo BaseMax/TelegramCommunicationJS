@@ -21,6 +21,7 @@ var M2Hash = localStorage.getItem('M2')
 if(M2Hash == null) M2Hash = null
 //localStorage.setItem('M2',M2Hash)
 
+
 //====================array for requested message handler===============
 var requested_msg = {}
 //====================array for incoming message handler================

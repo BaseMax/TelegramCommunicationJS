@@ -123,3 +123,10 @@ r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' 
 			return value;
 		}
 	}
+	function parseReplacer(key, value) {
+		if (typeof value === 'string') {
+			return BigInt(value.slice(0, -1));
+		} else {
+			return value;
+		}
+	}

@@ -20,6 +20,7 @@ var DCnum=0
 var message_queue = TAFFY([])
 var process_message_running = false
 var DC_addr = ""
+var pq_crutch_result=""
 onmessage = function(e) {
   switch (e.data[0]){
 	case 'connect': {
@@ -588,7 +589,7 @@ connect().then(
     response => {
 		socket.send(finalobfuscate)
 		message_id++
-		
+	
 		ReqPQ.nonce.set(crypto.getRandomValues(new Uint8Array(16)))
 
 		ToSend.auth_key_id.value    = 0
@@ -609,10 +610,20 @@ connect().then(
     error => alert(`Rejected: ${error}`)
     );
 
-
+// запрос на сервер  для расчета pq
+async function pq_crutch(respq){
+	let response = await fetch('/pq/pq.php?num='+respq.toString())
+	pq_crutch_result = await response.text()
+	console.log(pq_crutch_result)
+	connect_state=21
+	getmessage()
+}
 function getmessage(message){
-	var decrypted_message = decryptor.crypt(new Uint8Array(message.data))
-	decrypted_message = removeLength(decrypted_message)
+	var decrypted_message
+	if(message != undefined){
+		decrypted_message = decryptor.crypt(new Uint8Array(message.data))
+		decrypted_message = removeLength(decrypted_message)
+	}
 
 //console.hex(decrypted_message)
 
@@ -633,7 +644,18 @@ function getmessage(message){
 			if(ReqPQ.nonce.value != ResPQ.nonce.value) throw Error('ResPQ <> ReqPQ error');
 
 			console.log("Calculate pq")
-			var {p,q} = factorize(ResPQ.pq.asNum())
+//старый расчет pq не используем			
+//			var {p,q} = factorize(ResPQ.pq.asNum())
+//вынос расчета pq на сервер			
+			pq_crutch(ResPQ.pq.asNum())
+			connect_state = 20; //go to php pq calc
+			break
+		}
+		case 21: {
+			var pq_temp = pq_crutch_result.split(" ")
+			var p=BigInt(pq_temp[0])
+			var q=BigInt(pq_temp[1])
+//конец нового механизма расчета			
 			collator.set(p,q)
 		
 //console.hex(collator.getp())
