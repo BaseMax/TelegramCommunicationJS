@@ -75,7 +75,6 @@ function newMsgId(){
 		return newMsgId
 }
 
-
 class TlLine {
 	constructor(){
 	}
@@ -346,7 +345,6 @@ function process_message(){
 	process_message_running=false
 }
 
-
 function Send_Ack(msg_id){
 		Msgs_Ack.tl_constructor.value = 0x62d6b459
 		Msgs_Ack.msg_ids.value = [msg_id]
@@ -359,6 +357,7 @@ function Send_Ack(msg_id){
 		var to_send  = encryptor.crypt(setLength(encrypt_data))
 		socket.send(to_send)
 }
+
 function message_loop(message){
 	var decrypted_message = decryptor.crypt(new Uint8Array(message.data))
 	decrypted_message = removeLength(decrypted_message)

@@ -432,6 +432,7 @@ function get_mtprotoprocdata(e){
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
 								mtproto_state.innerHTML = ob.error_text+" Bad password? may be reconnect"
+								localStorage.removeItem('M2')
 							} else{
 								mtproto_state.innerHTML = ob.error_text
 							}
