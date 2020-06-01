@@ -8,7 +8,7 @@ include('not_requested_message.js')
 const userlist = document.getElementById('users_list')
 const mtproto_state = document.getElementById('mtprotoresult')
 const tg_out = document.getElementById('tgresult')
-tg_out.innerHTML= "=<br>"
+//tg_out.innerHTML= "=<br>"
 var dataC = localStorage.getItem('dc')
 if(dataC == null) dataC = "1"
 //localStorage.setItem('dc',dataC)
@@ -217,8 +217,7 @@ function get_mtprotoprocdata(e){
 					case "PhoneCode": {
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-							tg_out.innerHTML += "<br><br> == User =="
-							tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
+document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
@@ -241,8 +240,7 @@ function get_mtprotoprocdata(e){
 					case "inputCheckPasswordSRP":{
 						if(ob.error == undefined){
 							mtproto_state.innerHTML = "login Ok"
-							tg_out.innerHTML += "<br><br> == User =="
-							tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
+document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Login"));
 							document.getElementById('getContacts').hidden=false
 							document.getElementById('phonelabel').hidden=true
 							document.getElementById('codelabel').hidden=true
@@ -283,16 +281,9 @@ function get_mtprotoprocdata(e){
 //				}
 
 //todo for test remove
-tg_out.scrollTop = tg_out.scrollHeight;
+//tg_out.scrollTop = tg_out.scrollHeight;
 				break
 				}
-/*		case 4:{//message for realise command
-				var ob = parse_answer(e.data[1].message_answer)
-				if(requested_msg[e.data[1].id] != undefined) requested_msg[e.data[1].id](ob)
-				break
-				}
-*/
-			
 		case 10:{
 				// e.data[1] - current mtproto state 
 				// 0 - init

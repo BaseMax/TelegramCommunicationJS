@@ -321,56 +321,43 @@ function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flag
 }
 const _getDialogs = function(ob){
 	if(ob.tl_constructor == 0x15ba6c40){//messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs;)
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Dialog result"));
 
 //for test only clear dialog list==============================================================================
-var  len = userlist.options.length;
+	var  len = userlist.options.length;
     for (var j=len; j; j--) {
         userlist.removeChild(userlist.options[j-1]);
     }
 //end test code	=============================================================================================
 
-		tg_out.innerHTML += "<br><br> == Chats =="
-		for(var i=1;i<ob.chats[0];i++){
-			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.chats[i],stringifyReplacer)) + "<br>"
-		}
-		tg_out.innerHTML += "<br><br> == Dialogs =="
+//		for(var i=1;i<ob.chats[0];i++){
+//		}
 		for(var i=1;i<ob.dialogs[0];i++){
-			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.dialogs[i],stringifyReplacer)) + "<br>"
-//for test only add dialog to list=============================================================================
-if(ob.dialogs[i].flags & 0x1){
-	for(var j=1;j<ob.chats[0];j++){
-		if(ob.dialogs[i].peer.channel_id == ob.chats[j].id) {
-var opt = document.createElement('option');
-opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)));
-opt.value = JSON.stringify(ob.chats[j],stringifyReplacer)
-userlist.appendChild(opt); 
+			if(ob.dialogs[i].flags & 0x1){
+				for(var j=1;j<ob.chats[0];j++){
+					if(ob.dialogs[i].peer.channel_id == ob.chats[j].id) {
+						var opt = document.createElement('option');
+						opt.appendChild( document.createTextNode(utf8Decode(ob.chats[j].title)));
+						opt.value = JSON.stringify(ob.chats[j],stringifyReplacer)
+						userlist.appendChild(opt); 
+					}
+				}
+			}else{
+				for(var j=1;j<ob.users[0];j++){
+					if(ob.dialogs[i].peer.user_id == ob.users[j].id) {
+						var opt = document.createElement('option');
+						opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)));
+						opt.value = JSON.stringify(ob.users[j],stringifyReplacer)
+						userlist.appendChild(opt); 
+					}
+				}
+			}
 		}
+//		for(var i=1;i<ob.messages[0];i++){
+//		}
+//		for(var i=1;i<ob.users[0];i++){
+//		}
 	}
-}else{
-	for(var j=1;j<ob.users[0];j++){
-		if(ob.dialogs[i].peer.user_id == ob.users[j].id) {
-var opt = document.createElement('option');
-opt.appendChild( document.createTextNode(utf8Decode(ob.users[j].first_name)));
-opt.value = JSON.stringify(ob.users[j],stringifyReplacer)
-userlist.appendChild(opt); 
-		}
-	}
-}
-//end test code	=============================================================================================
-		}
-		tg_out.innerHTML += "<br><br> == Messages =="
-		for(var i=1;i<ob.messages[0];i++){
-			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.messages[i],stringifyReplacer)) + "<br>"
-		}
-		tg_out.innerHTML += "<br><br> == Users =="
-		
-		
-		for(var i=1;i<ob.users[0];i++){
-			tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob.users[i],stringifyReplacer)) + "<br>"
-		}
-	}
-	//todo for test remove
-	tg_out.scrollTop = tg_out.scrollHeight;
 }
 requested_msg["getDialogs"]=_getDialogs
 
@@ -382,9 +369,6 @@ function getConfig(){//help.getConfig#c4f9186b = Config;
 	mode = 8
 }
 const _getConfig = function(ob){
-	tg_out.innerHTML += "<br><br> == GetConfig =="
-	tg_out.innerHTML += "<br>" + utf8Decode(JSON.stringify(ob,stringifyReplacer)) + "<br>"
-	//todo for test remove
-	tg_out.scrollTop = tg_out.scrollHeight;
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"get Config result"));
 }
 requested_msg["getConfig"]=_getConfig
