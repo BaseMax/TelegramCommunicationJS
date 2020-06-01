@@ -3,6 +3,9 @@ include('settings.js');
 
 
 const mtproto_state = document.getElementById('mtprotoresult')
+var dataC = localStorage.getItem('dc')
+if(dataC == null) dataC = "1"
+localStorage.setItem('dc',dataC)
 
 //var dd = pick_out([10,11,12],{counrty:"string",this_dc:"uint4",nearest_dc:"uint4"})
 
@@ -16,6 +19,12 @@ var _phonehash = null
 var code=null
 var testcounter0= 0
 
+function restore_input(){
+	document.getElementById('phone').disabled=false
+	document.getElementById('phoneSend').disabled=false
+	document.getElementById('code').disabled=false
+	document.getElementById('codeSend').disabled=false
+}
 function sendphonenum(number){
 	//auth.sendCode#a677244f phone_number:string api_id:int api_hash:string settings:CodeSettings = auth.SentCode;
 	phonenum={id:"PhoneNumber",body:{tl_constructor:{uint4:0xa677244f},
@@ -46,7 +55,7 @@ function mainloop(){
 	switch (mode){
 		case 0: {
 			    mode = 1 //wait connect
-			    mtprotoproc.postMessage(['connect','start connection to server, possibly server address, etc.'])
+			    mtprotoproc.postMessage(['connect',dataC])
 			    break
 		}
 		case 3:{
@@ -61,7 +70,7 @@ function mainloop(){
 		}
 	}
 	if(testcounter0 % 10 == 0){mtprotoproc.postMessage(['process_message_queue'])}
-	if(mode == 1) mtproto_state.innerHTML = 'Connecting to server...... '+testcounter0
+	if(mode == 1) mtproto_state.innerHTML = 'Connecting to server '+dataC+' ... '+testcounter0
 	start()
 }
 
@@ -98,13 +107,24 @@ function get_mtprotoprocdata(e){
 				var ob = parse_answer(e.data[1].message_answer)
 				mtproto_state.innerHTML = JSON.stringify(ob)
 				if(e.data[1].id == "PhoneNumber"){
-				//	if(ob.phone_registered == true){
+					if(ob.error == undefined){
 				  		mode = 5 //wait sms code
 						_phonehash = ob.phone_code_hash
 						document.getElementById('codelabel').hidden=false
 						document.getElementById('code').hidden=false
 						document.getElementById('codeSend').hidden=false
-				//	}
+					}else{
+						if(ob.error == 303){ //migrate telephone
+							mode = 0 //reconnect to another DC
+							dataC = ob.error_text.slice(-1)
+							localStorage.setItem('dc',dataC)
+							document.getElementById('phonelabel').hidden=true
+							document.getElementById('phone').hidden=true
+							document.getElementById('phoneSend').hidden=true
+							testcounter0 = 0
+							restore_input()
+						}
+					}
 				}
 				break
 				}
@@ -144,6 +164,10 @@ function parse_answer(body){
 			if(_flags & 0x2) request.next_type="uint4"
 			if(_flags & 0x4) request.timeout="uint4"
 			ret = pick_out(body,request)
+			break
+		}
+		case 0x2144ca19:{//RPCerror error:int message:string
+			ret = pick_out(body,{error:"uint4",error_text:"string"})
 			break
 		}
 		default:{

@@ -19,12 +19,13 @@ var message_id = 0
 var ok_message = [1,'Connected to server: <b>Ok</b>']
 var message_queue = TAFFY([])
 var process_message_running = false
+var DCindex = 0
 
 onmessage = function(e) {
   switch (e.data[0]){
 	case 'connect': {
-						var message_body = e.data[1]
-						console.log(message_body) 
+						DCindex = parseInt(e.data[1])
+//						console.log(message_body) 
 						connect_to_server()
 						break
 	  				}
@@ -396,7 +397,9 @@ var finalobfuscate = obfuscate.slice();
 
 async function connect(){
     return new Promise(function(resolve, reject) {
-        socket = new WebSocket("ws://149.154.167.50/apiws");
+        socket = new WebSocket(DC[DCindex]);
+//        socket = new WebSocket("ws://149.154.167.50/apiws");// for me
+//        socket = new WebSocket("ws://149.154.167.91/apiws"); // for max
 		socket.binaryType = "arraybuffer";
 
 		socket.onmessage = getmessage;
