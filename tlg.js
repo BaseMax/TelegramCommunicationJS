@@ -2,6 +2,8 @@ include('constructs.js');
 include('utils.js');
 include('func.js');
 include('settings.js');
+include('requested_message.js')
+include('not_requested_message.js')
 
 const mtproto_state = document.getElementById('mtprotoresult')
 const tg_out = document.getElementById('tgresult')
@@ -14,6 +16,10 @@ var M2Hash = localStorage.getItem('M2')
 if(M2Hash == null) M2Hash = null
 //localStorage.setItem('M2',M2Hash)
 
+//====================array for requested message handler================
+var requested_msg = {}
+//====================array for incoming message handler================
+var not_requested_msg = {}
 
 const mainloopdelay = 10
 var mainlooptimer = null
@@ -28,30 +34,7 @@ var _password=""
 var SPR=null
 var tl_request=null
 var testcounter0= 0
-//===========================---functions---=============================
-function getContacts(){//contacts.getStatuses#c4a353ee = Vector<ContactStatus>;
-	var i = 0
-    tl_request={id:"GetContacts",body:{[i++]:{tl_constructor:{uint4:0xc4a353ee}}}}
-	mode = 8
-	
-}
-function getDialogs(){//messages.getDialogs#a0ee3b73 flags:# exclude_pinned:flags.0?true folder_id:flags.1?int offset_date:int offset_id:int offset_peer:InputPeer limit:int hash:int = messages.Dialogs;
-	var i = 0
-    tl_request={id:"getDialogs",body:{[i++]:{tl_constructor:{uint4:0xa0ee3b73}},
-									   [i++]:{flags:{uint4:0}},
-									   [i++]:{offset_date:{uint4:0}},
-									   [i++]:{offset_id:{uint4:0}},
-									   [i++]:{offset_peer:{uint4:0x7da07ec9}},
-									   [i++]:{limit:{uint4:80}},
-									   [i++]:{hash:{uint4:0}}}} 
-	mode = 8
-}
-function logOut(){ //auth.logOut#5717da40 = Bool;
-	var i = 0
-    tl_request={id:"logOut",body:{[i++]:{tl_constructor:{uint4:0x5717da40}}}} 
-	mode = 8
-}
-//=======================================================================
+
 function restore_input(){
 	document.getElementById('phonelabel').hidden=true
 	document.getElementById('phonelabel').style=""
@@ -85,7 +68,6 @@ function sendcode(phonecode){
 }
 function getPassword(){
 	//account.getPassword#548a30f5 = account.Password;
-	//todo numerate properties
 	var i = 0
 	password={id:"GetPassword",body:{[i++]:{tl_constructor:{uint4:0x548a30f5}}}}
 	mode = 61
@@ -208,10 +190,6 @@ function get_mtprotoprocdata(e){
 				mtproto_state.innerHTML = "Wait phone num"
 				mode = 2 //connected
 				document.getElementById('phonelabel').hidden=false
-				/*
-				document.getElementById('phone').hidden=false
-				document.getElementById('phoneSend').hidden=false
-				*/
 				break
 				}
 		case 2:{//answer from mtproto
@@ -225,21 +203,12 @@ function get_mtprotoprocdata(e){
 							mode = 5 //wait sms code
 							_phonehash = ob.phone_code_hash
 							document.getElementById('codelabel').hidden=false
-							/*
-							document.getElementById('code').hidden=false
-							document.getElementById('codeSend').hidden=false
-							*/
 						}else{
 							if(ob.error == 303){ //migrate telephone
 								mtproto_state.innerHTML = "Reconnect to valid DC"
 								mode = 0 //reconnect to another DC
 								dataC = ob.error_text.slice(-1)
 								localStorage.setItem('dc',dataC)
-								/*
-								document.getElementById('phonelabel').hidden=true
-								document.getElementById('phone').hidden=true
-								document.getElementById('phoneSend').hidden=true
-								*/
 								testcounter0 = 0
 								restore_input()
 							}
@@ -296,63 +265,24 @@ function get_mtprotoprocdata(e){
 						}
 						break
 					}
-					case "GetContacts": {
-						for(var i=1;i<ob[0];i++){
-							if(isObject(ob[i])){
-								tg_out.innerHTML += "<br>"+i+ " user_id " + ob[i].user_id
-								if(ob[i].status.was_online !== undefined){
-									tg_out.innerHTML += " was online " +ob[i].status.was_online
-								}
-								if(ob[i].status.expires !== undefined){
-									tg_out.innerHTML += " online now. expiried " +ob[i].status.expires
-								}
-							}
-						}
-						tg_out.innerHTML += "<br>"
-//todo for test remove
-tg_out.scrollTop = tg_out.scrollHeight;
-						
-						break
-					}					
-					case "getDialogs":{
-						if(ob.tl_constructor == 0x15ba6c40){//messages.dialogs#15ba6c40 dialogs:Vector<Dialog> messages:Vector<Message> chats:Vector<Chat> users:Vector<User> = messages.Dialogs;)
-							tg_out.innerHTML += "<br><br>==================Chats=====================<br>"
-							for(var i=1;i<ob.chats[0];i++){
-								tg_out.innerHTML += "<br><br> chat " + utf8Decode(JSON.stringify(ob.chats[i],stringifyReplacer))
-							}
-							tg_out.innerHTML += "<br><br>==================Dialogs====================<br>"
-							for(var i=1;i<ob.dialogs[0];i++){
-								tg_out.innerHTML += "<br><br> dialod " + utf8Decode(JSON.stringify(ob.dialogs[i],stringifyReplacer))
-							}
-							tg_out.innerHTML += "<br><br>==================Messages===================<br>"
-							for(var i=1;i<ob.messages[0];i++){
-								if(ob.messages[i].message != undefined && ob.messages[i].from_id != undefined){
-								  tg_out.innerHTML += "<br><br> from ID"+ob.messages[i].from_id+ ": " + utf8Decode(JSON.stringify(ob.messages[i],stringifyReplacer))
-								}
-							}
-							tg_out.innerHTML += "<br><br>====================Users=====================<br>"
-							for(var i=1;i<ob.users[0];i++){
-								tg_out.innerHTML += "<br><br>"+i+ " user " + utf8Decode(JSON.stringify(ob.users[i],stringifyReplacer))
-							}
-							
+					default: {
+						if(requested_msg[e.data[1].id] != undefined) {
+							requested_msg[e.data[1].id](ob)
+						} else {
+							console.log("handler for "+e.data[1].id+" not found in requested_messages.js")
 						}
 						break
 					}
-					case "logOut": {
-						mtproto_state.innerHTML = "logOut Ok"
-						break
-					}					
-
 				}
 				break
 				}
 		case 3:{//message from mtproto
 				var ob = parse_answer(e.data[1].message_answer)
-				var tl_constructor = 0
-				if(ob.tl_constructor !== undefined) tl_constructor= ob.tl_constructor
+				var tl_constructor = "0x0"
+				if(ob.tl_constructor !== undefined) tl_constructor= "0x"+ob.tl_constructor.toString(16)
 				switch (tl_constructor) {
 //todo optimise all if()						
-					case 0x78d4dec1:{//updateShort#78d4dec1
+/*					case "0x78d4dec1":{//updateShort#78d4dec1
 						if(ob.update !== undefined && ob.update.status !== undefined && ob.update.status.was_online !== undefined){
 							tg_out.innerHTML += ob.update.user_id + " was online " +ob.update.status.was_online +"<br>"
 						}
@@ -361,7 +291,8 @@ tg_out.scrollTop = tg_out.scrollHeight;
 						}
 						break
 					}
-					case 0x74ae4240:{//updates#74ae4240
+					
+					case "0x74ae4240":{//updates#74ae4240
 						if(ob.updates !== undefined){ 
 							for(var i=0;i<ob.updates[0];i++){
 								if(ob.updates[i+1].message !== undefined){
@@ -373,6 +304,15 @@ tg_out.scrollTop = tg_out.scrollHeight;
 									}
 								}
 							}
+						}
+						break
+					}
+*/						
+					default:{
+						if(not_requested_msg[tl_constructor] != undefined) {
+							not_requested_msg[tl_constructor](ob)
+						} else {
+							console.log("handler for incoming message "+tl_constructor+" not found in not_requested_messages.js")
 						}
 						break
 					}
