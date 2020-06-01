@@ -367,8 +367,6 @@ function get_mtprotoprocdata(e){
 				break
 				}
 		case 2:{//answer from mtproto
-//				mtproto_state.innerHTML = e.data[1]
-//				console.hex(e.data[1].message_answer)
 				var ob = parse_answer(e.data[1].message_answer)
 				switch (e.data[1].id) {
 					case "PhoneNumber" :{
@@ -401,7 +399,6 @@ function get_mtprotoprocdata(e){
 							document.getElementById('codelabel').hidden=true
 							getDialogs()
 							startDCconnect()
-							//mode = 10 //connected to server and logined
 						}else{
 							if(ob.error == 401){ //SESSION_PASSWORD_NEEDED
 								mtproto_state.innerHTML = "2FA connect"
@@ -425,7 +422,6 @@ function get_mtprotoprocdata(e){
 							document.getElementById('codelabel').hidden=true
 							getDialogs()
 							startDCconnect()
-							//mode = 10 //connected to server and logined
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
 								mtproto_state.innerHTML = ob.error_text+" Bad password? may be reconnect"

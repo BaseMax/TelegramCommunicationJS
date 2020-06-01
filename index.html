@@ -44,6 +44,7 @@
 		<button type="button" onClick="cv()">Send file</button>
 		<button type="button" onClick="gph()">Get Photo</button>
 		<button type="button" onClick="gsl()">Send Sticker</button>
+		<button type="button" onClick="getStickerSet()">GetStickerSet</button>
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
@@ -53,8 +54,16 @@
 </html>
 
 <script>
+	function getStickerSet(){
+//messages.getStickerSet#2619a90e stickerset:InputStickerSet = messages.StickerSet;
+//inputStickerSetShortName#861cc8a0 short_name:string = InputStickerSet;
+		call_tl_func({0:{tl_constructor:{uint4:0x2619a90e}},1:{inputStickerSetShortName:{uint4:0x861cc8a0}},2:{short_name:{string:"HotCherry"}}},getStickerSetResult)//messages.getStickers#43d4f2c emoticon:string hash:int = messages.Stickers;
+	}
+	function getStickerSetResult(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"getStickerSet"));
+	}
 	function gsl(){
-//		call_tl_func({0:{tl_constructor:{uint4:0x1c9618b1}},1:{hash:{uint4:0}}},getStiskersList)
+		//messages.getStickers#43d4f2c emoticon:string hash:int = messages.Stickers;
 		call_tl_func({0:{tl_constructor:{uint4:0x43d4f2c}},1:{emoticon:{string:new TextDecoder().decode(new Uint8Array([0xF0, 0x9F, 0x98, 0x81]))}},2:{hash:{uint4:0}}},getStiskersList)//messages.getStickers#43d4f2c emoticon:string hash:int = messages.Stickers;
 	}
 	function getStiskersList(){
@@ -70,7 +79,7 @@
 					r["_access_hash_st"]=arguments[0].stickers[stcount].access_hash
 					r["_file_reference"]=arguments[0].stickers[stcount].file_reference
 					if(JSON.parse(userlist.options[userlist.selectedIndex].value).megagroup != undefined){
-						send_sticker_to_Channel(r,send_textmessage_result)
+						send_sticker_to_Channel(r,sendThumbsResult)
 					} else {
 						send_sticker_to_User(r,sendThumbsResult)
 					}
@@ -79,7 +88,6 @@
 			}
 		}
 	}
-	
 	function sendThumbsResult(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send Sticker result"));
 //		document.getElementById('tgresult').appendChild(renderjson(JSON.parse(String.fromCharCode(...inflate(arguments[0].bytes.slice(10)))),"thumb decoded from 'get Sticker thumb.bytes'"));
@@ -173,7 +181,6 @@
 	function send_textmessage_result(){
 		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"send text message"));
 	}
-
 	function sendMedia(){
 		var r={}
 		r["_URL"]="i.gifer.com/6D.gif"
