@@ -132,7 +132,6 @@ r + (v > 31 && v < 127 || v > 159 ? String.fromCharCode(v) : '.'), '  ') + '\n' 
 	}
 	function r_with_peer(peer){
 		var r={}
-		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
 		switch (peer.type){
 			case "broadcast":
 			case "channel":{

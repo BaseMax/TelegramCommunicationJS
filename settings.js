@@ -36,8 +36,8 @@ UiggS4UeE8TzIuXFQxw7fzEIlmhIaq3FnwIDAQAB
 -----END RSA PUBLIC KEY-----`,
 ]
 
-const api_id = 0000000
-const api_hash = "00000000000000000000000000000000"
+const api_id = 187974
+const api_hash = "86a0a3a12980ae7df20166ddd5e16268"
 const deviceModel = "Browser"
 const systemVersion = "18.04"
 const appVersion = "1.00"

@@ -35,19 +35,19 @@
 	<div hidden id="getContacts" > 
   		<!--button type="button" onClick="call_tl_func({0:{tl_constructor:{uint4:0xc4a353ee}}},get_contacts)">Get Contact List</button><br>
 		<button type="button" onClick="call_tl_func({0:{tl_constructor:{uint4:0x5717da40}}},logout)">LogOut</button><br-->
-	<select id="users_list">
+	<select id="users_list" onchange="reset_history_forward()">
 	</select>
 		<button type="button" onClick="getHistory()">Get History</button>
-		<button type="button" onClick="sendHistory()">Send History</button>
-		<button type="button" onClick="sendMessage()">Send test message</button>
-		<button type="button" onClick="sendSmile()">Send smile</button>
-		<button type="button" onClick="sendMedia()">Send media</button>
-		<button type="button" onClick="cv()">Send file</button>
+		<button id="resend" type="button" onClick="resendHistory()" disabled>ReSend</button>
+		<button type="button" onClick="sendHistory()">S. History</button>
+		<button type="button" onClick="sendMessage()">S. test message</button>
+		<button type="button" onClick="sendSmile()">S. smile</button>
+		<button type="button" onClick="sendMedia()">S. media</button>
+		<button type="button" onClick="cv()">S. file</button>
 		<button type="button" onClick="getProfilePhoto()">Get Photo</button>
-		<button type="button" onClick="gsl()">Send Sticker</button>
-		<button type="button" onClick="getStickerSet()">GetStickerSet</button>
+		<button type="button" onClick="gsl()">S. Sticker</button>
+		<!--button type="button" onClick="getStickerSet()">GetStickerSet</button-->
 		<button type="button" onClick="clearlog()">ClearLog</button><br>
-		<!--button type="button" onClick="sendPrivateMessage()">Send private test message</button><br-->
 		<div id="tgresult" style="padding:20px;overflow-y: auto;height: 80vh;display: inline-block;width:80vw;"></div><img style="vertical-align: top;display: inline-block;" id="myImg" src="">  
 	</div>
   <script src="tlg.js"></script>
@@ -57,7 +57,83 @@
 
 <script>
 	var saved_history=null
+	var forwarded_history=null
 	var msg_counter = 0
+	var history_length = 0
+	var portion = 20
+	var history_pos = 0
+	var history_forwarded = 0
+	function resendHistory(){
+		var peer=JSON.parse(userlist.options[userlist.selectedIndex].value)
+		var r=r_with_peer(peer)
+		r["_offset_id"]=0
+		r["_offset_date"]=0
+		r["_add_offset"]=history_pos
+		r["_count"]=portion
+		r["_max_id"]=0
+		r["_min_id"]=0
+		r["_hash"]=0
+		get_history(r,get_history_forward_result)
+		history_pos += portion
+	}
+	function get_history_forward_result(){
+		history_length = (arguments[0].count != undefined)?arguments[0].count:arguments[0].messages[0]
+	    history_forwarded += arguments[0].messages[0]
+		if(history_length <= history_forwarded){
+			document.getElementById('resend').disabled= true
+		}
+		document.getElementById('resend').innerHTML="ReSend " + history_forwarded + " out of " + history_length
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"forward history"));
+		forwarded_history = arguments[0]
+		forwardHistory()
+	}
+	function forwardHistory(){
+		if(forwarded_history != null){
+			if(msg_counter == 0)msg_counter=forwarded_history.messages[0]
+			var peer=JSON.parse(userlist.options[0].value)
+			var r=r_with_peer(peer)
+			r["_flags"] = 0
+			r["_msg_id"]=forwarded_history.messages[msg_counter].id
+			r["_random_id"]=BigInt(Math.random().toString().substring(2))
+//todo mark saved history type
+			if(forwarded_history.chats[0]==1){
+				if(forwarded_history.chats[1].access_hash == undefined){
+					r["_from_peer"]=0x179be863
+					r["_id_frompeer"]=forwarded_history.chats[1].id
+				} else {
+					r["_from_peer"]=0x20adaef8
+					r["_id_frompeer"]=forwarded_history.chats[1].id
+					r["_access_hash_frompeer"]=BigInt(forwarded_history.chats[1].access_hash)
+				}
+			}else{
+				for(var user_count=1;user_count<=forwarded_history.users[0];user_count++){
+					if(forwarded_history.messages[msg_counter].from_id === forwarded_history.users[user_count].id ){
+						r["_from_peer"]=0x7b8e7de6
+						r["_id_frompeer"]=forwarded_history.users[user_count].id
+						r["_access_hash_frompeer"]=BigInt(forwarded_history.users[user_count].access_hash)
+						break
+					}
+				}
+			}
+			send_history(r,forward_history_result)
+		}
+	}
+	function forward_history_result(){
+		document.getElementById('tgresult').appendChild(renderjson(arguments[0],"forward history element"));
+		msg_counter--
+		if(msg_counter>0) forwardHistory()
+	}
+	function reset_history_forward(){
+		history_length = 0
+		history_pos = 0
+		history_forwarded = 0
+		if(userlist.selectedIndex > 1){
+			document.getElementById('resend').disabled= false
+		} else {
+			document.getElementById('resend').disabled= true
+		}
+		document.getElementById('resend').innerHTML="ReSend "// + history_forwarded + " out of " + history_length
+	}
 	function sendHistory(){
 		if(saved_history != null){
 			if(msg_counter == 0)msg_counter=saved_history.messages[0]

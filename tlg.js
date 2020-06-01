@@ -18,7 +18,7 @@ if(dataC == null) dataC = "1"
 //localStorage.setItem('dc',dataC)
 
 var M2Hash = localStorage.getItem('M2')
-if(M2Hash == null) M2Hash = null
+//if(M2Hash == null) M2Hash = null
 //localStorage.setItem('M2',M2Hash)
 
 
@@ -45,6 +45,7 @@ var _phonenum=null
 var _phonehash = null
 var code=null
 var password=null
+var authkey=null
 var _password=""
 var SPR=null
 var tl_request=null
@@ -260,6 +261,7 @@ if(window.Worker) {
 } else {
 	console.log('Your browser doesn\'t support web workers.')
 }
+
 function get_fileloaderdata(e){
 	switch (e.data[0]){
 		case 1:{
@@ -278,6 +280,8 @@ function get_fileloaderdata(e){
 				DCstatus[e.data[2]].logined = true;
 				document.getElementById("DC"+e.data[2]).style.color = "blue"
 				//document.getElementById('tgresult').appendChild(renderjson(ob,"Autorization result "+e.data[2]));
+				if(e.data[2] == 1){
+				}
 			} else {
 				if(requested_msg[e.data[1].id] != undefined) {
 					requested_msg[e.data[1].id](ob)
@@ -405,6 +409,8 @@ function get_mtprotoprocdata(e){
 								mtproto_state.innerHTML = "2FA connect"
 								//2FA
 								getPassword()
+							} else{
+								mtproto_state.innerHTML = ob.error_text
 							}
 						}
 						break
@@ -426,6 +432,8 @@ function get_mtprotoprocdata(e){
 						} else {
 							if(ob.error == 400){ //SESSION_PASSWORD_BAD
 								mtproto_state.innerHTML = ob.error_text+" Bad password? may be reconnect"
+							} else{
+								mtproto_state.innerHTML = ob.error_text
 							}
 						}
 						break

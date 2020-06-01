@@ -637,7 +637,7 @@ function getmessage(message){
 			decrypted_message = GetMessage.message_id.set(decrypted_message)
 			decrypted_message = GetMessage.message_length.set(decrypted_message)
 			decrypted_message = GetMessage.tl_constructor.set(decrypted_message)
-			if(GetMessage.tl_constructor.value != 0x05162463) throw Error('resPQ error');
+			if(GetMessage.tl_constructor.value != 0x05162463)  postMessage([11,'Reconnect to server...',DCnum])// throw Error('resPQ error');
 
 //console.hex(decrypted_message)
 			
@@ -645,7 +645,7 @@ function getmessage(message){
 			decrypted_message = ResPQ.server_nonce.set(decrypted_message)
 			decrypted_message = ResPQ.pq.set(decrypted_message)
 			decrypted_message = ResPQ.server_public_key_fingerprints.set(decrypted_message)
-			if(ReqPQ.nonce.value != ResPQ.nonce.value) throw Error('ResPQ <> ReqPQ error');
+			if(ReqPQ.nonce.value != ResPQ.nonce.value)  postMessage([11,'Reconnect to server...',DCnum])// throw Error('ResPQ <> ReqPQ error');
 
 			console.log("Calculate pq")
 //старый расчет pq не используем			
@@ -788,7 +788,7 @@ function getmessage(message){
 			decrypted_message = GetMessage.message_id.set(decrypted_message)
 			decrypted_message = GetMessage.message_length.set(decrypted_message)
 			decrypted_message = GetMessage.tl_constructor.set(decrypted_message)
-			if(GetMessage.tl_constructor.value != 0x3bcbf734) throw Error('DH_params_answer error');
+			if(GetMessage.tl_constructor.value != 0x3bcbf734)  postMessage([11,'Reconnect to server...',DCnum])//throw Error('DH_params_answer error');
 								GetMessage.message.set(decrypted_message)
 			
 			decrypted_message = Client_DH_params_answer.nonce.set(GetMessage.message.value)
@@ -799,6 +799,7 @@ function getmessage(message){
 			var bits = gab.toString(2).length;
 			var byteLength = Math.floor((bits + 8 - 1) / 8);
 			auth_key._key = readBufferFromBigInt(BigInt(gab), byteLength, false, false);
+					
 			var key_sha1 = Sha1(auth_key._key)
 			auth_key.auxHash = readBigIntFromBuffer(key_sha1.slice(0,8), true, false);
 			auth_key.keyId = readBigIntFromBuffer(key_sha1.slice(12,20), true, false);
@@ -820,7 +821,7 @@ function getmessage(message){
 			
 			message_id = 1
 			InitConnection.tl_constructor.value = 0xda9b0d0d //INPUT_METHOD_INVALID_ 3671788813 _246134
-			InitConnection.layer.value = 105
+			InitConnection.layer.value = api_layer
 			InitConnection.function.value = 0x785188b8
 			InitConnection.flag.value = 0
 			InitConnection.apiId.value = api_id

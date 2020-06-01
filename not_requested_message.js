@@ -22,11 +22,16 @@ const _0x347773c5 = function(ob){
 not_requested_msg["0x347773c5"]=_0x347773c5
 
 const _0xf35c6d01 = function(ob){
-	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"RPCResult "));
 }
 not_requested_msg["0xf35c6d01"]=_0xf35c6d01
 
 const _0x62d6b459 = function(ob){
-	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"Pong "));
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"MsgAsk "));
 }
 not_requested_msg["0x62d6b459"]=_0x62d6b459
+
+const _0xa7eff811 = function(ob){//bad_msg_notification#a7eff811 bad_msg_id:long bad_msg_seqno:int error_code:int = BadMsgNotification;
+	//document.getElementById('tgresult').appendChild(renderjson(arguments[0],"BadMsgNotification "));
+}
+not_requested_msg["0xa7eff811"]=_0xa7eff811
